@@ -1,0 +1,5 @@
+python-jose[cryptography]  # For JWT handling
+passlib[bcrypt]           # For password hashing
+python-multipart           # For form data handling
+conda install -c conda-forge python-jose passlib
+conda install -c conda-forge fastapi

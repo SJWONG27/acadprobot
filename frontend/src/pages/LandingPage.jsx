@@ -1,5 +1,6 @@
 'use client'
-
+import logo_acadprobot_square from '../../src/assets/logo_acadprobot_square.svg'
+import logo_acadprobot_long from '../../src/assets/logo_acadprobot_long.svg'
 import { useState } from 'react'
 import { Dialog, DialogPanel } from '@headlessui/react'
 import {
@@ -20,27 +21,27 @@ const navigation = [
 ]
 const features = [
   {
-    name: 'Push to deploy',
+    name: 'Quick Updates',
     description:
-      'Morbi viverra dui mi arcu sed. Tellus semper adipiscing suspendisse semper morbi. Odio urna massa nunc massa.',
+      'New info? New features? No problem. We keep AcadProBot fresh and up-to-date so you always get the latest answers when you need them.',
     icon: CloudArrowUpIcon,
   },
   {
-    name: 'SSL certificates',
+    name: 'Smooth Conversations',
     description:
-      'Sit quis amet rutrum tellus ullamcorper ultricies libero dolor eget. Sem sodales gravida quam turpis enim lacus amet.',
+      'No waiting in long lines. AcadProBot handles many questions at once, making sure you get quick, accurate replies every time.',
     icon: LockClosedIcon,
   },
   {
-    name: 'Simple queues',
+    name: 'Smart Replies',
     description:
-      'Quisque est vel vulputate cursus. Risus proin diam nunc commodo. Lobortis auctor congue commodo diam neque.',
+      "Powered by LLaMA 3.2. Get intelligent, relevant answers to your questions — designed to really understand what you're asking.",
     icon: ArrowPathIcon,
   },
   {
-    name: 'Advanced security',
+    name: 'Your Info is Private',
     description:
-      'Arcu egestas dolor vel iaculis in ipsum mauris. Tincidunt mattis aliquet hac quis. Id hac maecenas ac donec pharetra eget.',
+      'We respect your privacy. Conversations stay between you and AcadProBot — no stress, no worries.',
     icon: FingerPrintIcon,
   },
 ]
@@ -103,7 +104,7 @@ const footerNavigation = {
     { name: 'Analytics', href: '#' },
   ],
   support: [
-    { name: 'Submit ticket', href: '#' },
+    { name: 'Admin Dashboard', href: '/admin' },
     { name: 'Documentation', href: '#' },
     { name: 'Guides', href: '#' },
   ],
@@ -133,16 +134,16 @@ export default function LandingPage() {
       <header className="absolute inset-x-0 top-0 z-50">
         <nav aria-label="Global" className="flex items-center justify-between p-6 lg:px-8">
           <div className="flex lg:flex-1">
-            <a href="#" className="-m-1.5 p-1.5">
+            <a href="/" className="-m-1.5 p-1.5">
               <span className="sr-only">Your Company</span>
               <img
                 alt=""
-                src="https://tailwindui.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
-                className="h-8 w-auto"
+                src={logo_acadprobot_square}
+                className="h-14 w-auto"
               />
             </a>
           </div>
-          <div className="flex lg:hidden">
+          {/* <div className="flex lg:hidden">
             <button
               type="button"
               onClick={() => setMobileMenuOpen(true)}
@@ -158,7 +159,7 @@ export default function LandingPage() {
                 {item.name}
               </a>
             ))}
-          </div>
+          </div> */}
           <div className="hidden lg:flex lg:flex-1 lg:justify-end">
             <a href="#" className="text-sm/6 font-semibold text-gray-900">
               Log in <span aria-hidden="true">&rarr;</span>
@@ -228,18 +229,18 @@ export default function LandingPage() {
               className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"
             />
           </div>
-          <div className="py-24 sm:py-32 lg:pb-40">
+          <div className="py-24 sm:py-32 ">
             <div className="mx-auto max-w-7xl px-6 lg:px-8">
               <div className="mx-auto max-w-2xl text-center">
                 <h1 className="text-balance text-5xl font-semibold tracking-tight text-gray-900 sm:text-7xl">
-                  Speak to AcadChatbot now
+                  Speak with AcadProBot now
                 </h1>
                 <p className="mt-8 text-pretty text-lg font-medium text-gray-500 sm:text-xl/8">
                   A academic chatbot designed for students in University of Malaya
                 </p>
                 <div className="mt-10 flex items-center justify-center gap-x-6">
                   <a
-                    href="#"
+                    href="/chat"
                     className="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                   >
                     Get started
@@ -277,7 +278,7 @@ export default function LandingPage() {
         </div>
 
         {/* Logo cloud */}
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        {/* <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="mx-auto grid max-w-lg grid-cols-4 items-center gap-x-8 gap-y-12 sm:max-w-xl sm:grid-cols-6 sm:gap-x-10 sm:gap-y-14 lg:mx-0 lg:max-w-none lg:grid-cols-5">
             <img
               alt="Transistor"
@@ -326,18 +327,17 @@ export default function LandingPage() {
               </a>
             </p>
           </div>
-        </div>
+        </div> */}
 
         {/* Feature section */}
-        <div className="mx-auto mt-32 max-w-7xl px-6 sm:mt-56 lg:px-8">
+        <div className="mx-auto mt-2 max-w-7xl px-6 sm:mt-2 lg:px-8">
           <div className="mx-auto max-w-2xl lg:text-center">
-            <h2 className="text-base/7 font-semibold text-indigo-600">Deploy faster</h2>
+            <h2 className="text-base/7 font-semibold text-indigo-600">Get Help Fast</h2>
             <p className="mt-2 text-pretty text-4xl font-semibold tracking-tight text-gray-900 sm:text-5xl lg:text-balance">
-              Everything you need to deploy your app
+              Everything you need for your academic journey            
             </p>
             <p className="mt-6 text-pretty text-lg/8 text-gray-600">
-              Quis tellus eget adipiscing convallis sit sit eget aliquet quis. Suspendisse eget egestas a elementum
-              pulvinar et feugiat blandit at. In mi viverra elit nunc.
+              AcadProBot is your personal academic buddy — ready to guide you through programs, courses, and everything in between.
             </p>
           </div>
           <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-4xl">
@@ -358,7 +358,7 @@ export default function LandingPage() {
         </div>
 
         {/* Testimonial section */}
-        <div className="mx-auto mt-32 max-w-7xl sm:mt-56 sm:px-6 lg:px-8">
+        {/* <div className="mx-auto mt-32 max-w-7xl sm:mt-56 sm:px-6 lg:px-8">
           <div className="relative overflow-hidden bg-gray-900 px-6 py-20 shadow-xl sm:rounded-3xl sm:px-10 sm:py-24 md:px-12 lg:px-20">
             <img
               alt=""
@@ -408,10 +408,10 @@ export default function LandingPage() {
               </figure>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Pricing section */}
-        <div className="py-24 sm:pt-48">
+        {/* <div className="py-24 sm:pt-48">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="mx-auto max-w-2xl lg:text-center">
               <h2 className="text-base/7 font-semibold text-indigo-600">Pricing</h2>
@@ -481,10 +481,10 @@ export default function LandingPage() {
               ))}
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* FAQs */}
-        <div className="mx-auto max-w-2xl px-6 pb-8 sm:pb-24 sm:pt-12 lg:max-w-7xl lg:px-8 lg:pb-32">
+        <div className="mx-auto mt-20 max-w-2xl px-6 pb-8 sm:pb-24 sm:pt-12 lg:max-w-7xl lg:px-8 lg:pb-32">
           <h2 className="text-4xl font-semibold tracking-tight text-gray-900 sm:text-5xl">
             Frequently asked questions
           </h2>
@@ -501,7 +501,7 @@ export default function LandingPage() {
         </div>
 
         {/* CTA section */}
-        <div className="relative -z-10 mt-32 px-6 lg:px-8">
+        {/* <div className="relative -z-10 mt-32 px-6 lg:px-8">
           <div
             aria-hidden="true"
             className="absolute inset-x-0 top-1/2 -z-10 flex -translate-y-1/2 transform-gpu justify-center overflow-hidden blur-3xl sm:bottom-0 sm:right-[calc(50%-6rem)] sm:top-auto sm:translate-y-0 sm:transform-gpu sm:justify-end"
@@ -546,18 +546,25 @@ export default function LandingPage() {
               className="aspect-[1155/678] w-[72.1875rem] bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-30"
             />
           </div>
-        </div>
+        </div> */}
       </main>
 
       {/* Footer */}
       <footer className="relative mx-auto mt-32 max-w-7xl px-6 lg:px-8">
         <div className="border-t border-gray-900/10 py-16 sm:py-24 lg:py-32">
           <div className="xl:grid xl:grid-cols-3 xl:gap-8">
-            <img
-              alt="Company name"
-              src="https://tailwindui.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
-              className="h-9"
-            />
+            <div className='flex flex-row'>
+              <img
+                alt="AcadProBot"
+                src={logo_acadprobot_square}
+                className="h-16"
+              />
+              <img
+                alt="AcadProBot"
+                src={logo_acadprobot_long}
+                className="w-50 h-18"
+              />
+            </div>    
             <div className="mt-16 grid grid-cols-2 gap-8 xl:col-span-2 xl:mt-0">
               <div className="md:grid md:grid-cols-2 md:gap-8">
                 <div>
@@ -585,7 +592,8 @@ export default function LandingPage() {
                   </ul>
                 </div>
               </div>
-              <div className="md:grid md:grid-cols-2 md:gap-8">
+              
+              {/* <div className="md:grid md:grid-cols-2 md:gap-8">
                 <div>
                   <h3 className="text-sm/6 font-semibold text-gray-900">Company</h3>
                   <ul role="list" className="mt-6 space-y-4">
@@ -598,6 +606,7 @@ export default function LandingPage() {
                     ))}
                   </ul>
                 </div>
+
                 <div className="mt-10 md:mt-0">
                   <h3 className="text-sm/6 font-semibold text-gray-900">Legal</h3>
                   <ul role="list" className="mt-6 space-y-4">
@@ -610,7 +619,8 @@ export default function LandingPage() {
                     ))}
                   </ul>
                 </div>
-              </div>
+              </div> */}
+
             </div>
           </div>
         </div>
