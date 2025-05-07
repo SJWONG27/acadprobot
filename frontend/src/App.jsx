@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import './App.css'
 import LandingPage from './pages/LandingPage'
 import Chat from './pages/chatbot/Chat'
@@ -18,7 +18,8 @@ function App() {
           <Route path='/register' element={<RegisterPage />} />
           <Route path='/' element={<LandingPage />} />
           <Route path='/chat' element={<Chat />} />
-          <Route path='/admin' element={<AdminPage />} />
+          <Route path="/admin" element={<Navigate to="/admin/overview" replace />} />
+          <Route path="/admin/:section" element={<AdminPage />} />
         </Routes>
       </Router>
     </>

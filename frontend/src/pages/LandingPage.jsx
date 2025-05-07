@@ -45,47 +45,6 @@ const features = [
     icon: FingerPrintIcon,
   },
 ]
-const tiers = [
-  {
-    name: 'Freelancer',
-    id: 'tier-freelancer',
-    href: '#',
-    priceMonthly: '$19',
-    description: 'The essentials to provide your best work for clients.',
-    features: ['5 products', 'Up to 1,000 subscribers', 'Basic analytics', '48-hour support response time'],
-    mostPopular: false,
-  },
-  {
-    name: 'Startup',
-    id: 'tier-startup',
-    href: '#',
-    priceMonthly: '$49',
-    description: 'A plan that scales with your rapidly growing business.',
-    features: [
-      '25 products',
-      'Up to 10,000 subscribers',
-      'Advanced analytics',
-      '24-hour support response time',
-      'Marketing automations',
-    ],
-    mostPopular: true,
-  },
-  {
-    name: 'Enterprise',
-    id: 'tier-enterprise',
-    href: '#',
-    priceMonthly: '$99',
-    description: 'Dedicated support and infrastructure for your company.',
-    features: [
-      'Unlimited products',
-      'Unlimited subscribers',
-      'Advanced analytics',
-      '1-hour, dedicated support response time',
-      'Marketing automations',
-    ],
-    mostPopular: false,
-  },
-]
 const faqs = [
   {
     id: 1,
@@ -161,7 +120,7 @@ export default function LandingPage() {
             ))}
           </div> */}
           <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-            <a href="#" className="text-sm/6 font-semibold text-gray-900">
+            <a href="/login" className="text-sm/6 font-semibold text-gray-900">
               Log in <span aria-hidden="true">&rarr;</span>
             </a>
           </div>
@@ -202,7 +161,7 @@ export default function LandingPage() {
                 </div>
                 <div className="py-6">
                   <a
-                    href="#"
+                    href="/login"
                     className="-mx-3 block rounded-lg px-3 py-2.5 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
                   >
                     Log in
