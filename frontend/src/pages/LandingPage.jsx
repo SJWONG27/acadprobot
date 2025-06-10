@@ -1,6 +1,7 @@
 'use client'
 import logo_acadprobot_square from '../../src/assets/logo_acadprobot_square.svg'
 import logo_acadprobot_long from '../../src/assets/logo_acadprobot_long.svg'
+import img_showcase from '../assets/img_showcase.png';
 import { useState } from 'react'
 import { Dialog, DialogPanel } from '@headlessui/react'
 import {
@@ -63,7 +64,7 @@ const footerNavigation = {
     { name: 'Analytics', href: '#' },
   ],
   support: [
-    { name: 'Admin Dashboard', href: '/admin' },
+    { name: 'Admin Dashboard', href: '/login' },
     { name: 'Documentation', href: '#' },
     { name: 'Guides', href: '#' },
   ],
@@ -119,11 +120,11 @@ export default function LandingPage() {
               </a>
             ))}
           </div> */}
-          <div className="hidden lg:flex lg:flex-1 lg:justify-end">
+          {/* <div className="hidden lg:flex lg:flex-1 lg:justify-end">
             <a href="/login" className="text-sm/6 font-semibold text-gray-900">
               Log in <span aria-hidden="true">&rarr;</span>
             </a>
-          </div>
+          </div> */}
         </nav>
         <Dialog open={mobileMenuOpen} onClose={setMobileMenuOpen} className="lg:hidden">
           <div className="fixed inset-0 z-50" />
@@ -159,14 +160,14 @@ export default function LandingPage() {
                     </a>
                   ))}
                 </div>
-                <div className="py-6">
+                {/* <div className="py-6">
                   <a
                     href="/login"
                     className="-mx-3 block rounded-lg px-3 py-2.5 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
                   >
                     Log in
                   </a>
-                </div>
+                </div> */}
               </div>
             </div>
           </DialogPanel>
@@ -199,7 +200,7 @@ export default function LandingPage() {
                 </p>
                 <div className="mt-10 flex items-center justify-center gap-x-6">
                   <a
-                    href="/chat"
+                    href="/login"
                     className="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                   >
                     Get started
@@ -213,7 +214,8 @@ export default function LandingPage() {
                 <div className="-m-2 rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-gray-900/10 lg:-m-4 lg:rounded-2xl lg:p-4">
                   <img
                     alt="App screenshot"
-                    src="https://tailwindui.com/plus-assets/img/component-images/project-app-screenshot.png"
+                    // src="https://tailwindui.com/plus-assets/img/component-images/project-app-screenshot.png"
+                    src={img_showcase}
                     width={2432}
                     height={1442}
                     className="rounded-md shadow-2xl ring-1 ring-gray-900/10"

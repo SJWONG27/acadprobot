@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom';
 import logo_acadprobot_square from '../../../src/assets/logo_acadprobot_square.svg'
 import logo_acadprobot_long from '../../../src/assets/logo_acadprobot_long.svg'
+import { getCurrentUser } from '../../services/authService';
 
 import {
   Dialog,
@@ -26,7 +27,8 @@ import {
   HomeIcon,
   UsersIcon,
   XMarkIcon,
-  ChatBubbleBottomCenterTextIcon
+  ChatBubbleBottomCenterTextIcon,
+  UserCircleIcon
 } from '@heroicons/react/24/outline'
 import { ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/react/20/solid'
 import OverviewPage from './OverviewPage'
@@ -85,7 +87,32 @@ export default function AdminPage() {
         return <OverviewPage />;
     }
   };
-  
+
+  const [adminEmail, setAdminEmail] = useState("");
+
+  useEffect(()=>{
+    const fetchAdmin = async()=>{
+      const token = localStorage.getItem("token");
+      if(!token){
+        console.log("No token");
+        return;
+      }
+
+      try{
+        const data = await getCurrentUser(token);
+        setAdminEmail(data.data.email);
+      } catch(error){
+        console.error("Fetch admin email error: ", error)
+      }
+    }
+    fetchAdmin();
+  },[])
+
+  const handleLogout = () =>{
+    localStorage.removeItem("acess_token");
+    console.log("access_token after logout:", localStorage.getItem("access_token"));
+    navigate('/');
+  }
 
   return (
     <>
@@ -313,14 +340,10 @@ export default function AdminPage() {
                 <Menu as="div" className="relative">
                   <MenuButton className="-m-1.5 flex items-center p-1.5">
                     <span className="sr-only">Open user menu</span>
-                    <img
-                      alt=""
-                      src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                      className="size-8 rounded-full bg-gray-50"
-                    />
-                    <span className="hidden lg:flex lg:items-center">
+                    <UserCircleIcon className="size-8"/>
+                    <span className="flex items-center">
                       <span aria-hidden="true" className="ml-4 text-sm/6 font-semibold text-gray-900">
-                        Tom Cook
+                        {adminEmail}
                       </span>
                       <ChevronDownIcon aria-hidden="true" className="ml-2 size-5 text-gray-400" />
                     </span>
@@ -331,12 +354,12 @@ export default function AdminPage() {
                   >
                     {userNavigation.map((item) => (
                       <MenuItem key={item.name}>
-                        <a
-                          href={item.href}
-                          className="block px-3 py-1 text-sm/6 text-gray-900 data-[focus]:bg-gray-50 data-[focus]:outline-none"
+                       <button
+                          onClick={handleLogout}
+                          className="block w-full text-left px-3 py-1 text-sm/6 text-gray-900 data-[focus]:bg-gray-50 data-[focus]:outline-none"
                         >
                           {item.name}
-                        </a>
+                        </button>
                       </MenuItem>
                     ))}
                   </MenuItems>

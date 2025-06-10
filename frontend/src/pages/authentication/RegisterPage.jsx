@@ -2,8 +2,13 @@ import logo_acadprobot_square from '../../../src/assets/logo_acadprobot_square.s
 import logo_acadprobot_long from '../../../src/assets/logo_acadprobot_long.svg'
 import { useState } from 'react'
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline'
+import { register } from '../../services/authService'
+import { useNavigate } from 'react-router-dom'
 
 export default function RegisterPage() {
+    const navigate = useNavigate();
+    const [email, setEmail] = useState("");
+    const [refercode, setReferCode] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [password, setPassword] = useState('');
@@ -33,6 +38,19 @@ export default function RegisterPage() {
     const checkPasswordMatch = (password, confirmPassword) => {
         setPasswordMatch(password === confirmPassword);
     };
+
+    const handleRegister = async(e) =>{
+        e.preventDefault();
+
+        try{
+
+            const data = await register(email, password, refercode);
+            alert("Register successfully")
+            navigate("/login")
+        } catch (error){
+            console.error("Register Error: ", error)
+        }
+    }
 
     return (
         <>
@@ -66,7 +84,7 @@ export default function RegisterPage() {
 
                 <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-[480px]">
                     <div className="bg-white px-6 py-12 shadow sm:rounded-lg sm:px-12">
-                        <form action="#" method="POST" className="space-y-6">
+                        <form action="#" method="POST" className="space-y-6" onSubmit={handleRegister}>
                             <div>
                                 <label htmlFor="email" className="block text-sm/6 font-medium text-gray-900">
                                     Email address
@@ -79,6 +97,8 @@ export default function RegisterPage() {
                                         required
                                         autoComplete="email"
                                         placeholder="you@example.com"
+                                        value={email} 
+                                        onChange={(e)=> setEmail(e.target.value)}
                                         className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                                     />
                                 </div>
@@ -156,6 +176,8 @@ export default function RegisterPage() {
                                         required
                                         autoComplete="off"
                                         placeholder="Enter referral code"
+                                        value={refercode}
+                                        onChange={(e) =>setReferCode(e.target.value)}
                                         className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                                     />
                                 </div>

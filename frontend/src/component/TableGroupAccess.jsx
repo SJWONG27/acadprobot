@@ -1,5 +1,6 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import APUploadGroupAccessFile from "./APUploadGroupAccessFile"
+import { getUsersOfAdmin } from "../services/adminService";
 
 const items = [
     { email: 'you@example.com' },
@@ -8,6 +9,21 @@ const items = [
 
 export default function TableGroupAccess() {
     const [showPanel, setShowPanel] = useState(false);
+
+    const [usersEmail, setUsersEmail] = useState([]);
+    useEffect(()=>{
+        const fetchUsersEmail = async()=>{
+            try {
+                const response = await getUsersOfAdmin();
+                const emails = response.data.map(user => user.email);
+                console.log("Fetch user email under admin: ", emails);
+                setUsersEmail(emails);
+            } catch (error) {
+                console.error("Failed to fetch users under admin :", error);
+            }
+        }
+        fetchUsersEmail();
+    },[])
 
     return (
         <div>
@@ -43,14 +59,14 @@ export default function TableGroupAccess() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200">
-                                {items.map((item) => (
-                                    <tr key={item.email}>
+                                {usersEmail.map((email) => (
+                                    <tr key={email}>
                                         <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-500 sm:pl-0">
-                                            {item.email}
+                                            {email}
                                         </td>
                                         <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
                                             <a href="#" className="text-red-500 hover:text-red-700">
-                                                Delete<span className="sr-only">, {item.name}</span>
+                                                Delete<span className="sr-only">, {email}</span>
                                             </a>
                                         </td>
                                     </tr>
