@@ -13,12 +13,12 @@ export const sendMessage = async (userId, prompt, sessionId = null) => {
   return res.data;
 };
 
-export const getSessions = async (userId) => {
-  const res = await axios.get(`${API_URL}/sessions/${userId}`);
+export const getMessages = async (sessionId) => {
+  const res = await axios.get(`${API_URL}/sessions/${sessionId}/messages`);
   return res.data;
 };
 
-export const getMessagesBySession = async (sessionId) => {
-  const res = await axios.get(`${API_URL}/messages/${sessionId}`);
+export const getChatSessions = async (userId) => {
+  const res = await axios.get(`${API_URL}/sessions/${userId}`);
   return res.data;
 };

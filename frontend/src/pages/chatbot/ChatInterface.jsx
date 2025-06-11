@@ -1,16 +1,16 @@
 import React, { useState, useRef, useEffect } from "react";
 import { MicrophoneIcon, PaperAirplaneIcon, WindowIcon } from "@heroicons/react/24/outline";
-import { sendMessage } from "../../services/chatService";
+import { sendMessage, getMessages, getChatSessions } from "../../services/chatService";
 import { getCurrentUser } from "../../services/authService";
 
-const ChatInterface = ({ isSidebarOpen, toggleSidebar }) => {
-  const [messages, setMessages] = useState([]);
+const ChatInterface = ({ isSidebarOpen, toggleSidebar, userId, chatSessions, selectedSessionId }) => {
   const [input, setInput] = useState("");
-  const [userId, setUserId] = useState("");
-  const [sessionId, setSessionId] = useState(null);
+  const [sessionList, setSessionList] = useState([]);
+  // const [selectedSessionId, setSelectedSessionId] = useState("");
+  const [sessionId, setSessionId] = useState([]);
+  const [messages, setMessages] = useState([]);
 
   const chatEndRef = useRef(null);
-
   const textareaRef = useRef(null);
 
   useEffect(() => {
@@ -20,34 +20,49 @@ const ChatInterface = ({ isSidebarOpen, toggleSidebar }) => {
     }
   }, [input]);
 
-  useEffect(()=>{
-      const fetchUser = async()=>{
-        const token = localStorage.getItem("token");
-        if(!token){
-          console.log("No token");
-          return;
-        }
-  
-        try{
-          const data = await getCurrentUser(token);
-          console.log(data.data.id);
-          setUserId(data.data.id);
-        } catch(error){
-          console.error("Fetch user id error: ", error)
-        }
-      }
-      fetchUser();
-    },[])
-
-
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  useEffect(() => {
+    const fetchSessionID = async () => {
+      if (!userId) return;
+
+      try {
+        const res = await getChatSessions(userId);
+        if (res.length > 0) {
+          const sessionIds = res.map(session => session.session_id)
+          setSessionList(sessionIds);
+          console.log(sessionIds);
+        }
+      } catch (error) {
+        console.error("Failed to fetch chat session id", error);
+      }
+    };
+
+    fetchSessionID();
+  }, [userId]);
+
+  useEffect(() => {
+    const fetchMessages = async () => {
+      if (!selectedSessionId) return;
+
+      try {
+        const res = await getMessages(selectedSessionId);
+        setMessages(res);
+      } catch (error) {
+        console.error("Failed to fetch chat messages", error);
+      }
+    };
+
+    fetchMessages();
+  }, [selectedSessionId]);
+
+
 
   const handleSend = async () => {
     if (!input.trim()) return;
-    if( !userId){
+    if (!userId) {
       console.error("no user id fetched");
     }
     const newMessage = { role: "user", content: input };
@@ -55,7 +70,7 @@ const ChatInterface = ({ isSidebarOpen, toggleSidebar }) => {
     setInput("");
 
     try {
-      const data = await sendMessage(userId, input, sessionId);
+      const data = await sendMessage(userId, input, selectedSessionId);
       setMessages((prev) => [...prev, { role: "assistant", content: data.response }]);
 
       // Optional: Set sessionId if it's returned (for first-time use)

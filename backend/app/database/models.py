@@ -38,6 +38,7 @@ class ChatSession(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(String, index=True)
+    title = Column(String)
     context = Column(JSON)     # For storing chat context
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -46,7 +47,7 @@ class Message(Base):
     __tablename__ = "messages"
     
     id = Column(Integer, primary_key=True, index=True)
-    session_id = Column(Integer, index=True)
+    session_id = Column(Integer, ForeignKey('chat_sessions.id'))
     content = Column(Text)
     is_user = Column(Boolean)  # True for user, False for bot
     created_at = Column(DateTime, default=datetime.utcnow)
