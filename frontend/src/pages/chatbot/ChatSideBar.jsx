@@ -16,15 +16,19 @@ export default function ChatSideBar({ isSidebarOpen, toggleSidebar, chatSessions
   return (
     <div className="w-full">
       <nav aria-label="Sidebar" className="flex flex-1 flex-col p-6">
-        <div className='flex flex-row justify-between items-center'>
-          <a href="/">
+        <div className='flex flex-row justify-between items-center '>
+          <a href="/" className="flex-shrink-0">
             <img
               alt="AcadProBot"
               src={logo_acadprobot_long}
               className="w-40 "
             />
           </a>
-          <WindowIcon aria-hidden="true" className="size-6" onClick={toggleSidebar} />
+          <WindowIcon 
+            aria-hidden="true" 
+            className="size-6" 
+            onClick={toggleSidebar} 
+          />
         </div>
         <div className="text-xs/6 font-semibold text-gray-400">Chat History</div>
         <ul role="list" className="-mx-2 mt-2 space-y-1">

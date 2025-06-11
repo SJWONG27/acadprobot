@@ -83,7 +83,7 @@ const ChatInterface = ({ isSidebarOpen, toggleSidebar, userId, chatSessions, sel
   return (
     <div className="h-full w-full flex flex-col p-8 relative">
       {!isSidebarOpen && (
-        <div className="absolute">
+        <div className="absolute top-8 left-6 z-20">
           <WindowIcon aria-hidden="true" className="size-6" onClick={toggleSidebar} />
         </div>
       )}

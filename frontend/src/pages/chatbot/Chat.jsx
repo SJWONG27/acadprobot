@@ -64,7 +64,7 @@ const Chat = () => {
         />
       </div>
 
-      <div className={`h-full overflow-hidden transition-all duration-800 ${isSidebarOpen ? 'fixed right-0 w-10/12 ' : 'ml-0 w-full'}`}>
+      <div className={`h-full overflow-hidden transition-all duration-800 ${isSidebarOpen ? 'fixed right-0  xl:w-9/12' : 'ml-0 w-screen'}`}>
         <ChatInterface 
           isSidebarOpen={isSidebarOpen} 
           toggleSidebar={toggleSidebar} 
