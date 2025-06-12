@@ -22,3 +22,8 @@ export const getChatSessions = async (userId) => {
   const res = await axios.get(`${API_URL}/sessions/${userId}`);
   return res.data;
 };
+
+export const deleteChatSession = async(sessionId) =>{
+  const res = await axios.delete(`${API_URL}/sessions/${sessionId}`)
+  return res.data;
+}

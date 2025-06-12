@@ -1,6 +1,7 @@
 import logo_acadprobot_long from '../../../src/assets/logo_acadprobot_long.svg'
-import { WindowIcon } from '@heroicons/react/24/outline'
+import { WindowIcon, TrashIcon, PencilSquareIcon } from '@heroicons/react/24/outline'
 import { format } from "date-fns"
+import { deleteChatSession } from '../../services/chatService'
 
 const chatSession = [
   { name: 'Chat 1', href: '#', current: false },
@@ -11,7 +12,11 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
-export default function ChatSideBar({ isSidebarOpen, toggleSidebar, chatSessions, selectedSessionId, setSelectedSessionId }) {
+export default function ChatSideBar({ isSidebarOpen, userId, toggleSidebar,chatSessions, selectedSessionId, setSelectedSessionId, deleteChat,toggleNewChat }) {
+  if (!isSidebarOpen) return null;
+  // const toggleNewChat = () => {
+  //   setSelectedSessionId(null);
+  // }
 
   return (
     <div className="w-full">
@@ -24,11 +29,18 @@ export default function ChatSideBar({ isSidebarOpen, toggleSidebar, chatSessions
               className="w-40 "
             />
           </a>
-          <WindowIcon 
-            aria-hidden="true" 
-            className="size-6" 
-            onClick={toggleSidebar} 
-          />
+          <div className='flex flex-row'>
+            <PencilSquareIcon
+              aria-hidden="true"
+              className="size-6"
+              onClick={toggleNewChat}
+            />
+            <WindowIcon
+              aria-hidden="true"
+              className="size-6"
+              onClick={toggleSidebar}
+            />
+          </div>
         </div>
         <div className="text-xs/6 font-semibold text-gray-400">Chat History</div>
         <ul role="list" className="-mx-2 mt-2 space-y-1">
@@ -48,9 +60,14 @@ export default function ChatSideBar({ isSidebarOpen, toggleSidebar, chatSessions
                     <span className="truncate">{item.title}</span>
                   </div>
                   <div className='self-end'>
-                    <span className="text-xs italic font-light">{format(new Date(item.created_at), 'MMM dd, h:mm a')}</span>
+                    <span className="text-xs  font-light">{format(new Date(item.created_at), 'MMM dd, h:mm a')}</span>
                   </div>
                 </div>
+                <TrashIcon
+                  aria-hidden="true"
+                  className="size-5 self-center"
+                  onClick={() => deleteChat(item.session_id)}
+                />
               </a>
             </li>
           ))}

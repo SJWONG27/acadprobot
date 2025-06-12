@@ -1,14 +1,14 @@
 import React, { useState, useRef, useEffect } from "react";
 import { MicrophoneIcon, PaperAirplaneIcon, WindowIcon } from "@heroicons/react/24/outline";
-import { sendMessage, getMessages, getChatSessions } from "../../services/chatService";
-import { getCurrentUser } from "../../services/authService";
+import { sendMessage, getMessages } from "../../services/chatService";
+import logo_acadprobot_long from '../../../src/assets/logo_acadprobot_long.svg'
+import logo_acadprobot_square from '../../../src/assets/logo_acadprobot_square.svg'
 
-const ChatInterface = ({ isSidebarOpen, toggleSidebar, userId, chatSessions, selectedSessionId }) => {
-  const [input, setInput] = useState("");
-  const [sessionList, setSessionList] = useState([]);
-  // const [selectedSessionId, setSelectedSessionId] = useState("");
-  const [sessionId, setSessionId] = useState([]);
-  const [messages, setMessages] = useState([]);
+
+
+const ChatInterface = ({ isSidebarOpen, toggleSidebar, userId, chatSessions, selectedSessionId, messages, setMessages, handleSend, input, setInput }) => {
+  // const [input, setInput] = useState("");
+  // const [messages, setMessages] = useState([]);
 
   const chatEndRef = useRef(null);
   const textareaRef = useRef(null);
@@ -24,61 +24,6 @@ const ChatInterface = ({ isSidebarOpen, toggleSidebar, userId, chatSessions, sel
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  useEffect(() => {
-    const fetchSessionID = async () => {
-      if (!userId) return;
-
-      try {
-        const res = await getChatSessions(userId);
-        if (res.length > 0) {
-          const sessionIds = res.map(session => session.session_id)
-          setSessionList(sessionIds);
-          console.log(sessionIds);
-        }
-      } catch (error) {
-        console.error("Failed to fetch chat session id", error);
-      }
-    };
-
-    fetchSessionID();
-  }, [userId]);
-
-  useEffect(() => {
-    const fetchMessages = async () => {
-      if (!selectedSessionId) return;
-
-      try {
-        const res = await getMessages(selectedSessionId);
-        setMessages(res);
-      } catch (error) {
-        console.error("Failed to fetch chat messages", error);
-      }
-    };
-
-    fetchMessages();
-  }, [selectedSessionId]);
-
-
-
-  const handleSend = async () => {
-    if (!input.trim()) return;
-    if (!userId) {
-      console.error("no user id fetched");
-    }
-    const newMessage = { role: "user", content: input };
-    setMessages((prev) => [...prev, newMessage]);
-    setInput("");
-
-    try {
-      const data = await sendMessage(userId, input, selectedSessionId);
-      setMessages((prev) => [...prev, { role: "assistant", content: data.response }]);
-
-      // Optional: Set sessionId if it's returned (for first-time use)
-      if (data.session_id && !sessionId) setSessionId(data.session_id);
-    } catch (error) {
-      console.error("Request failed:", error);
-    }
-  };
 
   return (
     <div className="h-full w-full flex flex-col p-8 relative">
@@ -88,6 +33,25 @@ const ChatInterface = ({ isSidebarOpen, toggleSidebar, userId, chatSessions, sel
         </div>
       )}
       <div className="flex-1 overflow-y-auto space-y-2">
+        {(!selectedSessionId) ? (
+          <div className="h-full flex flex-col items-center justify-center">
+            <div className="flex flex-row">
+              <img
+                alt="AcadProBot"
+                src={logo_acadprobot_square}
+                className="w-15"
+              />
+              <img
+                alt="AcadProBot"
+                src={logo_acadprobot_long}
+                className="w-40"
+              />
+            </div>
+
+            <p className="">How can I help you today?</p>
+          </div>
+        ) :(
+        <>
         {messages.map((msg, index) => (
           <div
             key={index}
@@ -101,6 +65,8 @@ const ChatInterface = ({ isSidebarOpen, toggleSidebar, userId, chatSessions, sel
           </div>
         ))}
         <div ref={chatEndRef} />
+        </>
+        )}
       </div>
 
       <div className="flex w-full self-center justify-between drop-shadow-lg border border-gray-200 bg-white z-10 pl-2 pr-2 max-h-96 rounded-md">
@@ -110,7 +76,12 @@ const ChatInterface = ({ isSidebarOpen, toggleSidebar, userId, chatSessions, sel
           placeholder="Ask me a question..."
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              handleSend();
+            } 
+          }}
         />
         <div className="flex w-23 justify-around">
           <MicrophoneIcon className="w-5 text-blue-500" />

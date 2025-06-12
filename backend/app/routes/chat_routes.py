@@ -32,7 +32,7 @@ def chat_with_ollama(request: ChatRequest, db: Session = Depends(get_db)):
         db.refresh(session)
         
     if not request.session_id:
-        title_prompt = f"Generate a very short 3-5 word title for a chat that starts with: {request.prompt}"
+        title_prompt = f"Generate a very short 3-5 word title for a chat query that starts with: {request.prompt}"
         try:
             ollama_url = "http://localhost:11434/api/generate"
             title_response = requests.post(ollama_url, json={
@@ -106,3 +106,17 @@ def get_user_chatsession(user_id: str, db: Session = Depends(get_db)):
         "created_at": session.created_at   
         } for session in sessions
     ]
+    
+    
+@router.delete("/sessions/{session_id}")
+def delete_chat_session(session_id: str, db: Session = Depends(get_db)):
+    session = db.query(ChatSession).filter_by(id = session_id).first()
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found. Cant delete")
+    
+    db.query(Message).filter_by(session_id = session_id).delete()
+    
+    db.delete(session)
+    db.commit()
+    
+    return {"message": f"Session {session_id} and its messages deleted successfully."}
