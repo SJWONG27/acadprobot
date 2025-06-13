@@ -22,7 +22,7 @@ export default function ChatSideBar({ isSidebarOpen, userId, toggleSidebar,chatS
     <div className="w-full">
       <nav aria-label="Sidebar" className="flex flex-1 flex-col p-6">
         <div className='flex flex-row justify-between items-center '>
-          <a href="/" className="flex-shrink-0">
+          <a href="/" className="flex flex-row">
             <img
               alt="AcadProBot"
               src={logo_acadprobot_long}
@@ -57,7 +57,7 @@ export default function ChatSideBar({ isSidebarOpen, userId, toggleSidebar,chatS
               >
                 <div className='truncate flex flex-col w-full'>
                   <div className='truncate'>
-                    <span className="truncate">{item.title}</span>
+                    {item.title.length > 50 ? item.title.slice(0, 50) + "..." : item.title}
                   </div>
                   <div className='self-end'>
                     <span className="text-xs  font-light">{format(new Date(item.created_at), 'MMM dd, h:mm a')}</span>

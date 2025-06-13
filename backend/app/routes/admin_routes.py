@@ -1,14 +1,12 @@
 # app/api/routes/auth.py
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Body
 from sqlalchemy.orm import Session
 from ..database import schemas
 from ..database.database import SessionLocal
-from ..services.users_services import get_users_of_admin
-from ..core.hashing import verify_password
-from ..core.security import create_access_token
 from..dependencies.auth_dep import get_current_user
-from datetime import timedelta
-from ..database import models
+from ..database.models import User, Admin, Embedding, EmbeddingStatus, Document, WebsiteDocument
+from ..services.embedding_service import get_embedding_docs, get_website_embedding_docs
+
 
 router = APIRouter()
 
@@ -22,9 +20,91 @@ def get_db():
         
         
 @router.get("/users")
-def get_users_of_admin_route(current_admin: models.Admin = Depends(get_current_user), db: Session = Depends(get_db)):
-    users = db.query(models.User).filter(models.User.admin_id == current_admin.id).all()
+def get_users_of_admin_route(
+    current_admin: Admin = Depends(get_current_user), 
+    db: Session = Depends(get_db)
+):
+    users = db.query(User).filter(User.admin_id == current_admin.id).all()
     print(users)
     if not users:
         print("no users")
     return users
+
+
+@router.post("/upload")
+def upload_doc(
+    file: UploadFile = File(...), 
+    current_admin: Admin = Depends(get_current_user), 
+    db:Session=Depends(get_db)
+):
+    if not file.filename.endswith((".docx", ".pdf")):
+        raise HTTPException(status_code=400, detail="Only DOCX and PDF files are supported.")
+    
+    
+    document = Document(
+        filename=file.filename,
+        status=EmbeddingStatus.pending,
+        admin_id=current_admin.id
+    )
+    db.add(document)
+    db.commit()
+    db.refresh(document)  
+    
+    get_embedding_docs(file, admin_id=current_admin.id, document_id=document.id, db=db)
+    return {"message": "File processed and stored", "document_id": str(document.id)}
+
+
+@router.get("/documents")
+def get_doc(
+    current_admin: Admin = Depends(get_current_user), 
+    db:Session=Depends(get_db)
+    ):
+    docs = db.query(Document).filter_by(admin_id= current_admin.id).order_by(Document.created_at.desc()).all()
+    return [
+        {
+            "id": str(doc.id),
+            "filename": doc.filename,
+            "status": doc.status.value,
+            "created_at": doc.created_at.isoformat()
+        }
+        for doc in docs
+    ]
+
+@router.post("/uploadwebsite")
+def upload_websitedoc(
+    payload: dict = Body(...),
+    current_admin: Admin = Depends(get_current_user), 
+    db:Session=Depends(get_db)
+):
+    url = payload.get("url")
+    if not url:
+        raise HTTPException(status_code=400, detail="Website URL is required.")
+    
+    
+    document = WebsiteDocument(
+        url=url,
+        status=EmbeddingStatus.pending,
+        admin_id=current_admin.id
+    )
+    db.add(document)
+    db.commit()
+    db.refresh(document)  
+    
+    get_website_embedding_docs(url, admin_id=current_admin.id, website_id=document.id, db=db)
+    return {"message": "URL processed and stored", "website_id": str(document.id)}
+    
+@router.get("/websitedocuments")
+def get_websitedoc(
+    current_admin: Admin = Depends(get_current_user), 
+    db:Session=Depends(get_db)
+    ):
+    docs = db.query(WebsiteDocument).filter_by(admin_id= current_admin.id).order_by(WebsiteDocument.created_at.desc()).all()
+    return [
+        {
+            "id": str(doc.id),
+            "url": doc.url,
+            "status": doc.status.value,
+            "created_at": doc.created_at.isoformat()
+        }
+        for doc in docs
+    ]

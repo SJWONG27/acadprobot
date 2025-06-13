@@ -24,7 +24,7 @@ def get_db():
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> User:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        print(f"Payload: {payload}")  # 查看是否有 sub 和 role
+        print(f"Payload: {payload}")  
         user_id: str = payload.get("sub")
         role: str = payload.get("role")
         if user_id is None:

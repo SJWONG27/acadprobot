@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from ..database.schemas import ChatRequest
 from datetime import datetime
 from ..database.models import ChatSession, Message
+from ..services.embedding_service import compare_match_embedding, get_confidence_score
 
 router = APIRouter()
 
@@ -32,7 +33,7 @@ def chat_with_ollama(request: ChatRequest, db: Session = Depends(get_db)):
         db.refresh(session)
         
     if not request.session_id:
-        title_prompt = f"Generate a very short 3-5 word title for a chat query that starts with: {request.prompt}"
+        title_prompt = f"Generate a very short 3-5 word title for a chat query that starts with (dont give any explanation): {request.prompt}"
         try:
             ollama_url = "http://localhost:11434/api/generate"
             title_response = requests.post(ollama_url, json={
@@ -61,6 +62,14 @@ def chat_with_ollama(request: ChatRequest, db: Session = Depends(get_db)):
     for msg in past_messages:
         role = "User" if msg.is_user else "Bot"
         context_prompt += f"{role}: {msg.content}\n"
+    
+    extra_lines = """
+        You are AcadProBot founded by student Wong Soon Jit in Universiti Malaya (UM). 
+        For those queries irrelevant with academic matters, generate default response.
+        Generate response in English only.
+    """
+    
+    context_prompt += extra_lines
     context_prompt += f"User: {request.prompt}\nBot:"
 
     try:
@@ -74,6 +83,13 @@ def chat_with_ollama(request: ChatRequest, db: Session = Depends(get_db)):
         response_text = res.json().get("response")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Ollama error: {str(e)}")
+    
+    confidence_score = get_confidence_score(response_text, request.prompt)
+    print(confidence_score)
+    
+    if confidence_score < 0.6:
+        response_text = compare_match_embedding(request.prompt)    
+        print("RAG done")
 
     bot_msg = Message(session_id=session.id, content=response_text, is_user=False)
     db.add(bot_msg)
@@ -83,7 +99,9 @@ def chat_with_ollama(request: ChatRequest, db: Session = Depends(get_db)):
 
     return {
         "session_id": session.id,
-        "response": response_text
+        "response": response_text,
+        # "confidence": confidence_score,
+        # "used_rag": confidence_score < 0.6
     }
     
 @router.get("/sessions/{session_id}/messages")

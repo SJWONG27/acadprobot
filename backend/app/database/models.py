@@ -1,10 +1,13 @@
 from sqlalchemy import *
+from sqlalchemy import Enum as SQLEnum
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 import uuid 
 from datetime import datetime
+from pgvector.sqlalchemy import Vector
+from enum import Enum
 
 Base = declarative_base()
 
@@ -51,3 +54,41 @@ class Message(Base):
     content = Column(Text)
     is_user = Column(Boolean)  # True for user, False for bot
     created_at = Column(DateTime, default=datetime.utcnow)
+    
+class Embedding(Base):
+    __tablename__ = "test_embeddings"
+    
+    id = Column(UUID(as_uuid = True), primary_key=True, default=uuid.uuid4)
+    embedding = Column(Vector(768))
+    content = Column(Text)
+    chunk_index = Column(Integer)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    admin_id = Column(UUID(as_uuid=True), ForeignKey("admins.id"), nullable=False)
+    document_id = Column(UUID(as_uuid=True), ForeignKey("documents.id"))
+    website_id = Column(UUID(as_uuid=True), ForeignKey("website_documents.id"))
+
+class EmbeddingStatus(Enum):
+    pending = "pending"
+    processing = "processing"
+    completed = "completed"
+    failed = "failed"
+
+class Document(Base):
+    __tablename__ = "documents"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    filename = Column(String, nullable=False)
+    status = Column(SQLEnum(EmbeddingStatus), default=EmbeddingStatus.pending)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    admin_id = Column(UUID(as_uuid=True), ForeignKey("admins.id"), nullable=False)
+    
+class WebsiteDocument(Base):
+    __tablename__ = "website_documents"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    url = Column(String, nullable=False)
+    status = Column(SQLEnum(EmbeddingStatus), default=EmbeddingStatus.pending)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    admin_id = Column(UUID(as_uuid=True), ForeignKey("admins.id"), nullable=False)
+
+    

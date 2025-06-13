@@ -7,8 +7,7 @@ const items = [
     // More people...
 ]
 
-export default function TableWebScraping() {
-    const [showPanel, setShowPanel] = useState(false);
+export default function TableWebScraping({websiteUpload, setWebsiteUpload, handleWebsiteDocsUpload, websites, showWebsiteDocPanel, setShowWebsiteDocPanel}) {
     return (
         <div>
             <div className="sm:flex sm:items-center">
@@ -20,7 +19,7 @@ export default function TableWebScraping() {
                 </div>
                 <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
                     <button
-                        onClick={()=>{setShowPanel(true)}}
+                        onClick={()=>{setShowWebsiteDocPanel(true)}}
                         type="button"
                         className="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                     >
@@ -34,9 +33,9 @@ export default function TableWebScraping() {
                         <table className="min-w-full divide-y divide-gray-300">
                             <thead>
                                 <tr>
-                                    <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">
+                                    {/* <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">
                                         Title
-                                    </th>
+                                    </th> */}
                                     <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                                         Link
                                     </th>
@@ -49,16 +48,21 @@ export default function TableWebScraping() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200">
-                                {items.map((item) => (
-                                    <tr key={item.email}>
-                                        <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
-                                            {item.name}
+                                {websites.map((website) => (
+                                    <tr key={website.id}>
+                                        {/* <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
+                                            {website.url}
+                                        </td> */}
+                                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{website.url}</td>
+                                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{website.status}</td>
+                                         <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
+                                            <a href="#" className="text-indigo-500 hover:text-indigo-700">
+                                                View<span className="sr-only">, {website.url}</span>
+                                            </a>
                                         </td>
-                                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{item.title}</td>
-                                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{item.progress}</td>
                                         <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
                                             <a href="#" className="text-red-500 hover:text-red-700">
-                                                Delete<span className="sr-only">, {item.name}</span>
+                                                Delete<span className="sr-only">, {website.url}</span>
                                             </a>
                                         </td>
                                     </tr>
@@ -69,9 +73,14 @@ export default function TableWebScraping() {
                 </div>
             </div>
 
-            {showPanel && (
+            {showWebsiteDocPanel && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50">
-                    <APAddWebUrl/>
+                    <APAddWebUrl
+                        websiteUpload={websiteUpload}
+                        setWebsiteUpload={setWebsiteUpload}
+                        handleWebsiteDocsUpload={handleWebsiteDocsUpload}
+                        setShowWebsiteDocPanel={setShowWebsiteDocPanel}
+                    />
                 </div>
             )}
         </div>

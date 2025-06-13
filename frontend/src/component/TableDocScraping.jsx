@@ -1,14 +1,7 @@
 import APAddDocs from "./APAddDocs";
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
-const items = [
-    { name: 'UM expert', progress: 'Finished' },
-    { name: 'Thesis Dissertation', progress: 'Finished' },
-    // More people...
-]
-
-export default function TableDocScraping() {
-    const [showPanel, setShowPanel] = useState(false);
+export default function TableDocScraping({ showDocPanel, setShowDocPanel, fileUpload, setFileUpload, handleDocsUpload, documents }) {
 
     return (
         <div>
@@ -21,7 +14,7 @@ export default function TableDocScraping() {
                 </div>
                 <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
                     <button
-                        onClick={() => setShowPanel(true)}
+                        onClick={() => setShowDocPanel(true)}
                         type="button"
                         className="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                     >
@@ -50,20 +43,20 @@ export default function TableDocScraping() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200">
-                                {items.map((item) => (
-                                    <tr key={item.email}>
+                                {documents.map((doc) => (
+                                    <tr key={doc.id}>
                                         <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
-                                            {item.name}
+                                            {doc.filename}
                                         </td>
-                                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{item.progress}</td>
+                                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{doc.status}</td>
                                         <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
                                             <a href="#" className="text-indigo-500 hover:text-indigo-700">
-                                                View<span className="sr-only">, {item.name}</span>
+                                                View<span className="sr-only">, {doc.filename}</span>
                                             </a>
                                         </td>
                                         <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
                                             <a href="#" className="text-red-500 hover:text-red-700">
-                                                Delete<span className="sr-only">, {item.name}</span>
+                                                Delete<span className="sr-only">, {doc.filename}</span>
                                             </a>
                                         </td>
                                     </tr>
@@ -74,9 +67,14 @@ export default function TableDocScraping() {
                 </div>
             </div>
 
-            {showPanel && (
+            {showDocPanel && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50">
-                    <APAddDocs />
+                    <APAddDocs
+                        fileUpload={fileUpload}
+                        setFileUpload={setFileUpload}
+                        handleDocsUpload={handleDocsUpload}
+                        setShowDocPanel={setShowDocPanel}
+                    />
                 </div>
             )}
         </div>
