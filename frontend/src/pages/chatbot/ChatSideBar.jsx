@@ -21,12 +21,12 @@ export default function ChatSideBar({ isSidebarOpen, userId, toggleSidebar,chatS
   return (
     <div className="w-full">
       <nav aria-label="Sidebar" className="flex flex-1 flex-col p-6">
-        <div className='flex flex-row justify-between items-center '>
-          <a href="/" className="flex flex-row">
+        <div className='flex flex-row justify-between items-center'>
+          <a href="/" className="flex flex-row items-center">
             <img
               alt="AcadProBot"
               src={logo_acadprobot_long}
-              className="w-40 "
+              className="w-40 h-auto object-fill"
             />
           </a>
           <div className='flex flex-row'>

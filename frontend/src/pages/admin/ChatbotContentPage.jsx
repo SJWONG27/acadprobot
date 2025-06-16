@@ -3,7 +3,7 @@ import Toggles from '../../component/Toggles'
 import FrequencyCustom from '../../component/FrequencyCustom'
 import TableWebScraping from '../../component/TableWebScraping'
 import TableDocScraping from '../../component/TableDocScraping'
-import { uploadDocs, getDocs, uploadWebsiteDocs, getWebsiteDocs } from '../../services/adminService'
+import { uploadDocs, getDocs, uploadWebsiteDocs, getWebsiteDocs, deleteDocument, deleteWebsiteDocument } from '../../services/adminService'
 
 const ChatbotContentPage = () => {
   const [fileUpload, setFileUpload] = useState(null);
@@ -73,6 +73,34 @@ const ChatbotContentPage = () => {
     } 
   }
 
+  const handleDeleteDoc = async(documentID) =>{
+    try{
+       const token = localStorage.getItem("token");
+      if(!token){
+        console.error("No token in handleDocsUpload");
+      }
+      await deleteDocument(documentID);
+      const data = await getDocs(token);
+      setDocuments(data);
+    } catch (error){
+      console.error("Failed to delete document: ", error)
+    }
+  }
+
+  const hanldeDeleteWebsiteDoc = async(websiteID) =>{
+    try{
+       const token = localStorage.getItem("token");
+      if(!token){
+        console.error("No token in handleDocsUpload");
+      }
+      await deleteWebsiteDocument(websiteID);
+      const data = await getWebsiteDocs(token);
+      setWebsites(data);
+    } catch (error){
+      console.error("Failed to delete document: ", error)
+    }
+  }
+
   return (
     <div>
       <div className='mx-auto pt-2 pb-4 mb-8 font-bold text-xl text-indigo-600'>
@@ -99,6 +127,7 @@ const ChatbotContentPage = () => {
               websites={websites}
               showWebsiteDocPanel={showWebsiteDocPanel}
               setShowWebsiteDocPanel={setShowWebsiteDocPanel}
+              hanldeDeleteWebsiteDoc={hanldeDeleteWebsiteDoc}
             />
           </div>
         </div>
@@ -115,6 +144,7 @@ const ChatbotContentPage = () => {
               documents={documents}
               showDocPanel={showDocPanel}
               setShowDocPanel={setShowDocPanel}
+              handleDeleteDoc={handleDeleteDoc}
             />
           </div>
         </div>

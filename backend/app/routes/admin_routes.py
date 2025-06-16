@@ -108,3 +108,37 @@ def get_websitedoc(
         }
         for doc in docs
     ]
+    
+@router.delete("/deletedoc/{document_id}")
+def delete_doc(
+    document_id: str, 
+    db:Session=Depends(get_db)
+):
+    embeddings = db.query(Embedding).filter_by(document_id=document_id).delete()
+    if embeddings == 0:
+        raise HTTPException(status_code=404, detail="document not found. Cant delete")
+    
+    # for embeddding in embeddings:
+    #     db.delete(embeddding)
+        
+    db.query(Document).filter_by(id = document_id).delete() 
+    db.commit() 
+    
+    return {f"Document {document_id} deleted successfully"}
+
+@router.delete("/deletewebsitedoc/{website_id}")
+def delete_website_doc(
+    website_id: str, 
+    db:Session=Depends(get_db)
+):
+    embeddings = db.query(Embedding).filter_by(website_id=website_id).delete()
+    if embeddings == 0:
+        raise HTTPException(status_code=404, detail="document not found. Cant delete")
+    
+    # for embeddding in embeddings:
+    #     db.delete(embeddding)
+        
+    db.query(WebsiteDocument).filter_by(id = website_id).delete() 
+    db.commit() 
+    
+    return {f"Website Document {website_id} deleted successfully"}

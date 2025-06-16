@@ -45,6 +45,9 @@ class ChatSession(Base):
     context = Column(JSON)     # For storing chat context
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    admin_id = Column(UUID(as_uuid=True), ForeignKey("admins.id"), nullable=False)
+
 
 class Message(Base):
     __tablename__ = "messages"

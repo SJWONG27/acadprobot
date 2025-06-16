@@ -27,30 +27,59 @@ def extract_text_from_pdf(file_obj):
     doc.close()
     return text
 
+# def extract_text_from_umexpert(url):
+#     response = requests.get(url)
+#     soup = BeautifulSoup(response.text, "html.parser")
+#     project_div = soup.find('div', id='project-container')
+
+#     if project_div:
+#         texts = project_div.get_text(separator="\n", strip=True).splitlines()
+#     else:
+#         texts = ["cannot find"]
+    
+#     target_phrase = "faculty of Computer Science and Information Technology"
+#     indices_to_keep = set()
+
+#     for i, line in enumerate(texts):
+#         if target_phrase.lower() in line.lower():
+#             start = max(i - 2, 0)
+#             end = min(i + 15 + 1, len(texts))
+#             indices_to_keep.update(range(start, end))
+
+#     cleaned_lines = [texts[i] for i in sorted(indices_to_keep)]
+#     joined_text = "\n".join(cleaned_lines)
+#     chunks = [chunk.strip() + "\nView CV" for chunk in joined_text.split("View CV") if chunk.strip()]
+
+#     return chunks
+
 def extract_text_from_umexpert(url):
-    response = requests.get(url)
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+    except requests.RequestException as e:
+        return [f"Request failed: {e}"]
+
     soup = BeautifulSoup(response.text, "html.parser")
     project_div = soup.find('div', id='project-container')
 
-    if project_div:
-        texts = project_div.get_text(separator="\n", strip=True).splitlines()
-    else:
-        texts = ["cannot find"]
-    
-    target_phrase = "faculty of computer science and information technology"
-    indices_to_keep = set()
+    if not project_div:
+        return ["cannot find"]
 
-    for i, line in enumerate(texts):
-        if target_phrase.lower() in line.lower():
-            start = max(i - 2, 0)
-            end = min(i + 15 + 1, len(texts))
-            indices_to_keep.update(range(start, end))
+    # Get all text and split by "View CV"
+    all_text = project_div.get_text(separator="\n", strip=True)
+    blocks = all_text.split("View CV")
 
-    cleaned_lines = [texts[i] for i in sorted(indices_to_keep)]
-    joined_text = "\n".join(cleaned_lines)
-    chunks = [chunk.strip() + "\nView CV" for chunk in joined_text.split("View CV") if chunk.strip()]
+    # Normalize target phrase
+    target_phrase = "faculty of Computer Science and Information Technology"
 
-    return chunks
+    # Filter blocks: only those containing the phrase
+    result_chunks = []
+    for block in blocks:
+        if target_phrase.lower() in block.lower():
+            cleaned = block.strip() + "\nView CV"
+            result_chunks.append(cleaned)
+
+    return result_chunks if result_chunks else ["no matching faculty found"]
 
 def get_ollama_embeddings(chunks):
     chunk_embeddings = []
@@ -142,7 +171,7 @@ def get_website_embedding_docs(url, admin_id, website_id, db):
         db.commit()
         raise e
 
-def compare_match_embedding(user_query):
+def compare_match_embedding(user_query, admin_id):
     print("RAG Start")
     query_embedding = requests.post("http://localhost:11434/api/embeddings", json={
         "model": "nomic-embed-text",
@@ -151,9 +180,13 @@ def compare_match_embedding(user_query):
 
     response = supabase.rpc("match_test_embeddings", {
         "query_embedding": query_embedding,
-        "match_count": 5
+        "match_count": 5,
+        "admin_id": str(admin_id)
     }).execute()
-
+    
+    if not response.data:
+        return "Sorry, I couldn't find any relevant information based on your query. Please contact your program's admin."
+    
     top_chunks = [item["content"] for item in response.data]
     context = "\n\n".join(top_chunks)
     

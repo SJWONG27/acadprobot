@@ -7,7 +7,7 @@ const items = [
     // More people...
 ]
 
-export default function TableWebScraping({websiteUpload, setWebsiteUpload, handleWebsiteDocsUpload, websites, showWebsiteDocPanel, setShowWebsiteDocPanel}) {
+export default function TableWebScraping({websiteUpload, setWebsiteUpload, handleWebsiteDocsUpload, websites, showWebsiteDocPanel, setShowWebsiteDocPanel, hanldeDeleteWebsiteDoc}) {
     return (
         <div>
             <div className="sm:flex sm:items-center">
@@ -55,15 +55,13 @@ export default function TableWebScraping({websiteUpload, setWebsiteUpload, handl
                                         </td> */}
                                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{website.url}</td>
                                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{website.status}</td>
-                                         <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
-                                            <a href="#" className="text-indigo-500 hover:text-indigo-700">
-                                                View<span className="sr-only">, {website.url}</span>
-                                            </a>
-                                        </td>
                                         <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
-                                            <a href="#" className="text-red-500 hover:text-red-700">
-                                                Delete<span className="sr-only">, {website.url}</span>
-                                            </a>
+                                            <button
+                                                onClick={() => hanldeDeleteWebsiteDoc(website.id)}
+                                                className="bg-red-500 text-white px-2 py-1 rounded"
+                                            >
+                                                Delete
+                                            </button>
                                         </td>
                                     </tr>
                                 ))}

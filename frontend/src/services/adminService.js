@@ -68,3 +68,13 @@ export const getWebsiteDocs = async(token)=>{
     throw err.response?.data || err;
   }
 }
+
+export const deleteDocument = async(document_id) =>{
+  const res = await axios.delete(`${API}/deletedoc/${document_id}`)
+  return res.data;
+}
+
+export const deleteWebsiteDocument = async(website_id) =>{
+  const res = await axios.delete(`${API}/deletewebsitedoc/${website_id}`)
+  return res.data;
+}

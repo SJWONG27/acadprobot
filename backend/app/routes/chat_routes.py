@@ -4,7 +4,7 @@ from ..database.database import SessionLocal
 from sqlalchemy.orm import Session
 from ..database.schemas import ChatRequest
 from datetime import datetime
-from ..database.models import ChatSession, Message
+from ..database.models import ChatSession, Message, User
 from ..services.embedding_service import compare_match_embedding, get_confidence_score
 
 router = APIRouter()
@@ -20,14 +20,20 @@ def get_db():
 
 @router.post("/")
 def chat_with_ollama(request: ChatRequest, db: Session = Depends(get_db)):
+    user = db.query(User).filter_by(id=request.id).first()
+    if not user or not user.admin_id:
+        raise HTTPException(status_code=404, detail="User or admin_id not found")
+    
+    admin_id = user.admin_id
+    
     # Case 1: If session_id is provided, try to retrieve it
     if request.session_id:
-        session = db.query(ChatSession).filter_by(id=request.session_id, user_id=str(request.id)).first()
+        session = db.query(ChatSession).filter_by(id=request.session_id, admin_id=admin_id, user_id=str(request.id)).first()
         if not session:
             raise HTTPException(status_code=404, detail="Chat session not found")
     else:
         # Case 2: If no session_id, create a new session
-        session = ChatSession(user_id=str(request.id), context={})
+        session = ChatSession(user_id=str(request.id), admin_id=admin_id, context={})
         db.add(session)
         db.commit()
         db.refresh(session)
@@ -65,7 +71,6 @@ def chat_with_ollama(request: ChatRequest, db: Session = Depends(get_db)):
     
     extra_lines = """
         You are AcadProBot founded by student Wong Soon Jit in Universiti Malaya (UM). 
-        For those queries irrelevant with academic matters, generate default response.
         Generate response in English only.
     """
     
@@ -87,8 +92,8 @@ def chat_with_ollama(request: ChatRequest, db: Session = Depends(get_db)):
     confidence_score = get_confidence_score(response_text, request.prompt)
     print(confidence_score)
     
-    if confidence_score < 0.6:
-        response_text = compare_match_embedding(request.prompt)    
+    if confidence_score < 1.0:
+        response_text = compare_match_embedding(request.prompt, admin_id=admin_id)    
         print("RAG done")
 
     bot_msg = Message(session_id=session.id, content=response_text, is_user=False)
@@ -100,6 +105,7 @@ def chat_with_ollama(request: ChatRequest, db: Session = Depends(get_db)):
     return {
         "session_id": session.id,
         "response": response_text,
+        # "admin_id": str(session.admin_id)
         # "confidence": confidence_score,
         # "used_rag": confidence_score < 0.6
     }

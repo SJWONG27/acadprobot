@@ -1,7 +1,7 @@
 import APAddDocs from "./APAddDocs";
 import { useState, useEffect } from "react"
 
-export default function TableDocScraping({ showDocPanel, setShowDocPanel, fileUpload, setFileUpload, handleDocsUpload, documents }) {
+export default function TableDocScraping({ showDocPanel, setShowDocPanel, fileUpload, setFileUpload, handleDocsUpload, documents, handleDeleteDoc }) {
 
     return (
         <div>
@@ -55,9 +55,12 @@ export default function TableDocScraping({ showDocPanel, setShowDocPanel, fileUp
                                             </a>
                                         </td>
                                         <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
-                                            <a href="#" className="text-red-500 hover:text-red-700">
-                                                Delete<span className="sr-only">, {doc.filename}</span>
-                                            </a>
+                                            <button
+                                                onClick={() => handleDeleteDoc(doc.id)}
+                                                className="bg-red-500 text-white px-2 py-1 rounded"
+                                            >
+                                                Delete
+                                            </button>
                                         </td>
                                     </tr>
                                 ))}
