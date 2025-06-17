@@ -1,14 +1,12 @@
 import React, { useState, useRef, useEffect } from "react";
-import { MicrophoneIcon, PaperAirplaneIcon, WindowIcon } from "@heroicons/react/24/outline";
-import { sendMessage, getMessages } from "../../services/chatService";
+import { MicrophoneIcon, PaperAirplaneIcon, WindowIcon, XMarkIcon, CheckIcon } from "@heroicons/react/24/outline";
 import logo_acadprobot_long from '../../../src/assets/logo_acadprobot_long.svg'
 import logo_acadprobot_square from '../../../src/assets/logo_acadprobot_square.svg'
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 
 
 
 const ChatInterface = ({ isSidebarOpen, toggleSidebar, userId, chatSessions, selectedSessionId, messages, setMessages, handleSend, input, setInput }) => {
-  // const [input, setInput] = useState("");
-  // const [messages, setMessages] = useState([]);
 
   const chatEndRef = useRef(null);
   const textareaRef = useRef(null);
@@ -23,6 +21,35 @@ const ChatInterface = ({ isSidebarOpen, toggleSidebar, userId, chatSessions, sel
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // speech-to-text
+  const [isMicActive, setIsMicActive] = useState(false);
+
+  const {
+    transcript,
+    listening,
+    resetTranscript,
+    browserSupportsSpeechRecognition,
+  } = useSpeechRecognition();
+
+  const startRecording = () => {
+    setInput("");
+    resetTranscript();
+    SpeechRecognition.startListening({ continuous: true });
+    setIsMicActive(true);
+  };
+
+  const stopRecording = () => {
+    SpeechRecognition.stopListening();
+    setInput(transcript); // Set transcribed text into input
+    setIsMicActive(false);
+  };
+
+  const cancelRecording = () => {
+    SpeechRecognition.stopListening();
+    resetTranscript();
+    setIsMicActive(false);
+  };
 
 
   return (
@@ -84,7 +111,15 @@ const ChatInterface = ({ isSidebarOpen, toggleSidebar, userId, chatSessions, sel
           }}
         />
         <div className="flex w-23 justify-around">
-          <MicrophoneIcon className="w-5 text-blue-500" />
+          {/* <MicrophoneIcon className="w-5 text-blue-500" /> */}
+          {!isMicActive ? (
+            <MicrophoneIcon className="w-5 text-blue-500 cursor-pointer" onClick={startRecording} />
+          ) : (
+            <div className="flex gap-2">
+              <CheckIcon className="w-5 text-green-500 cursor-pointer" onClick={stopRecording} />
+              <XMarkIcon className="w-5 text-red-500 cursor-pointer" onClick={cancelRecording} />
+            </div>
+          )}
           <PaperAirplaneIcon className="w-5 text-blue-500" onClick={handleSend} />
         </div>
       </div>

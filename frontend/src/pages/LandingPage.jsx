@@ -49,9 +49,9 @@ const features = [
 const faqs = [
   {
     id: 1,
-    question: "What's the best thing about Switzerland?",
+    question: "What's AcadProBot?",
     answer:
-      "I don't know, but the flag is a big plus. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quas cupiditate laboriosam fugiat.",
+      "AcadProBot is a chatbot builded for academic program in Universiti Malaya",
   },
   // More questions...
 ]
@@ -73,11 +73,6 @@ const footerNavigation = {
     { name: 'Blog', href: '#' },
     { name: 'Jobs', href: '#' },
     { name: 'Press', href: '#' },
-  ],
-  legal: [
-    { name: 'Terms of service', href: '#' },
-    { name: 'Privacy policy', href: '#' },
-    { name: 'License', href: '#' },
   ],
 }
 
@@ -530,7 +525,7 @@ export default function LandingPage() {
             </div>    
             <div className="mt-16 grid grid-cols-2 gap-8 xl:col-span-2 xl:mt-0">
               <div className="md:grid md:grid-cols-2 md:gap-8">
-                <div>
+                {/* <div>
                   <h3 className="text-sm/6 font-semibold text-gray-900">Solutions</h3>
                   <ul role="list" className="mt-6 space-y-4">
                     {footerNavigation.solutions.map((item) => (
@@ -541,7 +536,7 @@ export default function LandingPage() {
                       </li>
                     ))}
                   </ul>
-                </div>
+                </div> */}
                 <div className="mt-10 md:mt-0">
                   <h3 className="text-sm/6 font-semibold text-gray-900">Support</h3>
                   <ul role="list" className="mt-6 space-y-4">
