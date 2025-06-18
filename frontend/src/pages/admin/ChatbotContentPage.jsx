@@ -1,18 +1,39 @@
-import React, {useState, useEffect} from 'react'
+import React, { useState, useEffect } from 'react'
 import Toggles from '../../component/Toggles'
 import FrequencyCustom from '../../component/FrequencyCustom'
 import TableWebScraping from '../../component/TableWebScraping'
 import TableDocScraping from '../../component/TableDocScraping'
 import { uploadDocs, getDocs, uploadWebsiteDocs, getWebsiteDocs, deleteDocument, deleteWebsiteDocument } from '../../services/adminService'
+import AlertSuccess from '../../component/AlertSuccess'
+import ConfirmationModal from '../../component/ConfirmationModal'
+import { useAdminContent } from '../../context/AdminContentProvider'
+
 
 const ChatbotContentPage = () => {
-  const [fileUpload, setFileUpload] = useState(null);
-  const [documents, setDocuments] = useState([]);
-  const [showDocPanel, setShowDocPanel] = useState(false);
-
-  const [websiteUpload, setWebsiteUpload] = useState(null);
-  const [websites, setWebsites] = useState([]);
-  const [showWebsiteDocPanel, setShowWebsiteDocPanel] = useState(false);
+  const {
+    confirmationModal,
+    setConfirmationModal,
+    confirmDelete,
+    cancelDelete,
+    successAlertMessage,
+    setSuccessAlertMessage,
+    fileUpload,
+    setFileUpload,
+    documents,
+    setDocuments,
+    showDocPanel,
+    setShowDocPanel,
+    websiteUpload,
+    setWebsiteUpload,
+    websites,
+    setWebsites,
+    showWebsiteDocPanel,
+    setShowWebsiteDocPanel,
+    handleDocsUpload,
+    handleWebsiteDocsUpload,
+    handleDeleteDoc,
+    hanldeDeleteWebsiteDoc
+  } = useAdminContent();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -21,85 +42,11 @@ const ChatbotContentPage = () => {
     getDocs(token)
       .then((data) => setDocuments(data))
       .catch((err) => console.error("Failed to fetch documents:", err));
-  }, []);
-
-
-  const handleDocsUpload = async() => {
-    if(!fileUpload) return;
-    const token = localStorage.getItem("token");
-    if(!token){
-      console.error("No token in handleDocsUpload");
-    }
-    try{
-      const res = await uploadDocs(fileUpload, token);
-      setFileUpload(null);
-      setShowDocPanel(false);
-
-      const data = await getDocs(token);
-      setDocuments(data);
-    } catch(err){
-    } 
-  }
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
 
     getWebsiteDocs(token)
       .then((data) => setWebsites(data))
       .catch((err) => console.error("Failed to website url:", err));
   }, []);
-
-
-  const handleWebsiteDocsUpload = async() => {
-    if(!websiteUpload) return;
-    if (!websiteUpload.startsWith("http")) {
-      alert("Please enter a valid URL");
-      return;
-    }
-
-    const token = localStorage.getItem("token");
-    if(!token){
-      console.error("No token in handleWebsiteDocsUpload");
-    }
-    try{
-      const res = await uploadWebsiteDocs(websiteUpload, token);
-      setWebsiteUpload(null);
-      setShowWebsiteDocPanel(false);
-      
-      const data = await getWebsiteDocs(token);
-      setWebsites(data);
-    } catch(err){
-    } 
-  }
-
-  const handleDeleteDoc = async(documentID) =>{
-    try{
-       const token = localStorage.getItem("token");
-      if(!token){
-        console.error("No token in handleDocsUpload");
-      }
-      await deleteDocument(documentID);
-      const data = await getDocs(token);
-      setDocuments(data);
-    } catch (error){
-      console.error("Failed to delete document: ", error)
-    }
-  }
-
-  const hanldeDeleteWebsiteDoc = async(websiteID) =>{
-    try{
-       const token = localStorage.getItem("token");
-      if(!token){
-        console.error("No token in handleDocsUpload");
-      }
-      await deleteWebsiteDocument(websiteID);
-      const data = await getWebsiteDocs(token);
-      setWebsites(data);
-    } catch (error){
-      console.error("Failed to delete document: ", error)
-    }
-  }
 
   return (
     <div>
@@ -120,14 +67,14 @@ const ChatbotContentPage = () => {
             </div>
           </div>
           <div className='mt-12 mb-8'>
-            <TableWebScraping 
-              websiteUpload={websiteUpload}
-              setWebsiteUpload={setWebsiteUpload}
-              handleWebsiteDocsUpload={handleWebsiteDocsUpload}
-              websites={websites}
-              showWebsiteDocPanel={showWebsiteDocPanel}
-              setShowWebsiteDocPanel={setShowWebsiteDocPanel}
-              hanldeDeleteWebsiteDoc={hanldeDeleteWebsiteDoc}
+            <TableWebScraping
+              // websiteUpload={websiteUpload}
+              // setWebsiteUpload={setWebsiteUpload}
+              // handleWebsiteDocsUpload={handleWebsiteDocsUpload}
+              // websites={websites}
+              // showWebsiteDocPanel={showWebsiteDocPanel}
+              // setShowWebsiteDocPanel={setShowWebsiteDocPanel}
+              // hanldeDeleteWebsiteDoc={hanldeDeleteWebsiteDoc}
             />
           </div>
         </div>
@@ -137,18 +84,45 @@ const ChatbotContentPage = () => {
         <div>
           <p className='font-semibold text-lg text-indigo-600'>Document Scraping</p>
           <div className='mt-12 mb-8'>
-            <TableDocScraping 
-              fileUpload={fileUpload}
-              setFileUpload={setFileUpload}
-              handleDocsUpload={handleDocsUpload}
-              documents={documents}
-              showDocPanel={showDocPanel}
-              setShowDocPanel={setShowDocPanel}
-              handleDeleteDoc={handleDeleteDoc}
-            />
+            <TableDocScraping/>
           </div>
         </div>
       </div>
+
+
+      {successAlertMessage && (
+        <AlertSuccess
+          text={successAlertMessage}
+          onClose={() => setSuccessAlertMessage("")}
+          className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50"
+        />
+      )}
+
+      {confirmationModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black opacity-50"></div>
+            <div className="relative z-10">
+              <ConfirmationModal
+                title="Delete Confirmation"
+                onConfirm={handleDeleteDoc}
+                onCancel={cancelDelete}
+              />
+            </div>
+        </div>
+      )}
+
+      {confirmationModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black opacity-50"></div>
+            <div className="relative z-10">
+              <ConfirmationModal
+                title="Delete Confirmation"
+                onConfirm={hanldeDeleteWebsiteDoc}
+                onCancel={cancelDelete}
+              />
+            </div>
+        </div>
+      )}
 
 
     </div>

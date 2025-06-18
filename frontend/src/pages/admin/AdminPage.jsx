@@ -147,11 +147,14 @@ export default function AdminPage() {
               {/* Sidebar component, swap this element with another sidebar if you like */}
               <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pb-4">
                 <div className="flex h-16 shrink-0 items-center">
+                  <a 
+                    href='/'>
                   <img
                     alt="AcadProBot"
                     src={logo_acadprobot_square}
                     className="h-8 w-auto"
                   />
+                  </a>
                 </div>
                 <nav className="flex flex-1 flex-col">
                   <ul role="list" className="flex flex-1 flex-col gap-y-7">

@@ -1,7 +1,30 @@
 import APAddDocs from "./APAddDocs";
-import { useState, useEffect } from "react"
+import { useAdminContent } from "../context/AdminContentProvider";
+import { uploadDocs, getDocs, uploadWebsiteDocs, getWebsiteDocs, deleteDocument, deleteWebsiteDocument } from '../services/adminService'
+import { useEffect } from "react";
 
-export default function TableDocScraping({ showDocPanel, setShowDocPanel, fileUpload, setFileUpload, handleDocsUpload, documents, handleDeleteDoc }) {
+export default function TableDocScraping() {
+    const {
+        confirmDelete,
+        documents,
+        setDocuments,
+        showDocPanel,
+        setShowDocPanel,
+        setWebsites,
+    } = useAdminContent();
+
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+    
+        getDocs(token)
+          .then((data) => setDocuments(data))
+          .catch((err) => console.error("Failed to fetch documents:", err));
+    
+        getWebsiteDocs(token)
+        .then((data) => setWebsites(data))
+        .catch((err) => console.error("Failed to website url:", err));
+      }, []);
 
     return (
         <div>
@@ -34,9 +57,9 @@ export default function TableDocScraping({ showDocPanel, setShowDocPanel, fileUp
                                     <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                                         Progress
                                     </th>
-                                    <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-0">
+                                    {/* <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-0">
                                         <span className="sr-only">View</span>
-                                    </th>
+                                    </th> */}
                                     <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-0">
                                         <span className="sr-only">Delete</span>
                                     </th>
@@ -49,14 +72,14 @@ export default function TableDocScraping({ showDocPanel, setShowDocPanel, fileUp
                                             {doc.filename}
                                         </td>
                                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{doc.status}</td>
-                                        <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
+                                        {/* <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
                                             <a href="#" className="text-indigo-500 hover:text-indigo-700">
                                                 View<span className="sr-only">, {doc.filename}</span>
                                             </a>
-                                        </td>
+                                        </td> */}
                                         <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
                                             <button
-                                                onClick={() => handleDeleteDoc(doc.id)}
+                                                onClick={() => confirmDelete(doc.id)}
                                                 className="bg-red-500 text-white px-2 py-1 rounded"
                                             >
                                                 Delete
@@ -73,10 +96,12 @@ export default function TableDocScraping({ showDocPanel, setShowDocPanel, fileUp
             {showDocPanel && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50">
                     <APAddDocs
-                        fileUpload={fileUpload}
-                        setFileUpload={setFileUpload}
-                        handleDocsUpload={handleDocsUpload}
-                        setShowDocPanel={setShowDocPanel}
+                        // fileUpload={fileUpload}
+                        // setFileUpload={setFileUpload}
+                        // handleDocsUpload={handleDocsUpload}
+                        // setShowDocPanel={setShowDocPanel}
+                        // successAlertMessage={successAlertMessage}
+                        // setSuccessAlertMessage={setSuccessAlertMessage}
                     />
                 </div>
             )}

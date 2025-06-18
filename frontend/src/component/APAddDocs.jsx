@@ -1,6 +1,14 @@
 import { useState, useRef } from "react"
+import { useAdminContent } from "../context/AdminContentProvider";
 
-export default function APAddDocs({setShowDocPanel, fileUpload, setFileUpload, handleDocsUpload}) {
+export default function APAddDocs() {
+     const {
+            fileUpload,
+            setFileUpload,
+            setShowDocPanel,
+            handleDocsUpload,
+        } = useAdminContent();
+
     const fileInputRef = useRef(null);
     const handleFileSelect = (file) => {
         if (file) {

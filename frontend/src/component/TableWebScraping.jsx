@@ -1,13 +1,33 @@
-import { useState } from "react"
 import APAddWebUrl from "./APAddWebUrl";
+import { useAdminContent } from "../context/AdminContentProvider";
 
-const items = [
-    { name: 'UM expert', title: 'https://umexpert.um.edu.my/', progress: 'Finished' },
-    { name: 'MST Website', title: 'https://fsktm.um.edu.my/postgraduate', progress: 'Running' },
-    // More people...
-]
-
-export default function TableWebScraping({websiteUpload, setWebsiteUpload, handleWebsiteDocsUpload, websites, showWebsiteDocPanel, setShowWebsiteDocPanel, hanldeDeleteWebsiteDoc}) {
+export default function TableWebScraping() {
+    
+    const {
+        confirmationModal,
+        setConfirmationModal,
+        confirmDelete,
+        cancelDelete,
+        successAlertMessage,
+        setSuccessAlertMessage,
+        fileUpload,
+        setFileUpload,
+        documents,
+        setDocuments,
+        showDocPanel,
+        setShowDocPanel,
+        websiteUpload,
+        setWebsiteUpload,
+        websites,
+        setWebsites,
+        showWebsiteDocPanel,
+        setShowWebsiteDocPanel,
+        handleDocsUpload,
+        handleWebsiteDocsUpload,
+        handleDeleteDoc,
+        hanldeDeleteWebsiteDoc
+      } = useAdminContent();
+    
     return (
         <div>
             <div className="sm:flex sm:items-center">
@@ -57,7 +77,7 @@ export default function TableWebScraping({websiteUpload, setWebsiteUpload, handl
                                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{website.status}</td>
                                         <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
                                             <button
-                                                onClick={() => hanldeDeleteWebsiteDoc(website.id)}
+                                                onClick={() => confirmDelete(website.id)}
                                                 className="bg-red-500 text-white px-2 py-1 rounded"
                                             >
                                                 Delete

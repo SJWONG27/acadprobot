@@ -1,4 +1,31 @@
-export default function APAddWebUrl({websiteUpload, setWebsiteUpload, handleWebsiteDocsUpload, setShowWebsiteDocPanel}) {
+import { useAdminContent } from "../context/AdminContentProvider";
+
+export default function APAddWebUrl() {
+    const {
+        confirmationModal,
+        setConfirmationModal,
+        confirmDelete,
+        cancelDelete,
+        successAlertMessage,
+        setSuccessAlertMessage,
+        fileUpload,
+        setFileUpload,
+        documents,
+        setDocuments,
+        showDocPanel,
+        setShowDocPanel,
+        websiteUpload,
+        setWebsiteUpload,
+        websites,
+        setWebsites,
+        showWebsiteDocPanel,
+        setShowWebsiteDocPanel,
+        handleDocsUpload,
+        handleWebsiteDocsUpload,
+        handleDeleteDoc,
+        hanldeDeleteWebsiteDoc
+      } = useAdminContent();
+
     const handleWebsiteSelect = (url)=>{
         if(url){
             setWebsiteUpload(url);
