@@ -6,6 +6,7 @@ import AdminPage from './pages/admin/AdminPage'
 import LoginPage from './pages/authentication/LoginPage'
 import RegisterPage from './pages/authentication/RegisterPage'
 import { AdminContentProvider } from './context/AdminContentProvider'
+import { ChatContentProvider } from './context/ChatContentProvider'
 
 function App() {
 
@@ -16,7 +17,11 @@ function App() {
           <Route path='/login' element={<LoginPage />} />
           <Route path='/register' element={<RegisterPage />} />
           <Route path='/' element={<LandingPage />} />
-          <Route path='/chat' element={<Chat />} />
+          <Route path='/chat' element={
+            <ChatContentProvider>
+              <Chat />
+            </ChatContentProvider>
+          } />
           <Route path="/admin" element={<Navigate to="/admin/overview" replace />} />
           <Route path="/admin/:section" element={
             <AdminContentProvider>

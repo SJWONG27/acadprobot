@@ -1,32 +1,35 @@
 import logo_acadprobot_long from '../../../src/assets/logo_acadprobot_long.svg'
 import { WindowIcon, TrashIcon, PencilSquareIcon } from '@heroicons/react/24/outline'
 import { format } from "date-fns"
-import { deleteChatSession } from '../../services/chatService'
+import { useChatContent } from '../../context/ChatContentProvider'
 
-const chatSession = [
-  { name: 'Chat 1', href: '#', current: false },
-  { name: 'Chat 2', href: '#', current: false },
-]
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
-export default function ChatSideBar({ isSidebarOpen, userId, toggleSidebar,chatSessions, selectedSessionId, setSelectedSessionId, deleteChat,toggleNewChat }) {
-  if (!isSidebarOpen) return null;
-  // const toggleNewChat = () => {
-  //   setSelectedSessionId(null);
-  // }
+export default function ChatSideBar() {
+  const {
+      confirmDelete,
+      isSidebarOpen,
+      chatSessions,
+      selectedSessionId,
+      setSelectedSessionId,
+      toggleSidebar,
+      toggleNewChat,
+    } = useChatContent();
+  
+    if (!isSidebarOpen) return null;
 
   return (
     <div className="w-full">
       <nav aria-label="Sidebar" className="flex flex-1 flex-col p-6">
         <div className='flex flex-row justify-between items-center'>
-          <a href="/" className="flex flex-row items-center">
+          <a href="/" className="flex flex-row items-center mr-2.5">
             <img
               alt="AcadProBot"
               src={logo_acadprobot_long}
-              className="w-40 h-auto object-fill"
+              className="w-50 h-auto object-fill"
             />
           </a>
           <div className='flex flex-row'>
@@ -66,7 +69,7 @@ export default function ChatSideBar({ isSidebarOpen, userId, toggleSidebar,chatS
                 <TrashIcon
                   aria-hidden="true"
                   className="size-5 self-center"
-                  onClick={() => deleteChat(item.session_id)}
+                  onClick={() => confirmDelete(item.session_id)}
                 />
               </a>
             </li>

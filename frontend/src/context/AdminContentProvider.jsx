@@ -111,8 +111,6 @@ export const AdminContentProvider = ({ children }) => {
 
             const updatedSites = await getWebsiteDocs(token);
             setWebsites(updatedSites);
-
-            triggerConfirmationModal("You are about to delete this website. Are you sure you want to proceed?");
         } catch (err) {
             console.error("Delete website error:", err);
         } finally {

@@ -95,14 +95,7 @@ export default function TableDocScraping() {
 
             {showDocPanel && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50">
-                    <APAddDocs
-                        // fileUpload={fileUpload}
-                        // setFileUpload={setFileUpload}
-                        // handleDocsUpload={handleDocsUpload}
-                        // setShowDocPanel={setShowDocPanel}
-                        // successAlertMessage={successAlertMessage}
-                        // setSuccessAlertMessage={setSuccessAlertMessage}
-                    />
+                    <APAddDocs />
                 </div>
             )}
         </div>

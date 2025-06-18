@@ -3,10 +3,18 @@ import { MicrophoneIcon, PaperAirplaneIcon, WindowIcon, XMarkIcon, CheckIcon } f
 import logo_acadprobot_long from '../../../src/assets/logo_acadprobot_long.svg'
 import logo_acadprobot_square from '../../../src/assets/logo_acadprobot_square.svg'
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
+import { useChatContent } from '../../context/ChatContentProvider'
 
-
-
-const ChatInterface = ({ isSidebarOpen, toggleSidebar, userId, chatSessions, selectedSessionId, messages, setMessages, handleSend, input, setInput }) => {
+const ChatInterface = () => {
+  const {
+      isSidebarOpen,
+      selectedSessionId,
+      messages,
+      input,
+      setInput,
+      toggleSidebar,
+      handleSend,
+    } = useChatContent();
 
   const chatEndRef = useRef(null);
   const textareaRef = useRef(null);
