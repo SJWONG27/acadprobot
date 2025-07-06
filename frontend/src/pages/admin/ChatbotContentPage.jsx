@@ -15,6 +15,7 @@ const ChatbotContentPage = () => {
     setConfirmationModal,
     confirmDelete,
     cancelDelete,
+    deleteTarget,
     successAlertMessage,
     setSuccessAlertMessage,
     fileUpload,
@@ -117,7 +118,8 @@ const ChatbotContentPage = () => {
             <div className="relative z-10">
               <ConfirmationModal
                 title="Delete Confirmation"
-                onConfirm={hanldeDeleteWebsiteDoc}
+                // onConfirm={hanldeDeleteWebsiteDoc}
+                onConfirm={deleteTarget === "document" ? handleDeleteDoc : hanldeDeleteWebsiteDoc}
                 onCancel={cancelDelete}
               />
             </div>

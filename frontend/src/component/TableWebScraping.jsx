@@ -7,6 +7,7 @@ export default function TableWebScraping() {
         confirmationModal,
         setConfirmationModal,
         confirmDelete,
+        confirmDeleteWebsiteDoc,
         cancelDelete,
         successAlertMessage,
         setSuccessAlertMessage,
@@ -77,7 +78,7 @@ export default function TableWebScraping() {
                                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{website.status}</td>
                                         <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
                                             <button
-                                                onClick={() => confirmDelete(website.id)}
+                                                onClick={() => confirmDeleteWebsiteDoc(website.id)}
                                                 className="bg-red-500 text-white px-2 py-1 rounded"
                                             >
                                                 Delete

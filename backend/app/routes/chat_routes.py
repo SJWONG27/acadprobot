@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from ..database.schemas import ChatRequest
 from datetime import datetime
 from ..database.models import ChatSession, Message, User
-from ..services.embedding_service import compare_match_embedding, get_confidence_score
+from ..services.embedding_service import compare_match_embedding
 
 router = APIRouter()
 
@@ -39,7 +39,7 @@ def chat_with_ollama(request: ChatRequest, db: Session = Depends(get_db)):
         db.refresh(session)
         
     if not request.session_id:
-        title_prompt = f"Generate a very short 3-5 word title for a chat query that starts with (dont give any explanation): {request.prompt}"
+        title_prompt = f"Generate a very short 3-5 word title for a academic chat query that starts with (dont give any explanation): {request.prompt}"
         try:
             ollama_url = "http://localhost:11434/api/generate"
             title_response = requests.post(ollama_url, json={
@@ -60,42 +60,48 @@ def chat_with_ollama(request: ChatRequest, db: Session = Depends(get_db)):
         db.query(Message)
         .filter_by(session_id=session.id)
         .order_by(Message.created_at)
-        .all()[-5:]
+        .all()[-3:]
     )
 
     # Build context
     context_prompt = ""
     for msg in past_messages:
-        role = "User" if msg.is_user else "Bot"
-        context_prompt += f"{role}: {msg.content}\n"
+        # role = "User" if msg.is_user else "Bot"
+        # context_prompt += f"{role}: {msg.content}\n"
+        if msg.is_user:
+            context_prompt += f"User: {msg.content}\n"
     
-    extra_lines = """
-        You are AcadProBot founded by student Wong Soon Jit in Universiti Malaya (UM). 
-        Generate response in English only.
-    """
+    context_prompt += f"User: {request.prompt}\n"
+    # extra_lines = """
+    #     You are AcadProBot founded by student Wong Soon Jit in Universiti Malaya (UM). 
+    #     Generate response in English only.
+    # """
     
-    context_prompt += extra_lines
-    context_prompt += f"User: {request.prompt}\nBot:"
+    # context_prompt += extra_lines
+    # context_prompt += f"User: {request.prompt}\nBot:"
 
-    try:
-        ollama_url = "http://localhost:11434/api/generate"
-        res = requests.post(ollama_url, json={
-            "model": "llama3.2",
-            "prompt": context_prompt,
-            "stream": False
-        })
-        res.raise_for_status()
-        response_text = res.json().get("response")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Ollama error: {str(e)}")
+    # try:
+    #     ollama_url = "http://localhost:11434/api/generate"
+    #     res = requests.post(ollama_url, json={
+    #         "model": "llama3.2",
+    #         "prompt": context_prompt,
+    #         "stream": False
+    #     })
+    #     res.raise_for_status()
+    #     response_text = res.json().get("response")
+    # except Exception as e:
+    #     raise HTTPException(status_code=500, detail=f"Ollama error: {str(e)}")
     
-    confidence_score = get_confidence_score(response_text, request.prompt)
-    print(confidence_score)
+    # confidence_score = get_confidence_score(response_text, request.prompt)
+    # print(confidence_score)
     
-    if confidence_score < 1.0:
-        response_text = compare_match_embedding(request.prompt, admin_id=admin_id)    
-        print("RAG done")
+    # if confidence_score < 1.0:
+    #     response_text = compare_match_embedding(request.prompt, admin_id=admin_id)    
+    #     print("RAG done")
 
+    response_text = compare_match_embedding(context_prompt, admin_id=admin_id)    
+    print("RAG done")
+    
     bot_msg = Message(session_id=session.id, content=response_text, is_user=False)
     db.add(bot_msg)
 

@@ -6,6 +6,7 @@ import { useEffect } from "react";
 export default function TableDocScraping() {
     const {
         confirmDelete,
+        confirmDeleteDoc,
         documents,
         setDocuments,
         showDocPanel,
@@ -79,7 +80,7 @@ export default function TableDocScraping() {
                                         </td> */}
                                         <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
                                             <button
-                                                onClick={() => confirmDelete(doc.id)}
+                                                onClick={() => confirmDeleteDoc(doc.id)}
                                                 className="bg-red-500 text-white px-2 py-1 rounded"
                                             >
                                                 Delete

@@ -14,6 +14,7 @@ export const AdminContentProvider = ({ children }) => {
     const [successAlertMessage, setSuccessAlertMessage] = useState("");
     const [confirmationModal, setConfirmationModal] = useState(false);
     const [pendingDeleteID, setPendingDeleteID] = useState(null);
+    const [deleteTarget, setDeleteTarget] = useState("");
 
     const [fileUpload, setFileUpload] = useState(null);
     const [documents, setDocuments] = useState([]);
@@ -78,6 +79,19 @@ export const AdminContentProvider = ({ children }) => {
         setConfirmationModal(true);
     };
 
+    const confirmDeleteDoc = (id) => {
+        setDeleteTarget("document");
+        setPendingDeleteID(id);
+        setConfirmationModal(true);
+    };
+
+    const confirmDeleteWebsiteDoc = (id) => {
+        setDeleteTarget("website");
+        setPendingDeleteID(id);
+        setConfirmationModal(true);
+    };
+
+
     const cancelDelete = () => {
         setConfirmationModal(false);
         setPendingDeleteID(null);
@@ -136,9 +150,13 @@ export const AdminContentProvider = ({ children }) => {
                 confirmationModal,
                 setConfirmationModal,
                 confirmDelete,
+                confirmDeleteDoc,
+                confirmDeleteWebsiteDoc,
                 cancelDelete,
                 pendingDeleteID,
                 setPendingDeleteID,
+                deleteTarget, 
+                setDeleteTarget,
                 successAlertMessage,
                 setSuccessAlertMessage,
                 fileUpload,

@@ -212,30 +212,31 @@ def compare_match_embedding(user_query, admin_id):
     ollama_res.raise_for_status()
     response_text = ollama_res.json().get("response")
     print(f"RAG done {context}")
+    print(f"======= {user_query}")
     return response_text
     
-def get_confidence_score(answer: str, question: str) -> float:
-    confidence_prompt = f"""
-    Given the following question and answer, estimate your confidence to answer the query as a number between 0 (no confidence) and 1 (very confident):
+# def get_confidence_score(answer: str, question: str) -> float:
+#     confidence_prompt = f"""
+#     Given the following question and answer, estimate your confidence to answer the query as a number between 0 (no confidence) and 1 (very confident):
 
-    Question: {question}
-    Answer: {answer}
+#     Question: {question}
+#     Answer: {answer}
 
-    Confidence (0 to 1) (Dont give any explanation, just number) :
-    """
-    print(confidence_prompt)
-    try:
-        res = requests.post("http://localhost:11434/api/generate", json={
-            "model": "llama3.2",
-            "prompt": confidence_prompt,
-            "stream": False
-        })
-        raw = res.json().get("response", "0.0").strip()
-        print(raw)
-        return extract_first_float(raw)
-    except Exception as e:
-        print("Exception occurred:", e)
-        return 0.1
+#     Confidence (0 to 1) (Dont give any explanation, just number) :
+#     """
+#     print(confidence_prompt)
+#     try:
+#         res = requests.post("http://localhost:11434/api/generate", json={
+#             "model": "llama3.2",
+#             "prompt": confidence_prompt,
+#             "stream": False
+#         })
+#         raw = res.json().get("response", "0.0").strip()
+#         print(raw)
+#         return extract_first_float(raw)
+#     except Exception as e:
+#         print("Exception occurred:", e)
+#         return 0.1
 
 
     
