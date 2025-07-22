@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import ReactMarkdown from 'react-markdown'
 import { MicrophoneIcon, PaperAirplaneIcon, WindowIcon, XMarkIcon, CheckIcon } from "@heroicons/react/24/outline";
 import logo_acadprobot_long from '../../../src/assets/logo_acadprobot_long.svg'
 import logo_acadprobot_square from '../../../src/assets/logo_acadprobot_square.svg'
@@ -96,7 +97,8 @@ const ChatInterface = () => {
                 : "bg-gray-100 text-black mr-auto" // Align left
               }`}
           >
-            {msg.content}
+            {/* {msg.content} */}
+            <ReactMarkdown>{msg.content}</ReactMarkdown>
           </div>
         ))}
         <div ref={chatEndRef} />

@@ -46,7 +46,7 @@ export default function ChatSideBar() {
           </div>
         </div>
         <div className="text-xs/6 font-semibold text-gray-400">Chat History</div>
-        <ul role="list" className="-mx-2 mt-2 space-y-1">
+        <ul role="list" className="-mx-2 mt-2 space-y-1 ">
           {chatSessions.map((item) => (
             <li key={item.title}>
               <a

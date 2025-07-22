@@ -9,14 +9,26 @@ from dotenv import load_dotenv
 from ..database.models import Embedding, EmbeddingStatus, Document, WebsiteDocument
 import re
 from bs4 import BeautifulSoup
+from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_ollama.llms import OllamaLLM
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
 
 load_dotenv()
 SECRET_KEY = os.getenv("SECRET_KEY")
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 supabase: Client = create_client(SUPABASE_URL, SECRET_KEY)
 
+embedding_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
+
+class RemoveColonParser(StrOutputParser):
+    def parse(self, text: str) -> str:
+        cleaned_text = re.sub(r"(\d+\.\s[^\n:]+):", r"\1", text)  # numbered list
+        cleaned_text = re.sub(r"(\*\*[^\n:]+\*\*):", r"\1", cleaned_text)  # **bolded headers**:
+        return cleaned_text
+
 def extract_text_from_docx(file_obj):
-    document = DocxDocument(file_obj)  # Accept file-like object directly
+    document = DocxDocument(file_obj)  
     return "\n".join([para.text for para in document.paragraphs])
 
 def extract_text_from_pdf(file_obj):
@@ -26,31 +38,6 @@ def extract_text_from_pdf(file_obj):
         text += page.get_text()
     doc.close()
     return text
-
-# def extract_text_from_umexpert(url):
-#     response = requests.get(url)
-#     soup = BeautifulSoup(response.text, "html.parser")
-#     project_div = soup.find('div', id='project-container')
-
-#     if project_div:
-#         texts = project_div.get_text(separator="\n", strip=True).splitlines()
-#     else:
-#         texts = ["cannot find"]
-    
-#     target_phrase = "faculty of Computer Science and Information Technology"
-#     indices_to_keep = set()
-
-#     for i, line in enumerate(texts):
-#         if target_phrase.lower() in line.lower():
-#             start = max(i - 2, 0)
-#             end = min(i + 15 + 1, len(texts))
-#             indices_to_keep.update(range(start, end))
-
-#     cleaned_lines = [texts[i] for i in sorted(indices_to_keep)]
-#     joined_text = "\n".join(cleaned_lines)
-#     chunks = [chunk.strip() + "\nView CV" for chunk in joined_text.split("View CV") if chunk.strip()]
-
-#     return chunks
 
 def extract_text_from_umexpert(url):
     try:
@@ -69,30 +56,50 @@ def extract_text_from_umexpert(url):
     all_text = project_div.get_text(separator="\n", strip=True)
     blocks = all_text.split("View CV")
 
-    # Normalize target phrase
     target_phrase = "faculty of Computer Science and Information Technology"
-
-    # Filter blocks: only those containing the phrase
     result_chunks = []
+
     for block in blocks:
-        if target_phrase.lower() in block.lower():
-            cleaned = block.strip() + "\nView CV"
-            result_chunks.append(cleaned)
+        if target_phrase.lower() not in block.lower():
+            continue
+
+        lines = [line.strip() for line in block.strip().split("\n") if line.strip()]
+        
+        # Extract useful info heuristically
+        name = next((l for l in lines if "Dr." in l or "Prof." in l), "Name not found")
+        email = next((l for l in lines if "@" in l), "Email not found")
+        dept = next((l for l in lines if "faculty" in l.lower()), "Faculty of Computer Science and Information Technology")
+        phone = next((l for l in lines if l.replace("-", "").replace("+", "").isdigit() and len(l) >= 8), None)
+        
+        # Collect lines after "Area(s) of Expertise"
+        expertise_lines = []
+        collect = False
+        for line in lines:
+            if "Area(s) of Expertise" in line:
+                collect = True
+                continue
+            if collect:
+                expertise_lines.append(line)
+        
+        expertise = ", ".join(expertise_lines) if expertise_lines else "not specified"
+
+        # Construct readable sentence
+        paragraph = f"{name} is affiliated with the {dept}. "
+        if phone:
+            paragraph += f"Contact: {email}, Phone: {phone}. "
+        else:
+            paragraph += f"Contact: {email}. "
+        paragraph += f"Their areas of expertise include: {expertise}."
+
+        result_chunks.append(paragraph.strip())
 
     return result_chunks if result_chunks else ["no matching faculty found"]
 
-def get_ollama_embeddings(chunks):
-    chunk_embeddings = []
-    for chunk in chunks:
-        res = requests.post("http://localhost:11434/api/embeddings", json={
-            "model": "nomic-embed-text",
-            "prompt": chunk
-        })
-        res.raise_for_status()
-        embedding = res.json()["embedding"]
-        chunk_embeddings.append(embedding)
-    return chunk_embeddings
+def get_embeddings(chunks):
+    return embedding_model.embed_documents(chunks)
 
+def get_query_embeddings(query):
+    return embedding_model.embed_query(query)
 
 def extract_first_float(text):
     match = re.search(r"\b[0-1](?:\.\d+)?\b", text)  # matches 0, 0.1, ..., 1
@@ -118,14 +125,14 @@ def get_embedding_docs(fileUploaded, admin_id, document_id, db):
             extracted_text = extract_text_from_pdf(fileUploaded.file)
             
         chunks = textwrap.wrap(extracted_text, width=2000)
-        chunk_embeddings = get_ollama_embeddings(chunks)
+        chunk_embeddings = get_embeddings(chunks)
 
         for i, emb in enumerate(chunk_embeddings):
             record = Embedding(
                 content=chunks[i],
                 embedding=emb,
                 chunk_index=i,
-                admin_id=admin_id,  # You must pass this value in
+                admin_id=admin_id, 
                 document_id=document_id
             )
             db.add(record)
@@ -149,16 +156,14 @@ def get_website_embedding_docs(url, admin_id, website_id, db):
     
     try: 
         chunks = extract_text_from_umexpert(url)
-            
-        # chunks = textwrap.wrap(extracted_text, width=2000)
-        chunk_embeddings = get_ollama_embeddings(chunks)
+        chunk_embeddings = get_embeddings(chunks)
 
         for i, emb in enumerate(chunk_embeddings):
             record = Embedding(
                 content=chunks[i],
                 embedding=emb,
                 chunk_index=i,
-                admin_id=admin_id,  # You must pass this value in
+                admin_id=admin_id,
                 website_id=website_id
             )
             db.add(record)
@@ -173,10 +178,7 @@ def get_website_embedding_docs(url, admin_id, website_id, db):
 
 def compare_match_embedding(user_query, admin_id):
     print("RAG Start")
-    query_embedding = requests.post("http://localhost:11434/api/embeddings", json={
-        "model": "nomic-embed-text",
-        "prompt": user_query
-    }).json()["embedding"]
+    query_embedding = get_query_embeddings(user_query)
 
     response = supabase.rpc("match_test_embeddings", {
         "query_embedding": query_embedding,
@@ -190,53 +192,30 @@ def compare_match_embedding(user_query, admin_id):
     top_chunks = [item["content"] for item in response.data]
     context = "\n\n".join(top_chunks)
     
-    prompt = f"""You are a helpful assistant, named AcadProBot founded by student Wong Soon Jit in Universiti Malaya (UM). 
-        If not sure or ambiguous with the queries, voice it out.
-        For those queries irrelevant with academic matters, generate default response.
-        Generate response in English only.
-    Use the following context to answer the question only:
-
-    Context:
-    {context}
-
-    Question:
-    {user_query}
-
-    Answer:"""
+    prompt = "Use the following context to answer the question only. Format the answer using Markdown-style"
     
-    ollama_res = requests.post("http://localhost:11434/api/generate", json={
-        "model": "llama3.2",
+    prompt_template = ChatPromptTemplate([
+        ("system", "{context}"),
+        ("system", "{prompt}"),
+        ("human", "{user_query}")
+    ])
+    
+    model = OllamaLLM(model="llama3.2")
+    parser = RemoveColonParser()
+    chain = prompt_template | model | parser
+    
+    result = chain.invoke({
+        "context": context,
         "prompt": prompt,
-        "stream": False
+        "user_query": user_query,
     })
-    ollama_res.raise_for_status()
-    response_text = ollama_res.json().get("response")
-    print(f"RAG done {context}")
-    print(f"======= {user_query}")
-    return response_text
     
-# def get_confidence_score(answer: str, question: str) -> float:
-#     confidence_prompt = f"""
-#     Given the following question and answer, estimate your confidence to answer the query as a number between 0 (no confidence) and 1 (very confident):
+    print(top_chunks)
+    
+    return result
 
-#     Question: {question}
-#     Answer: {answer}
+    
 
-#     Confidence (0 to 1) (Dont give any explanation, just number) :
-#     """
-#     print(confidence_prompt)
-#     try:
-#         res = requests.post("http://localhost:11434/api/generate", json={
-#             "model": "llama3.2",
-#             "prompt": confidence_prompt,
-#             "stream": False
-#         })
-#         raw = res.json().get("response", "0.0").strip()
-#         print(raw)
-#         return extract_first_float(raw)
-#     except Exception as e:
-#         print("Exception occurred:", e)
-#         return 0.1
 
 
     

@@ -6,6 +6,9 @@ from ..database.schemas import ChatRequest
 from datetime import datetime
 from ..database.models import ChatSession, Message, User
 from ..services.embedding_service import compare_match_embedding
+from langchain_ollama.llms import OllamaLLM
+from langchain_core.prompts import ChatPromptTemplate
+
 
 router = APIRouter()
 
@@ -39,17 +42,26 @@ def chat_with_ollama(request: ChatRequest, db: Session = Depends(get_db)):
         db.refresh(session)
         
     if not request.session_id:
-        title_prompt = f"Generate a very short 3-5 word title for a academic chat query that starts with (dont give any explanation): {request.prompt}"
+        # Define Prompt Template
+        prompt_template = ChatPromptTemplate([
+            ("system", "Generate a very short 3-5 word title for an academic chat query that starts with (dont give any explanation)"),
+            ("human", request.prompt),
+        ])
+
+        # Instantiate Ollama Model
+        model = OllamaLLM(model="llama3.2")
+
+        # Chain Prompt and Model together
+        chain = prompt_template | model
+
+        # Call the chain with your user input
         try:
-            ollama_url = "http://localhost:11434/api/generate"
-            title_response = requests.post(ollama_url, json={
-                "model": "llama3.2",
-                "prompt": title_prompt,
-                "stream": False
-            })
-            session.title = title_response.json().get("response")
+            title_response = chain.invoke({"user_prompt": request.prompt})
+            session.title = title_response
         except Exception as e:
-            session.title = request.prompt[:30] + "..." 
+            print(f"LangChain Error: {repr(e)}")
+            session.title = request.prompt[:30] + "..."
+
         db.commit()
 
     # Now session is guaranteed to be defined here ↓↓↓
