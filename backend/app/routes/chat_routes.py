@@ -63,64 +63,27 @@ async def chat_with_ollama(request: ChatRequest, db: Session = Depends(get_db)):
     
     context_prompt += f"User: {request.prompt}\n"
     
-    # 1st async task: Generate title for a chat session
-    async def generate_chat_title_task():
-        # Call the chain with your user input
-        # try:
-        #     # prompt_template = ChatPromptTemplate([
-        #     #     ("system", "Generate one short title directly for an academic chat query"),
-        #     #     ("human", request.prompt),
-        #     # ])
-        #     prompt_template = ChatPromptTemplate([
-        #         ("system", """You are a title generator for an academic chatbot.
-        #     Generate ONLY a short 3–5 word title summarizing the user's question.
-        #     Do NOT include any explanation, punctuation, or quotation marks.
-        #     Examples:
-        #     User: How do I apply for UM?
-        #     Title: UM Application Process
-
-        #     User: What are the requirements for Computer Science?
-        #     Title: Computer Science Requirements
-        #     """),
-        #         ("human", f"User: {request.prompt}\nTitle:"),
-        #     ])
-
-
-        #     # Instantiate Ollama Model
-        #     model = OllamaLLM(model="llama3.2:1b-instruct-q2_K")
-        #     # Chain Prompt and Model together
-        #     chain = prompt_template | model
-        #     title_response = chain.invoke({"user_prompt": request.prompt})
-        #     session.title = title_response
-        #     return title_response
-        try:
-            return request.prompt[:30] + "..."
-        except Exception as e:
-            print(f"LangChain Error: {repr(e)}")
-            session.title = request.prompt[:30] + "..."
-            
-    # 2nd async task: RAG Process
-    async def rag_task():
-        print("RAG DONE")
-        return compare_match_embedding(context_prompt, admin_id=admin_id)   
-    
-    # RAG Process
-    # response_text = compare_match_embedding(context_prompt, admin_id=admin_id)    
-    # print("RAG done")
-    
-    # Run both concurrently
-    title_response, response_text = await asyncio.gather(
-        generate_chat_title_task(),
-        rag_task()
-    )
+    # Generate a title
+    title_response = request.prompt[:30] + "..."
     
     if not request.session_id:
         session.title = title_response
-    # db.add(session)
-
-    # Now session is guaranteed to be defined here
-    # user_msg = Message(session_id=session.id, content=request.prompt, is_user=True)
-    # db.add(user_msg)
+    
+    # DistilBERT Academic Classifier
+    predicted_class = classify_query(request.prompt)
+    
+    if predicted_class == 0:
+        response_text = (
+            "I'm sorry, but that question seems unrelated to academic programs. "
+            "Could you please rephrase it or ask something about your studies?"
+        )
+    else:
+        # RAG Process
+        try:
+            response_text = compare_match_embedding(context_prompt, admin_id=admin_id)
+        except Exception as e:
+            print(f"RAG error: {repr(e)}")
+            response_text = "Sorry, I encountered an issue retrieving information. Please try again later."
     
     bot_msg = Message(session_id=session.id, content=response_text, is_user=False)
     db.add(bot_msg)

@@ -1,0 +1,30 @@
+.chat-markdown p {
+  margin-bottom: 10px;
+  line-height: 1.7;
+}
+
+.chat-markdown h1 {
+  font-size: 20px;
+  font-weight: bold;
+  margin-top: 25px;
+}
+
+.chat-markdown em {
+  color: #555;
+  font-style: italic;
+}
+
+.chat-markdown strong {
+  color: #222;
+}
+
+.chat-markdown ul {
+  list-style: disc; 
+  padding-left: 20px;
+  margin-bottom: 10px;
+}
+
+.chat-markdown li {
+  /* list-style: disc;  */
+  margin-bottom: 5px;
+}

@@ -5,6 +5,7 @@ import logo_acadprobot_long from '../../../src/assets/logo_acadprobot_long.svg'
 import logo_acadprobot_square from '../../../src/assets/logo_acadprobot_square.svg'
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 import { useChatContent } from '../../context/ChatContentProvider'
+import "./ChatMarkdown.css";
 
 const ChatInterface = () => {
   const {
@@ -98,7 +99,12 @@ const ChatInterface = () => {
               }`}
           >
             {/* {msg.content} */}
-            <ReactMarkdown>{msg.content}</ReactMarkdown>
+            <div className="chat-markdown">
+              <ReactMarkdown>
+                {msg.content}
+              </ReactMarkdown>
+            </div>
+            
           </div>
         ))}
         <div ref={chatEndRef} />

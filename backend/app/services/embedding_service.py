@@ -181,6 +181,27 @@ def get_website_embedding_docs(url, admin_id, website_id, db):
         db.commit()
         raise e
 
+def generate_ai_content(user_query):
+    print("generate AI content")
+    
+    prompt = "Answer the following academic query. Format the answer using Markdown-style, with proper line spacing across different ideas."
+    
+    prompt_template = ChatPromptTemplate([
+        ("system", "{prompt}"),
+        ("human", "{user_query}")
+    ])
+    
+    model = OllamaLLM(model="llama3.2")
+    parser = RemoveColonParser()
+    chain = prompt_template | model | parser
+    
+    result = chain.invoke({
+        "prompt": prompt,
+        "user_query": user_query,
+    })
+    
+    return result
+
 def compare_match_embedding(user_query, admin_id):
     print("RAG Start")
     query_embedding = get_query_embeddings(user_query)
@@ -191,13 +212,18 @@ def compare_match_embedding(user_query, admin_id):
         "admin_id": str(admin_id)
     }).execute()
     
-    if not response.data:
-        return "Sorry, I couldn't find any relevant information based on your query. Please contact your program's admin."
+    
+    top_result = response.data[0]
+    similarity = top_result["similarity"]
+    
+    if (similarity < 0.6) or (not response.data) :
+        return f"*AI-generated content:* \n\n" + generate_ai_content(user_query)
     
     top_chunks = [item["content"] for item in response.data]
     context = "\n\n".join(top_chunks)
     
-    prompt = "Use the following context to answer the question only. Format the answer using Markdown-style"
+    prompt = '''Use the following context to answer the question only. 
+   '''
     
     prompt_template = ChatPromptTemplate([
         ("system", "{context}"),
@@ -206,7 +232,6 @@ def compare_match_embedding(user_query, admin_id):
     ])
     
     model = OllamaLLM(model="llama3.2")
-    # model = ChatOllama(model="gpt-oss:20b", validate_model_on_init=True)
     parser = RemoveColonParser()
     chain = prompt_template | model | parser
     
@@ -215,14 +240,14 @@ def compare_match_embedding(user_query, admin_id):
         "prompt": prompt,
         "user_query": user_query,
     })
-    
-    print(top_chunks)
+    print(similarity)
     
     return result
 
+
 academic_classifier_model_path = "./academic_classifier_bert"
-tokenizer = AutoTokenizer.from_pretrained("distilbert/distilbert-base-uncased")
-academic_classifier_model = AutoModelForSequenceClassification.from_pretrained(academic_classifier_model_path, num_labels=2)
+tokenizer = AutoTokenizer.from_pretrained(academic_classifier_model_path)
+academic_classifier_model = AutoModelForSequenceClassification.from_pretrained(academic_classifier_model_path)
 
 
 def classify_query(query: str) -> int:
