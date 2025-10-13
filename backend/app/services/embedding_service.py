@@ -5,6 +5,7 @@ import textwrap
 import requests
 from supabase import create_client, Client
 import os
+import torch
 from dotenv import load_dotenv
 from ..database.models import Embedding, EmbeddingStatus, Document, WebsiteDocument
 import re
@@ -13,6 +14,10 @@ from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_ollama.llms import OllamaLLM
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
+from langchain_ollama import ChatOllama
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
+import asyncio
+
 
 load_dotenv()
 SECRET_KEY = os.getenv("SECRET_KEY")
@@ -201,6 +206,7 @@ def compare_match_embedding(user_query, admin_id):
     ])
     
     model = OllamaLLM(model="llama3.2")
+    # model = ChatOllama(model="gpt-oss:20b", validate_model_on_init=True)
     parser = RemoveColonParser()
     chain = prompt_template | model | parser
     
@@ -214,7 +220,21 @@ def compare_match_embedding(user_query, admin_id):
     
     return result
 
-    
+academic_classifier_model_path = "./academic_classifier_bert"
+tokenizer = AutoTokenizer.from_pretrained("distilbert/distilbert-base-uncased")
+academic_classifier_model = AutoModelForSequenceClassification.from_pretrained(academic_classifier_model_path, num_labels=2)
+
+
+def classify_query(query: str) -> int:
+    inputs = tokenizer(query, return_tensors="pt", truncation=True, padding=True)
+    with torch.no_grad():
+        outputs = academic_classifier_model(**inputs)
+        logits = outputs.logits
+        predicted_class = torch.argmax(logits, dim=1).item()
+        confidence = torch.softmax(logits, dim=1)[0][predicted_class].item()
+    print(f"Query: {query}")
+    print(f"Predicted class: {predicted_class}, confidence: {confidence:.2f}")
+    return predicted_class
 
 
 

@@ -57,6 +57,7 @@ export const ChatContentProvider = ({ children }) => {
     useEffect(() => {
         const fetchMessages = async () => {
             if (!selectedSessionId) return;
+            if (typeof selectedSessionId === "string" && selectedSessionId.startsWith("temp-")) return;
 
             try {
                 const res = await getMessages(selectedSessionId);
@@ -69,31 +70,77 @@ export const ChatContentProvider = ({ children }) => {
         fetchMessages();
     }, [selectedSessionId]);
 
-    
     const handleSend = async () => {
         if (!input.trim()) return;
         if (!userId) {
             console.error("no user id fetched");
+            return;
         }
-        const newMessage = { role: "user", content: input };
-        setMessages((prev) => [...prev, newMessage]);
+
+        // ✨ Optimistically create a temp session ID (for new chat)
+        let tempSessionId = selectedSessionId;
+        if (!tempSessionId) {
+            tempSessionId = `temp-${Date.now()}`;
+            const tempSession = {
+                id: tempSessionId,
+                title: "New Chat",
+                temp: true, 
+                messages: [],
+            };
+            setChatSessions((prev) => [tempSession, ...prev]);
+            setSelectedSessionId(tempSessionId);
+        }
+
+        const userMessage = { role: "user", content: input };
+        setMessages((prev) => [...prev, userMessage]);
         setInput("");
+
+        // Show bot typing message
+        const typingMsg = { role: "assistant", content: "..." };
+        setMessages((prev) => [...prev, typingMsg]);
 
         try {
             const data = await sendMessage(userId, input, selectedSessionId);
-            setMessages((prev) => [...prev, { role: "assistant", content: data.response }]);
 
-            if (data.session_id && !selectedSessionId) setSelectedSessionId(data.session_id);
+            // Replace typing msg with real bot response
+            setMessages((prev) => {
+                const updated = [...prev];
+                updated[updated.length - 1] = { role: "assistant", content: data.response };
+                return updated;
+            });
 
-            const res = await getChatSessions(userId);
-            setChatSessions(res);
+            // 🆕 When backend returns actual session_id, replace temp one
+            if (data.session_id && !selectedSessionId) {
+                setSelectedSessionId(data.session_id);
+                setChatSessions((prev) =>
+                    prev.map((s) =>
+                    s.id === tempSessionId
+                        ? { id: data.session_id, title: "New Chat" }
+                        : s
+                    )
+                );
+            }
+
+            // Refresh sessions (non-blocking)
+            getChatSessions(userId)
+            .then((res) => setChatSessions(res))
+            .catch((err) => console.error("refresh chat sessions failed:", err));
+
         } catch (error) {
             console.error("Request handleSend failed:", error);
+            setMessages((prev) => [
+            ...prev,
+            { role: "assistant", content: "Oops, something went wrong 😅" },
+            ]);
         }
-    };
+        };
+
+
+
 
     const toggleNewChat = () => {
         setSelectedSessionId(null);
+        setMessages([]);
     }
 
     const confirmDelete = async (session_id) => {

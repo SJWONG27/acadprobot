@@ -1,13 +1,15 @@
 from fastapi import APIRouter, Depends, HTTPException
-import requests
+import requests, asyncio
 from ..database.database import SessionLocal
 from sqlalchemy.orm import Session
 from ..database.schemas import ChatRequest
 from datetime import datetime
 from ..database.models import ChatSession, Message, User
-from ..services.embedding_service import compare_match_embedding
+from ..services.embedding_service import compare_match_embedding, classify_query
 from langchain_ollama.llms import OllamaLLM
 from langchain_core.prompts import ChatPromptTemplate
+from langchain_ollama import ChatOllama
+
 
 
 router = APIRouter()
@@ -22,7 +24,7 @@ def get_db():
 
 
 @router.post("/")
-def chat_with_ollama(request: ChatRequest, db: Session = Depends(get_db)):
+async def chat_with_ollama(request: ChatRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter_by(id=request.id).first()
     if not user or not user.admin_id:
         raise HTTPException(status_code=404, detail="User or admin_id not found")
@@ -41,30 +43,6 @@ def chat_with_ollama(request: ChatRequest, db: Session = Depends(get_db)):
         db.commit()
         db.refresh(session)
         
-    if not request.session_id:
-        # Define Prompt Template
-        prompt_template = ChatPromptTemplate([
-            ("system", "Generate a very short 3-5 word title for an academic chat query that starts with (dont give any explanation)"),
-            ("human", request.prompt),
-        ])
-
-        # Instantiate Ollama Model
-        model = OllamaLLM(model="llama3.2")
-
-        # Chain Prompt and Model together
-        chain = prompt_template | model
-
-        # Call the chain with your user input
-        try:
-            title_response = chain.invoke({"user_prompt": request.prompt})
-            session.title = title_response
-        except Exception as e:
-            print(f"LangChain Error: {repr(e)}")
-            session.title = request.prompt[:30] + "..."
-
-        db.commit()
-
-    # Now session is guaranteed to be defined here ↓↓↓
     user_msg = Message(session_id=session.id, content=request.prompt, is_user=True)
     db.add(user_msg)
 
@@ -84,48 +62,74 @@ def chat_with_ollama(request: ChatRequest, db: Session = Depends(get_db)):
             context_prompt += f"User: {msg.content}\n"
     
     context_prompt += f"User: {request.prompt}\n"
-    # extra_lines = """
-    #     You are AcadProBot founded by student Wong Soon Jit in Universiti Malaya (UM). 
-    #     Generate response in English only.
-    # """
     
-    # context_prompt += extra_lines
-    # context_prompt += f"User: {request.prompt}\nBot:"
+    # 1st async task: Generate title for a chat session
+    async def generate_chat_title_task():
+        # Call the chain with your user input
+        # try:
+        #     # prompt_template = ChatPromptTemplate([
+        #     #     ("system", "Generate one short title directly for an academic chat query"),
+        #     #     ("human", request.prompt),
+        #     # ])
+        #     prompt_template = ChatPromptTemplate([
+        #         ("system", """You are a title generator for an academic chatbot.
+        #     Generate ONLY a short 3–5 word title summarizing the user's question.
+        #     Do NOT include any explanation, punctuation, or quotation marks.
+        #     Examples:
+        #     User: How do I apply for UM?
+        #     Title: UM Application Process
 
-    # try:
-    #     ollama_url = "http://localhost:11434/api/generate"
-    #     res = requests.post(ollama_url, json={
-    #         "model": "llama3.2",
-    #         "prompt": context_prompt,
-    #         "stream": False
-    #     })
-    #     res.raise_for_status()
-    #     response_text = res.json().get("response")
-    # except Exception as e:
-    #     raise HTTPException(status_code=500, detail=f"Ollama error: {str(e)}")
-    
-    # confidence_score = get_confidence_score(response_text, request.prompt)
-    # print(confidence_score)
-    
-    # if confidence_score < 1.0:
-    #     response_text = compare_match_embedding(request.prompt, admin_id=admin_id)    
-    #     print("RAG done")
+        #     User: What are the requirements for Computer Science?
+        #     Title: Computer Science Requirements
+        #     """),
+        #         ("human", f"User: {request.prompt}\nTitle:"),
+        #     ])
 
-    response_text = compare_match_embedding(context_prompt, admin_id=admin_id)    
-    print("RAG done")
+
+        #     # Instantiate Ollama Model
+        #     model = OllamaLLM(model="llama3.2:1b-instruct-q2_K")
+        #     # Chain Prompt and Model together
+        #     chain = prompt_template | model
+        #     title_response = chain.invoke({"user_prompt": request.prompt})
+        #     session.title = title_response
+        #     return title_response
+        try:
+            return request.prompt[:30] + "..."
+        except Exception as e:
+            print(f"LangChain Error: {repr(e)}")
+            session.title = request.prompt[:30] + "..."
+            
+    # 2nd async task: RAG Process
+    async def rag_task():
+        print("RAG DONE")
+        return compare_match_embedding(context_prompt, admin_id=admin_id)   
+    
+    # RAG Process
+    # response_text = compare_match_embedding(context_prompt, admin_id=admin_id)    
+    # print("RAG done")
+    
+    # Run both concurrently
+    title_response, response_text = await asyncio.gather(
+        generate_chat_title_task(),
+        rag_task()
+    )
+    
+    if not request.session_id:
+        session.title = title_response
+    # db.add(session)
+
+    # Now session is guaranteed to be defined here
+    # user_msg = Message(session_id=session.id, content=request.prompt, is_user=True)
+    # db.add(user_msg)
     
     bot_msg = Message(session_id=session.id, content=response_text, is_user=False)
     db.add(bot_msg)
-
     session.updated_at = datetime.utcnow()
     db.commit()
 
     return {
         "session_id": session.id,
         "response": response_text,
-        # "admin_id": str(session.admin_id)
-        # "confidence": confidence_score,
-        # "used_rag": confidence_score < 0.6
     }
     
 @router.get("/sessions/{session_id}/messages")
