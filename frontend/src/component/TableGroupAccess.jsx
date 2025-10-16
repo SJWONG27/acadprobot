@@ -31,7 +31,7 @@ export default function TableGroupAccess() {
                 <div className="sm:flex-auto">
                     <h1 className="text-base font-semibold text-gray-900">Users</h1>
                     <p className="mt-2 text-sm text-gray-700">
-                        A list of users that can access to the chatbot
+                        Invite users to access your chatbot
                     </p>
                 </div>
                 <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
@@ -66,7 +66,7 @@ export default function TableGroupAccess() {
                                         </td>
                                         <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
                                             <a href="#" className="text-red-500 hover:text-red-700">
-                                                Delete<span className="sr-only">, {email}</span>
+                                                Revoke Access<span className="sr-only">, {email}</span>
                                             </a>
                                         </td>
                                     </tr>

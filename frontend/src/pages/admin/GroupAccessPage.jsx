@@ -35,10 +35,6 @@ const GroupAccessPage = () => {
           <span className='text-xs font-light'>Refer Code: </span>
           <span className='text-indigo-500 text-center text-xl font-semibold mb-1'>{refercode}</span>
         </div>
-        <div className='flex flex-row w-md mt-12'>
-          <span className='mr-4'>Allow self registration</span>
-          <Toggles />
-        </div>
         <div className='mt-12'>
           <TableGroupAccess />
         </div>

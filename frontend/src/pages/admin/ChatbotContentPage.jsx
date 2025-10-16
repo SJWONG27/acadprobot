@@ -58,7 +58,7 @@ const ChatbotContentPage = () => {
       <div className='flex flex-col pb-3'>
         <div>
           <p className='font-semibold text-lg text-indigo-600'>Web Scraping</p>
-          <div className='flex flex-row justify-between mt-8'>
+          {/* <div className='flex flex-row justify-between mt-8'>
             <div className='flex flex-row w-md'>
               <span className='mr-4'>Auto Update</span>
               <Toggles />
@@ -66,7 +66,7 @@ const ChatbotContentPage = () => {
             <div className='flex w-md'>
               <FrequencyCustom />
             </div>
-          </div>
+          </div> */}
           <div className='mt-12 mb-8'>
             <TableWebScraping
               // websiteUpload={websiteUpload}

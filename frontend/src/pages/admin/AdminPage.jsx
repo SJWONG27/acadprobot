@@ -67,7 +67,7 @@ export default function AdminPage() {
     { name: 'Dashboard', icon: HomeIcon, current: section === 'overview', id: 'overview' },
     { name: 'Chatbot Content', icon: ChatBubbleBottomCenterTextIcon, current: section === 'chatbot', id: 'chatbot' },
     { name: 'Group Access', icon: UsersIcon, current: section === 'group', id: 'group' },
-    { name: 'FAQs Update', icon: FolderIcon, current: section === 'faqs', id: 'faqs' },
+    // { name: 'FAQs Update', icon: FolderIcon, current: section === 'faqs', id: 'faqs' },
   ];
   const navigate = useNavigate();
   const handleNavClick = (page) => {
@@ -81,8 +81,8 @@ export default function AdminPage() {
         return <ChatbotContentPage />;
       case 'group':
         return <GroupAccessPage />;
-      case 'faqs':
-        return <FAQsManager />;
+      // case 'faqs':
+      //   return <FAQsManager />;
       default:
         return <OverviewPage />;
     }
