@@ -22,7 +22,7 @@ export default function LoginPage() {
             if(data.role == "admin"){
                 navigate("/admin")
             } else {
-                navigate("/chat")
+                navigate("/listofchatbots")
             }
             alert("Login successful")          
         } catch (error){

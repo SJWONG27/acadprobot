@@ -24,9 +24,11 @@ public class AuthService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private JwtUtil jwtUtil;
+
     // registration
-    public User registerUser(String email, String password, String refercode){
-        System.out.println("📩 Register attempt: " + email + " | refercode: " + refercode);
+    public User registerUser(String email, String password){
 
         Optional<User> existingUser = userRepository.findByEmail(email);
         Optional<Admin> existingAdmin = adminRepository.findByEmail(email);
@@ -37,12 +39,6 @@ public class AuthService {
             throw new RuntimeException("Email already registered");
         }
 
-//        if(userRepository.findByEmail(email).isPresent() || adminRepository.findByEmail(email).isPresent()){
-//            throw new RuntimeException("Email already registered");
-//        }
-
-        Admin admin = adminRepository.findByRefercode(refercode)
-                .orElseThrow(()-> new RuntimeException("Invalid Refercode"));
 
         String hashedPassword = passwordEncoder.encode(password);
         System.out.println("✅ Password hashed");
@@ -50,8 +46,6 @@ public class AuthService {
         User newUser = new User();
         newUser.setEmail(email);
         newUser.setPassword(hashedPassword);
-        newUser.setRefercode(refercode);
-        newUser.setAdmin(admin);
 
         User savedUser = userRepository.save(newUser);
         System.out.println("✅ User saved successfully: " + savedUser.getId());
@@ -59,8 +53,7 @@ public class AuthService {
         return savedUser;
     }
 
-    @Autowired
-    private JwtUtil jwtUtil;
+
 
     public AuthResponse login(String email, String password) {
         Optional<User> user = userRepository.findByEmail(email);
@@ -68,9 +61,10 @@ public class AuthService {
             if (passwordEncoder.matches(password, user.get().getPassword())) {
                 String token = jwtUtil.generateToken(Map.of(
                         "sub", user.get().getId().toString(),
-                        "role", "user"
+                        "role", "user",
+                        "email", email
                 ));
-                return new AuthResponse(token, "bearer", "user");
+                return new AuthResponse(token, "bearer", "user", email);
             } else {
                 throw new RuntimeException("Invalid credentials wrong password");
             }
@@ -81,9 +75,10 @@ public class AuthService {
             if (passwordEncoder.matches(password, admin.get().getPassword())) {
                 String token = jwtUtil.generateToken(Map.of(
                         "sub", admin.get().getId().toString(),
-                        "role", "admin"
+                        "role", "admin",
+                        "email", email
                 ));
-                    return new AuthResponse(token, "bearer", "admin");
+                    return new AuthResponse(token, "bearer", "admin", email);
             } else {
                 throw new RuntimeException("Invalid credentials wrong password");
             }

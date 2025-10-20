@@ -1,7 +1,9 @@
 import logo_acadprobot_long from '../../../src/assets/logo_acadprobot_long.svg'
-import { WindowIcon, TrashIcon, PencilSquareIcon } from '@heroicons/react/24/outline'
+import { WindowIcon, TrashIcon, PencilSquareIcon, RocketLaunchIcon, BuildingLibraryIcon } from '@heroicons/react/24/outline'
 import { format } from "date-fns"
 import { useChatContent } from '../../context/ChatContentProvider'
+import { useNavigate } from "react-router-dom";
+
 
 
 function classNames(...classes) {
@@ -9,6 +11,15 @@ function classNames(...classes) {
 }
 
 export default function ChatSideBar() {
+  const navigate = useNavigate();
+
+  const handleClickRocket = () =>{
+    navigate("/listofchatbots")
+  }
+  const handleClickLibrary = () =>{
+    navigate("/")
+  }
+
   const {
     confirmDelete,
     isSidebarOpen,
@@ -19,10 +30,28 @@ export default function ChatSideBar() {
     toggleNewChat,
   } = useChatContent();
 
+  const tools = [
+    {
+      "icon": PencilSquareIcon,
+      "desc": "New Chat",
+      "action": toggleNewChat
+    },
+    {
+      "icon": RocketLaunchIcon,
+      "desc": "Chatbots",
+      "action": handleClickRocket
+    },
+    {
+      "icon": BuildingLibraryIcon,
+      "desc": "Main menu",
+      "action": handleClickLibrary
+    },
+  ]
+
   if (!isSidebarOpen) return null;
 
   return (
-    <div className="w-full">
+    <div className="w-full h-full">
       <nav aria-label="Sidebar" className="flex flex-1 flex-col p-6">
         <div className='flex flex-row justify-between items-center'>
           <a href="/" className="flex flex-row items-center mr-2.5">
@@ -45,8 +74,25 @@ export default function ChatSideBar() {
             />
           </div>
         </div>
-        <div className="text-xs/6 font-semibold text-gray-400">Chat History</div>
-        <ul role="list" className="-mx-2 mt-2 space-y-1 ">
+        <div className="flex flex-col gap-3 ">
+          {tools.map((tool, index) => {
+            const Icon = tool.icon;
+            const Action = tool.action;
+            return (
+              <div
+                key={index}
+                className="flex items-center gap-3 pt-2 pb-2 pl-1 rounded-lg hover:bg-gray-100 cursor-pointer"
+                onClick={Action}
+              >
+                <Icon className="h-5 w-5 text-gray-600 hover:text-indigo-600" />
+                <span className="text-sm font-medium text-gray-800 hover:text-indigo-600">{tool.desc}</span>
+              </div>
+            )
+          })}
+        </div>
+
+        <div className="text-xs/6 mt-8 font-semibold text-gray-400">Chat History</div>
+        <ul role="list" className="-mx-2 mt-2 space-y-1 overflow-y-scroll">
 
           {chatSessions.map((item) => {
             const isActive = item.id === selectedSessionId || item.session_id === selectedSessionId;
@@ -95,7 +141,6 @@ export default function ChatSideBar() {
               </li>
             );
           })}
-          
         </ul>
       </nav>
     </div>

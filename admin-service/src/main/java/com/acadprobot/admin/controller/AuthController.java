@@ -23,7 +23,7 @@ public class AuthController {
     public User register(@RequestBody Map<String, String> body){
         System.out.println("Request body: " + body);
         try {
-            return authService.registerUser(body.get("email"), body.get("password"), body.get("refercode"));
+            return authService.registerUser(body.get("email"), body.get("password"));
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e);
@@ -57,7 +57,8 @@ public class AuthController {
 
             return ResponseEntity.ok(Map.of(
                     "id", claims.getSubject(),
-                    "role", claims.get("role")
+                    "role", claims.get("role"),
+                    "email", claims.get("email")
             ));
         } catch (Exception e) {
             return ResponseEntity.status(401).body(Map.of("error", "Invalid token"));

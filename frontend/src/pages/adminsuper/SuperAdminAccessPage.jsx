@@ -5,7 +5,7 @@ import Toggles from '../../component/Toggles'
 import { ArrowPathIcon } from '@heroicons/react/24/solid'
 
 
-const GroupAccessPage = () => {
+const SuperAdminAccessPage = () => {
   const [refercode, setRefercode] = useState("");
   useEffect(() => {
     const fetchAdmin = async () => {
@@ -28,7 +28,7 @@ const GroupAccessPage = () => {
   return (
     <div>
       <div className='mx-auto pt-2 pb-4 font-bold text-xl text-indigo-600'>
-        <p>Group Access</p>
+        <p>Admin Access</p>
       </div>
 
       <div className='flex flex-col pb-3'>
@@ -55,4 +55,4 @@ const GroupAccessPage = () => {
   )
 }
 
-export default GroupAccessPage
+export default SuperAdminAccessPage

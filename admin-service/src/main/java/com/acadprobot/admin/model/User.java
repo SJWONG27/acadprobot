@@ -1,5 +1,6 @@
 package com.acadprobot.admin.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import java.util.*;
 import java.time.LocalDateTime;
@@ -20,12 +21,10 @@ public class User {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime created_at = LocalDateTime.now();
 
-    @Column(nullable = false)
-    private String refercode;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "admin_id", nullable = false)
-    private Admin admin;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "admin_id", nullable = false)
+//    @JsonBackReference // only go from Admin → Users, not the other way around.
+//    private Admin admin;
 
     public UUID getId() {
         return id;
@@ -59,19 +58,4 @@ public class User {
         this.created_at = created_at;
     }
 
-    public String getRefercode() {
-        return refercode;
-    }
-
-    public void setRefercode(String refercode) {
-        this.refercode = refercode;
-    }
-
-    public Admin getAdmin() {
-        return admin;
-    }
-
-    public void setAdmin(Admin admin) {
-        this.admin = admin;
-    }
 }

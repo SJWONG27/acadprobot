@@ -222,7 +222,7 @@ def compare_match_embedding(user_query, admin_id):
     top_chunks = [item["content"] for item in response.data]
     context = "\n\n".join(top_chunks)
     
-    prompt = '''Use the following context to answer the question only. 
+    prompt = '''Use the following context to answer the question only. Format the answer using Markdown-style, with proper line spacing across different ideas
    '''
     
     prompt_template = ChatPromptTemplate([
