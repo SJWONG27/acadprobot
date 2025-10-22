@@ -54,3 +54,12 @@ export const deleteWebsiteDocument = async (website_id) => {
   const res = await axios.delete(`${API}/deletewebsitedoc/${website_id}`)
   return res.data;
 }
+
+export const getUsersUnderChatbot = async(chatbot_id)=>{
+    const response = await axios.get(`${springbootAuthAPI}/chatbots/?chatbot_id=${chatbot_id}`);
+    return response.data;
+}
+
+export const deleteUsersFromChatbot = async(chatbotId, userId) =>{
+    return await axios.delete(`${springbootAuthAPI}/chatbots/${chatbotId}/users/${userId}`)
+}

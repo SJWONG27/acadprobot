@@ -2,25 +2,14 @@ import { useEffect, useState } from "react"
 import APUploadGroupAccessFile from "./APUploadGroupAccessFile"
 // import { getUsersOfAdmin } from "../services/adminService";
 import { format } from "date-fns"
+import { useAdminContent } from "../context/AdminContentProvider";
 
 
 export default function TableGroupAccess() {
+    const {
+        usersUnderChatbot
+    } = useAdminContent();
     const [showPanel, setShowPanel] = useState(false);
-
-    const [users, setUsers] = useState([]);
-
-    // useEffect(()=>{
-    //     const fetchUsersDetails = async()=>{
-    //         try {
-    //             const response = await getUsersOfAdmin();
-    //             console.log(response);
-    //             setUsers(response.data);
-    //         } catch (error) {
-    //             console.error("Failed to fetch users under admin :", error);
-    //         }
-    //     }
-    //     fetchUsersDetails();
-    // },[])
 
     return (
         <div>
@@ -51,9 +40,6 @@ export default function TableGroupAccess() {
                                         Email
                                     </th>
                                      <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">
-                                        Refer Code
-                                    </th>
-                                     <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">
                                         Member Since
                                     </th>
                                     <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-0">
@@ -62,16 +48,13 @@ export default function TableGroupAccess() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200">
-                                {users.map((user) => (
-                                    <tr key={user.userId}>
+                                {usersUnderChatbot.map((user) => (
+                                    <tr key={user.id}>
                                         <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-500 sm:pl-0">
                                             {user.email}
                                         </td>
                                         <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-500 sm:pl-0">
-                                            {user.refercode}
-                                        </td>
-                                        <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-500 sm:pl-0">
-                                            {format(new Date(user.created_at), 'YYY MMM dd, h:mm a')}
+                                            {format(new Date(user.created_at), 'yyy MMM dd, h:mm a')}
                                         </td>
                                         <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
                                             <a href="#" className="text-red-500 hover:text-red-700">

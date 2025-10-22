@@ -34,7 +34,7 @@ const ChatbotContentPage = () => {
     handleDeleteDoc,
     hanldeDeleteWebsiteDoc,
     chatbotsUnderAdmin,
-    selectedChatbot, 
+    selectedChatbot,
     setSelectedChatbot
   } = useAdminContent();
 
@@ -51,39 +51,46 @@ const ChatbotContentPage = () => {
   //     .catch((err) => console.error("Failed to website url:", err));
   // }, []);
 
-  useEffect(()=>{
-     const fetchDocument = async() => {
-        const chatbotId = selectedChatbot.id;
-        if(!chatbotId){
-          console.log("no chatbot id")
-          return;
-        }
-        try {
-            const response = await getDocs(chatbotId);
-            setDocuments(response);
-        } catch (error) {
-            console.error("fetchDocument", error);
-        }
+  useEffect(() => {
+    const fetchDocument = async () => {
+      if (!selectedChatbot) {
+        return;
+      }
+
+      const chatbotId = selectedChatbot.id;
+      if (!chatbotId) {
+        console.log("no chatbot id")
+        return;
+      }
+      try {
+        const response = await getDocs(chatbotId);
+        setDocuments(response);
+      } catch (error) {
+        console.error("fetchDocument", error);
+      }
     }
     fetchDocument()
-  },[selectedChatbot])
+  }, [selectedChatbot])
 
-  useEffect(()=>{
-     const fetchWebsiteDocument = async() => {
-        const chatbotId = selectedChatbot.id;
-        if(!chatbotId){
-          console.log("no chatbot id")
-          return;
-        }
-        try {
-            const response = await getWebsiteDocs(chatbotId);
-            setWebsites(response);
-        } catch (error) {
-            console.error("fetchDocument", error);
-        }
+  useEffect(() => {
+    const fetchWebsiteDocument = async () => {
+      if (!selectedChatbot) {
+        return;
+      }
+      const chatbotId = selectedChatbot.id;
+      if (!chatbotId) {
+        console.log("no chatbot id")
+        return;
+      }
+      try {
+        const response = await getWebsiteDocs(chatbotId);
+        setWebsites(response);
+      } catch (error) {
+        console.error("fetchDocument", error);
+      }
     }
     fetchWebsiteDocument()
-  },[selectedChatbot])
+  }, [selectedChatbot])
 
   return (
     <div>
@@ -104,7 +111,7 @@ const ChatbotContentPage = () => {
         <div>
           <p className='font-semibold text-lg text-indigo-600'>Web Scraping</p>
           <div className='mt-12 mb-8'>
-            <TableWebScraping/>
+            <TableWebScraping />
           </div>
         </div>
       </div>

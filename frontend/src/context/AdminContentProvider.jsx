@@ -6,7 +6,8 @@ import {
     uploadWebsiteDocs,
     getWebsiteDocs,
     deleteDocument,
-    deleteWebsiteDocument
+    deleteWebsiteDocument,
+    getUsersUnderChatbot
 } from "../services/adminService";
 
 import { getCurrentUser } from "../services/authService";
@@ -51,29 +52,16 @@ export const AdminContentProvider = ({ children }) => {
 
     useEffect(() => {
         const fetchChatbotsUnderAdmin = async () => {
-            if(!adminId) return;
+            if (!adminId || adminId.length < 10) return; 
             try {
                 const response = await getChatbotsOfAdmin(adminId);
                 setChatbotsUnderAdmin(response);
-                console.log(response);
             } catch (error) {
                 console.error("fetchChatbotsUnderAdmin", error);
             }
         }
         fetchChatbotsUnderAdmin();
     }, [adminId])
-
-    const fetchDocument = async() => {
-        const chatbotId = selectedChatbot.id;
-        try {
-            const response = await getDocs(chatbotId);
-            console.log(response);
-            setDocuments(response.data);
-        } catch (error) {
-            console.error("fetchDocument", error);
-        }
-    }
- 
 
     const handleDocsUpload = async () => {
         if (!fileUpload) return;
@@ -186,6 +174,21 @@ export const AdminContentProvider = ({ children }) => {
         }
     };
 
+    // access control page
+    const [usersUnderChatbot, setUsersUnderChatbot] = useState([]);
+    
+      useEffect(()=>{
+        const fetchUsersUnderChatbot = async() =>{
+          if(!selectedChatbot) return;
+          try {
+            const data = await getUsersUnderChatbot(selectedChatbot.id);
+            setUsersUnderChatbot(data);
+          } catch (error) {
+            console.error("fetchUsersUnderChatbot", error);
+          }
+        }
+        fetchUsersUnderChatbot()
+      },[selectedChatbot])
 
     const triggerConfirmationModal = (title) => {
         setConfirmationModal(title);
@@ -231,7 +234,8 @@ export const AdminContentProvider = ({ children }) => {
                 chatbotsUnderAdmin,
                 adminId,
                 selectedChatbot, 
-                setSelectedChatbot
+                setSelectedChatbot,
+                usersUnderChatbot
             }}
         >
             {children}
