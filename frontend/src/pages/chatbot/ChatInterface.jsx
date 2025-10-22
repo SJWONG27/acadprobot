@@ -94,8 +94,8 @@ const ChatInterface = () => {
             key={index}
             className={`mb-10 p-2 pl-4 pr-4 rounded-2xl w-fit max-w-screen-md text-left 
               ${msg.role === "user"
-                ? "bg-blue-500 text-white ml-auto " // Align right
-                : "bg-gray-100 text-black mr-auto" // Align left
+                ? "bg-blue-100 text-black ml-auto " // Align right
+                : "bg-green-100 text-black mr-auto" // Align left
               }`}
           >
             {/* {msg.content} */}

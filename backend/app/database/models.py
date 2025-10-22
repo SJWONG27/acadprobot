@@ -38,7 +38,7 @@ class Chatbots(Base):
     admin_id = Column(UUID(as_uuid=True), ForeignKey("admins.id"), nullable=False)
     
     
-class User_chatbots(Base):
+class UserChatbots(Base):
     __tablename__ = "user_chatbots"
     __table_args__ = (PrimaryKeyConstraint('user_id', 'chatbot_id'),)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)

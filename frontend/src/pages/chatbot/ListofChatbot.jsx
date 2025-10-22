@@ -7,16 +7,18 @@ import {
 } from '@headlessui/react'
 import { ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/react/20/solid'
 
-import AlertSuccess from '../component/AlertSuccess'
-import logo_acadprobot_square from '../../src/assets/logo_acadprobot_square.svg'
-import logo_acadprobot_long from '../../src/assets/logo_acadprobot_long.svg'
+import AlertSuccess from '../../component/AlertSuccess.jsx'
+import logo_acadprobot_square from '../../../src/assets/logo_acadprobot_square.svg'
+import logo_acadprobot_long from '../../../src/assets/logo_acadprobot_long.svg'
 import { useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-import { getCurrentUser } from '../services/authService'
+import { getCurrentUser } from '../../services/authService.js'
 import { 
     joinChatbot, 
     getChatbotUnderUser 
-} from '../services/chatbotService'
+} from '../../services/chatbotService.js'
+
+import {useChatContent} from '../../context/ChatContentProvider.jsx'
 
 const people = [
     {
@@ -56,6 +58,23 @@ const people = [
 
 
 export default function LisofChatbot() {
+
+    const {
+        setSelectedChatbotId
+    } = useChatContent();
+
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        localStorage.removeItem("acess_token");
+        console.log("access_token after logout:", localStorage.getItem("access_token"));
+        navigate('/');
+    }
+
+    const userNavigation = [
+        { name: 'Sign out', href: '/' },
+    ]
+
     const [successAlertMessage, setSuccessAlertMessage] = useState("");
     const [userEmail, setUserEmail] = useState("");
     const [userId, setUserId] = useState("");
@@ -112,17 +131,12 @@ export default function LisofChatbot() {
         }
     }
 
-    const navigate = useNavigate();
-
-    const handleLogout = () => {
-        localStorage.removeItem("acess_token");
-        console.log("access_token after logout:", localStorage.getItem("access_token"));
-        navigate('/');
+    const handleEnterChatbot = (chatbot_id) => {
+        setSelectedChatbotId(chatbot_id);
+        console.log(chatbot_id);
+        // navigate("/chat");
+        navigate(`/chat?chatbot_id=${chatbot_id}`);
     }
-
-    const userNavigation = [
-        { name: 'Sign out', href: '/' },
-    ]
 
     return (
         <div className="relative p-8">
@@ -235,7 +249,7 @@ export default function LisofChatbot() {
                                 </div>
                                 <div className="-ml-px flex w-0 flex-1">
                                     <a
-                                        href={`tel:${listChatbot.name}`}
+                                        onClick={()=> handleEnterChatbot(listChatbot.id)}
                                         className="relative inline-flex w-0 flex-1 items-center justify-center gap-x-3 rounded-br-lg border border-transparent py-4 text-sm font-semibold text-blue-700"
                                     >
                                         <ArrowRightEndOnRectangleIcon aria-hidden="true" className="size-5 text-blue-400" />

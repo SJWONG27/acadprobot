@@ -4,7 +4,7 @@ from ..database.database import SessionLocal
 from sqlalchemy.orm import Session
 from ..database.schemas import ChatRequest
 from datetime import datetime
-from ..database.models import ChatSession, Message, User
+from ..database.models import ChatSession, Message, User, Chatbots, UserChatbots
 from ..services.embedding_service import compare_match_embedding, classify_query
 from langchain_ollama.llms import OllamaLLM
 from langchain_core.prompts import ChatPromptTemplate
@@ -25,20 +25,17 @@ def get_db():
 
 @router.post("/")
 async def chat_with_ollama(request: ChatRequest, db: Session = Depends(get_db)):
-    user = db.query(User).filter_by(id=request.id).first()
-    if not user or not user.admin_id:
-        raise HTTPException(status_code=404, detail="User or admin_id not found")
-    
-    admin_id = user.admin_id
-    
+
+    chatbot_id = request.chatbot_id
+        
     # Case 1: If session_id is provided, try to retrieve it
     if request.session_id:
-        session = db.query(ChatSession).filter_by(id=request.session_id, admin_id=admin_id, user_id=str(request.id)).first()
+        session = db.query(ChatSession).filter_by(id=request.session_id, chatbot_id=chatbot_id, user_id=str(request.id)).first()
         if not session:
             raise HTTPException(status_code=404, detail="Chat session not found")
     else:
         # Case 2: If no session_id, create a new session
-        session = ChatSession(user_id=str(request.id), admin_id=admin_id, context={})
+        session = ChatSession(user_id=str(request.id), chatbot_id=chatbot_id, context={})
         db.add(session)
         db.commit()
         db.refresh(session)
@@ -80,7 +77,7 @@ async def chat_with_ollama(request: ChatRequest, db: Session = Depends(get_db)):
     else:
         # RAG Process
         try:
-            response_text = compare_match_embedding(context_prompt, admin_id=admin_id)
+            response_text = compare_match_embedding(context_prompt, chatbot_id=chatbot_id)
         except Exception as e:
             print(f"RAG error: {repr(e)}")
             response_text = "Sorry, I encountered an issue retrieving information. Please try again later."

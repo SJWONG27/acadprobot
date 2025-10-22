@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { getCurrentUser } from '../services/authService'
 import { sendMessage, getMessages, getChatSessions, deleteChatSession } from "../services/chatService";
 
@@ -16,6 +17,8 @@ export const ChatContentProvider = ({ children }) => {
     const [selectedSessionId, setSelectedSessionId] = useState(null);
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState("");
+
+    const [selectedChatbotId, setSelectedChatbotId] = useState("");
 
     const toggleSidebar = () => {
         setIsSidebarOpen(!isSidebarOpen);
@@ -70,6 +73,18 @@ export const ChatContentProvider = ({ children }) => {
         fetchMessages();
     }, [selectedSessionId]);
 
+
+    //list of chatbot handling
+    const [searchParams] = useSearchParams();
+    const chatbotIdFromUrl = searchParams.get("chatbot_id");
+
+    useEffect(() => {
+        if (chatbotIdFromUrl) {
+            setSelectedChatbotId(chatbotIdFromUrl);
+        }
+    }, [chatbotIdFromUrl, setSelectedChatbotId]);
+
+
     const handleSend = async () => {
         if (!input.trim()) return;
         if (!userId) {
@@ -84,7 +99,7 @@ export const ChatContentProvider = ({ children }) => {
             const tempSession = {
                 id: tempSessionId,
                 title: "New Chat",
-                temp: true, 
+                temp: true,
                 messages: [],
             };
             setChatSessions((prev) => [tempSession, ...prev]);
@@ -100,7 +115,7 @@ export const ChatContentProvider = ({ children }) => {
         setMessages((prev) => [...prev, typingMsg]);
 
         try {
-            const data = await sendMessage(userId, input, selectedSessionId);
+            const data = await sendMessage(userId, selectedChatbotId, input, selectedSessionId);
 
             // Replace typing msg with real bot response
             setMessages((prev) => {
@@ -114,26 +129,26 @@ export const ChatContentProvider = ({ children }) => {
                 setSelectedSessionId(data.session_id);
                 setChatSessions((prev) =>
                     prev.map((s) =>
-                    s.id === tempSessionId
-                        ? { id: data.session_id, title: "New Chat" }
-                        : s
+                        s.id === tempSessionId
+                            ? { id: data.session_id, title: "New Chat" }
+                            : s
                     )
                 );
             }
 
             // Refresh sessions (non-blocking)
             getChatSessions(userId)
-            .then((res) => setChatSessions(res))
-            .catch((err) => console.error("refresh chat sessions failed:", err));
+                .then((res) => setChatSessions(res))
+                .catch((err) => console.error("refresh chat sessions failed:", err));
 
         } catch (error) {
             console.error("Request handleSend failed:", error);
             setMessages((prev) => [
-            ...prev,
-            { role: "assistant", content: "Oops, something went wrong 😅" },
+                ...prev,
+                { role: "assistant", content: "Oops, something went wrong 😅" },
             ]);
         }
-        };
+    };
 
 
 
@@ -154,7 +169,7 @@ export const ChatContentProvider = ({ children }) => {
     }
 
     const deleteChat = async () => {
-        if(!pendingDeleteID) return;
+        if (!pendingDeleteID) return;
 
         try {
             await deleteChatSession(pendingDeleteID);
@@ -165,10 +180,10 @@ export const ChatContentProvider = ({ children }) => {
             setMessages(mes);
         } catch (error) {
             console.error("Delete chat: ", error);
-        } finally{
+        } finally {
             setPendingDeleteID(null);
-            setConfirmationModal(false);  
-        } 
+            setConfirmationModal(false);
+        }
     }
 
     const triggerConfirmationModal = (title) => {
@@ -184,9 +199,9 @@ export const ChatContentProvider = ({ children }) => {
     return (
         <ChatContentContext.Provider
             value={({
-                successAlertMessage, 
+                successAlertMessage,
                 setSuccessAlertMessage,
-                confirmationModal, 
+                confirmationModal,
                 setConfirmationModal,
                 confirmDelete,
                 cancelDelete,
@@ -206,6 +221,8 @@ export const ChatContentProvider = ({ children }) => {
                 deleteChat,
                 handleSend,
                 toggleNewChat,
+                selectedChatbotId,
+                setSelectedChatbotId,
             })}
         >
             {children}

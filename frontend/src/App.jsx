@@ -6,7 +6,7 @@ import AdminPage from './pages/admin/AdminPage'
 import SuperAdminPage from './pages/adminsuper/SuperAdminPage'
 import LoginPage from './pages/authentication/LoginPage'
 import RegisterPage from './pages/authentication/RegisterPage'
-import LisofChatbot from './pages/ListofChatbot'
+import LisofChatbot from './pages/chatbot/ListofChatbot'
 import { SuperAdminContentProvider } from './context/SuperAdminContentProvider'
 import { AdminContentProvider } from './context/AdminContentProvider'
 import { ChatContentProvider } from './context/ChatContentProvider'
@@ -19,14 +19,8 @@ function App() {
         <Routes>
           <Route path='/login' element={<LoginPage />} />
           <Route path='/register' element={<RegisterPage />} />
-          <Route path='/listofchatbots' element={<LisofChatbot />} />
           <Route path='/' element={<LandingPage />} />
-          <Route path='/chat' element={
-            <ChatContentProvider>
-              <Chat />
-            </ChatContentProvider>
-          } />
-          
+
           <Route path="/admin" element={<Navigate to="/admin/overview" replace />} />
           <Route path="/admin/:section" element={
             <AdminContentProvider>
@@ -41,6 +35,14 @@ function App() {
             </SuperAdminContentProvider>
           } />
         </Routes>
+        <ChatContentProvider>
+          <Routes>
+            <Route path='/listofchatbots' element={<LisofChatbot />} />
+            <Route path='/chat' element={
+              <Chat />
+            } />
+          </Routes>
+        </ChatContentProvider>
       </Router>
     </>
   )

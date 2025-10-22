@@ -3,9 +3,14 @@ import TableGroupAccess from '../../component/TableGroupAccess'
 import { getCurrentUser } from '../../services/authService'
 import Toggles from '../../component/Toggles'
 import { ArrowPathIcon } from '@heroicons/react/24/solid'
-
+import SelectMenu from '../../component/SelectMenu';
+import { useAdminContent } from '../../context/AdminContentProvider'
 
 const GroupAccessPage = () => {
+  const {
+      chatbotsUnderAdmin
+    } = useAdminContent();
+
   const [refercode, setRefercode] = useState("");
   useEffect(() => {
     const fetchAdmin = async () => {
@@ -24,28 +29,28 @@ const GroupAccessPage = () => {
     }
     fetchAdmin();
   }, [])
+  
+  const [selectedChatbot, setSelectedChatbot] = useState(null);
 
   return (
     <div>
-      <div className='mx-auto pt-2 pb-4 font-bold text-xl text-indigo-600'>
+      <div className='mx-auto pt-2 pb-4 mb-8 font-bold text-xl text-indigo-600'>
         <p>Group Access</p>
       </div>
 
-      <div className='flex flex-col pb-3'>
-        <div className='flex flex-row self-center justify-between mt-4 border-2 border-indigo-300 p-2 w-min rounded-md shadow-md'>
-          <div className='flex flex-col self-center mr-1.5'>
+      <div className='flex flex-col items-center justify-around shadow-md bg-indigo-100 py-5 px-1 rounded-xl md:flex-row'>
+        <SelectMenu
+          chatbots={chatbotsUnderAdmin}
+          menuTitle="Current Chatbot"
+          selected={selectedChatbot}
+          setSelected={setSelectedChatbot}
+        />
+      </div>
+
+      <div className='flex flex-col pb-3 mt-15'>
+        <div className='flex flex-col self-center items-center justify-center mt-4 border-2 border-indigo-300 p-2 w-6/12 rounded-md shadow-md sm:w-100'>
             <span className='text-xs font-light'>Refer Code: </span>
-            {/* <span className='text-indigo-500 text-center text-xl font-semibold mb-1'>{refercode}</span> */}
-            <span className='text-indigo-500 text-center text-xl font-semibold mb-1'>23232323</span>
-          </div>
-          <div className='self-center justify-center'>
-            <button
-              type="button"
-              className="rounded-full bg-indigo-600 p-1.5 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-            >
-              <ArrowPathIcon aria-hidden="true" className="size-4" />
-            </button>
-          </div>
+            <span className='text-indigo-500 text-center text-xl font-semibold mb-1'>{selectedChatbot?.refercode || "null"}</span>
         </div>
         <div className='mt-12'>
           <TableGroupAccess />

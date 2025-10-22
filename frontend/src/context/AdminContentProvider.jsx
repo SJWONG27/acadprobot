@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import {
+    getChatbotsOfAdmin,
     uploadDocs,
     getDocs,
     uploadWebsiteDocs,
@@ -8,9 +9,16 @@ import {
     deleteWebsiteDocument
 } from "../services/adminService";
 
+import { getCurrentUser } from "../services/authService";
+
 const AdminContentContext = createContext();
 
 export const AdminContentProvider = ({ children }) => {
+    const [chatbotsUnderAdmin, setChatbotsUnderAdmin] = useState("");
+    const [adminId, setAdminId] = useState("");
+    const [chatbotId, setChatbotId] = useState("");
+    const [selectedChatbot, setSelectedChatbot] = useState(null);
+
     const [successAlertMessage, setSuccessAlertMessage] = useState("");
     const [confirmationModal, setConfirmationModal] = useState(false);
     const [pendingDeleteID, setPendingDeleteID] = useState(null);
@@ -24,21 +32,64 @@ export const AdminContentProvider = ({ children }) => {
     const [websites, setWebsites] = useState([]);
     const [showWebsiteDocPanel, setShowWebsiteDocPanel] = useState(false);
 
+    useEffect(() => {
+        const fetchCurrentAdmin = async () => {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                console.error("No token in fetchCurrentAdmin");
+                return;
+            }
+            try {
+                const data = await getCurrentUser(token);
+                setAdminId(data.data.id);
+            } catch (error) {
+                console.error("fetchCurrentAdmin", error);
+            }
+        }
+        fetchCurrentAdmin();
+    }, [])
+
+    useEffect(() => {
+        const fetchChatbotsUnderAdmin = async () => {
+            if(!adminId) return;
+            try {
+                const response = await getChatbotsOfAdmin(adminId);
+                setChatbotsUnderAdmin(response);
+                console.log(response);
+            } catch (error) {
+                console.error("fetchChatbotsUnderAdmin", error);
+            }
+        }
+        fetchChatbotsUnderAdmin();
+    }, [adminId])
+
+    const fetchDocument = async() => {
+        const chatbotId = selectedChatbot.id;
+        try {
+            const response = await getDocs(chatbotId);
+            console.log(response);
+            setDocuments(response.data);
+        } catch (error) {
+            console.error("fetchDocument", error);
+        }
+    }
+ 
+
     const handleDocsUpload = async () => {
         if (!fileUpload) return;
 
-        const token = localStorage.getItem("token");
-        if (!token) {
-            console.error("No token in handleDocsUpload");
+        const chatbotId = selectedChatbot.id;
+        console.log(chatbotId)
+        if(!chatbotId) {
+            console.error("No chatbot id");
             return;
         }
-
         try {
-            await uploadDocs(fileUpload, token);
+            await uploadDocs(fileUpload, chatbotId);
             setFileUpload(null);
             setShowDocPanel(false);
 
-            const updatedDocs = await getDocs(token);
+            const updatedDocs = await getDocs(chatbotId);
             setDocuments(updatedDocs);
 
             triggerAlert("Document uploading");
@@ -54,18 +105,18 @@ export const AdminContentProvider = ({ children }) => {
             return;
         }
 
-        const token = localStorage.getItem("token");
-        if (!token) {
-            console.error("No token in handleWebsiteDocsUpload");
+        const chatbotId = selectedChatbot.id;
+        if(!chatbotId) {
+            console.error("No chatbot id");
             return;
         }
 
         try {
-            await uploadWebsiteDocs(websiteUpload, token);
+            await uploadWebsiteDocs(websiteUpload, chatbotId);
             setWebsiteUpload(null);
             setShowWebsiteDocPanel(false);
 
-            const updatedSites = await getWebsiteDocs(token);
+            const updatedSites = await getWebsiteDocs(chatbotId);
             setWebsites(updatedSites);
 
             triggerAlert("Website uploading");
@@ -98,13 +149,14 @@ export const AdminContentProvider = ({ children }) => {
     }
 
     const handleDeleteDoc = async () => {
-        const token = localStorage.getItem("token");
-        if (!token || !pendingDeleteID) {
+        const chatbotId = selectedChatbot.id;
+        if(!chatbotId) {
+            console.error("No chatbot id");
             return;
         }
         try {
             await deleteDocument(pendingDeleteID);
-            const updatedDocs = await getDocs(token);
+            const updatedDocs = await getDocs(chatbotId);
             setDocuments(updatedDocs);
         } catch (err) {
             console.error("Delete doc error:", err);
@@ -115,15 +167,16 @@ export const AdminContentProvider = ({ children }) => {
     };
 
     const hanldeDeleteWebsiteDoc = async () => {
-        const token = localStorage.getItem("token");
-        if (!token || !pendingDeleteID) {
+        const chatbotId = selectedChatbot.id;
+        if(!chatbotId) {
+            console.error("No chatbot id");
             return;
         }
 
         try {
             await deleteWebsiteDocument(pendingDeleteID);
 
-            const updatedSites = await getWebsiteDocs(token);
+            const updatedSites = await getWebsiteDocs(chatbotId);
             setWebsites(updatedSites);
         } catch (err) {
             console.error("Delete website error:", err);
@@ -155,7 +208,7 @@ export const AdminContentProvider = ({ children }) => {
                 cancelDelete,
                 pendingDeleteID,
                 setPendingDeleteID,
-                deleteTarget, 
+                deleteTarget,
                 setDeleteTarget,
                 successAlertMessage,
                 setSuccessAlertMessage,
@@ -175,6 +228,10 @@ export const AdminContentProvider = ({ children }) => {
                 handleWebsiteDocsUpload,
                 handleDeleteDoc,
                 hanldeDeleteWebsiteDoc,
+                chatbotsUnderAdmin,
+                adminId,
+                selectedChatbot, 
+                setSelectedChatbot
             }}
         >
             {children}

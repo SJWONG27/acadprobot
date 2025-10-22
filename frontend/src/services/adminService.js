@@ -3,80 +3,54 @@ import axios from "axios";
 const API = "http://127.0.0.1:8000/admin";
 const springbootAuthAPI = "http://localhost:8080/admin";
 
-
-export const getUsersOfAdmin = async () => {
-  const token = localStorage.getItem("token");
-  return axios.get(`${springbootAuthAPI}/users`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+export const getChatbotsOfAdmin = async (admin_id) => {
+  const res = await axios.get(`${API}/chatbots/${admin_id}`)
+  return res.data;
 };
 
-export const uploadDocs = async(file, token)=>{
+
+export const uploadDocs = async (file, chatbot_id) => {
   const formData = new FormData();
   formData.append("file", file);
+  formData.append("chatbot_id", chatbot_id);
 
-  try{
+  try {
     const res = await axios.post(`${API}/upload`, formData, {
-      headers:{
-        "Authorization": `Bearer ${token}`,
-        "Content-Type": "multipart/form-data"
-      }
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
     });
     return res.data;
-  }catch(err){
+  } catch (err) {
     throw err.response?.data || err;
   }
 }
 
-export const getDocs = async(token)=>{
-  try{
-    const res = await axios.get(`${API}/documents`,  {
-      headers:{
-        "Authorization": `Bearer ${token}`,
-      }
-    });
-    return res.data;
-  }catch(err){
-    throw err.response?.data || err;
-  }
+export const getDocs = async (chatbot_id) => {
+  const res = await axios.get(`${API}/documents/${chatbot_id}`);
+  return res.data;
 }
 
-export const uploadWebsiteDocs = async(websiteurl, token)=>{
+export const uploadWebsiteDocs = async (websiteurl, chatbot_id) => {
+  const res = await axios.post(`${API}/uploadwebsite`, {
+    url: websiteurl,
+    chatbot_id: chatbot_id,
+  });
+  return res.data;
+};
 
-  try{
-    const res = await axios.post(`${API}/uploadwebsite`, {url: websiteurl}, {
-      headers:{
-        "Authorization": `Bearer ${token}`,
-        "Content-Type": "application/json"
-      }
-    });
-    return res.data;
-  }catch(err){
-    throw err.response?.data || err;
-  }
+
+export const getWebsiteDocs = async (chatbot_id) => {
+  const res = await axios.get(`${API}/websitedocuments/${chatbot_id}`);
+  return res.data;
 }
 
-export const getWebsiteDocs = async(token)=>{
-  try{
-    const res = await axios.get(`${API}/websitedocuments`,  {
-      headers:{
-        "Authorization": `Bearer ${token}`,
-      }
-    });
-    return res.data;
-  }catch(err){
-    throw err.response?.data || err;
-  }
-}
-
-export const deleteDocument = async(document_id) =>{
+export const deleteDocument = async (document_id) => {
   const res = await axios.delete(`${API}/deletedoc/${document_id}`)
   return res.data;
 }
 
-export const deleteWebsiteDocument = async(website_id) =>{
+export const deleteWebsiteDocument = async (website_id) => {
   const res = await axios.delete(`${API}/deletewebsitedoc/${website_id}`)
   return res.data;
 }

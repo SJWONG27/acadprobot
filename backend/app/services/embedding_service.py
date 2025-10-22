@@ -114,7 +114,7 @@ def extract_first_float(text):
         return 0.1  # fallback if no number found
 
 
-def get_embedding_docs(fileUploaded, admin_id, document_id, db):
+def get_embedding_docs(fileUploaded, chatbot_id, document_id, db):
     doc = db.query(Document).filter_by(id=document_id).first()
     if not doc:
         raise HTTPException(status_code=404, detail="Document not found")
@@ -137,7 +137,7 @@ def get_embedding_docs(fileUploaded, admin_id, document_id, db):
                 content=chunks[i],
                 embedding=emb,
                 chunk_index=i,
-                admin_id=admin_id, 
+                chatbot_id=chatbot_id, 
                 document_id=document_id
             )
             db.add(record)
@@ -150,7 +150,7 @@ def get_embedding_docs(fileUploaded, admin_id, document_id, db):
         db.commit()
         raise e 
     
-def get_website_embedding_docs(url, admin_id, website_id, db):
+def get_website_embedding_docs(url, chatbot_id, website_id, db):
     doc = db.query(WebsiteDocument).filter_by(id=website_id).first()
     if not doc:
         raise HTTPException(status_code=404, detail="Website Document not found")
@@ -161,6 +161,12 @@ def get_website_embedding_docs(url, admin_id, website_id, db):
     
     try: 
         chunks = extract_text_from_umexpert(url)
+        
+        if not chunks or (len(chunks) == 1 and chunks[0].strip().lower() == "cannot find"):
+            doc.status = EmbeddingStatus.failed
+            db.commit()
+            raise ValueError("Failed to extract valid website content")
+        
         chunk_embeddings = get_embeddings(chunks)
 
         for i, emb in enumerate(chunk_embeddings):
@@ -168,7 +174,7 @@ def get_website_embedding_docs(url, admin_id, website_id, db):
                 content=chunks[i],
                 embedding=emb,
                 chunk_index=i,
-                admin_id=admin_id,
+                chatbot_id=chatbot_id,
                 website_id=website_id
             )
             db.add(record)
@@ -202,19 +208,24 @@ def generate_ai_content(user_query):
     
     return result
 
-def compare_match_embedding(user_query, admin_id):
+def compare_match_embedding(user_query, chatbot_id):
     print("RAG Start")
     query_embedding = get_query_embeddings(user_query)
 
-    response = supabase.rpc("match_test_embeddings", {
+    response = supabase.rpc("match_embeddings", {
         "query_embedding": query_embedding,
         "match_count": 5,
-        "admin_id": str(admin_id)
+        "chatbot_id": str(chatbot_id)
     }).execute()
     
+    if not response.data or len(response.data) == 0:
+        print("no data from db")
+        return f"*AI-generated content:* \n\n" + generate_ai_content(user_query)
     
     top_result = response.data[0]
     similarity = top_result["similarity"]
+    
+    print("db similarity: ", similarity)
     
     if (similarity < 0.6) or (not response.data) :
         return f"*AI-generated content:* \n\n" + generate_ai_content(user_query)

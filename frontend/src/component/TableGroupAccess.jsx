@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import APUploadGroupAccessFile from "./APUploadGroupAccessFile"
-import { getUsersOfAdmin } from "../services/adminService";
+// import { getUsersOfAdmin } from "../services/adminService";
 import { format } from "date-fns"
 
 
@@ -9,18 +9,18 @@ export default function TableGroupAccess() {
 
     const [users, setUsers] = useState([]);
 
-    useEffect(()=>{
-        const fetchUsersDetails = async()=>{
-            try {
-                const response = await getUsersOfAdmin();
-                console.log(response);
-                setUsers(response.data);
-            } catch (error) {
-                console.error("Failed to fetch users under admin :", error);
-            }
-        }
-        fetchUsersDetails();
-    },[])
+    // useEffect(()=>{
+    //     const fetchUsersDetails = async()=>{
+    //         try {
+    //             const response = await getUsersOfAdmin();
+    //             console.log(response);
+    //             setUsers(response.data);
+    //         } catch (error) {
+    //             console.error("Failed to fetch users under admin :", error);
+    //         }
+    //     }
+    //     fetchUsersDetails();
+    // },[])
 
     return (
         <div>

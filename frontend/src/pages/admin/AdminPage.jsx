@@ -33,8 +33,8 @@ import {
 import { ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/react/20/solid'
 import OverviewPage from './OverviewPage'
 import ChatbotContentPage from './ChatbotContentPage'
-import FAQsManager from './FAQsManager'
 import GroupAccessPage from './GroupAccessPage'
+
 
 // const navigation = [
 //   { name: 'Dashboard', href: '#', icon: HomeIcon, current: true },

@@ -26,7 +26,8 @@ export default function TableWebScraping() {
         handleDocsUpload,
         handleWebsiteDocsUpload,
         handleDeleteDoc,
-        hanldeDeleteWebsiteDoc
+        hanldeDeleteWebsiteDoc,
+        chatbotsUnderAdmin
       } = useAdminContent();
     
     return (
@@ -87,6 +88,7 @@ export default function TableWebScraping() {
                                     </tr>
                                 ))}
                             </tbody>
+                            
                         </table>
                     </div>
                 </div>

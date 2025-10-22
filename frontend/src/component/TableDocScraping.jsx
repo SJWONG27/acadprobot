@@ -12,20 +12,9 @@ export default function TableDocScraping() {
         showDocPanel,
         setShowDocPanel,
         setWebsites,
+        selectedChatbot,
     } = useAdminContent();
 
-    useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (!token) return;
-    
-        getDocs(token)
-          .then((data) => setDocuments(data))
-          .catch((err) => console.error("Failed to fetch documents:", err));
-    
-        getWebsiteDocs(token)
-        .then((data) => setWebsites(data))
-        .catch((err) => console.error("Failed to website url:", err));
-      }, []);
 
     return (
         <div>

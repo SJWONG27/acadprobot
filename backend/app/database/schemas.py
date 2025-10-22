@@ -28,5 +28,11 @@ class UserLogin(BaseModel):
 
 class ChatRequest(BaseModel):
     id: UUID
+    chatbot_id: UUID
     session_id: Optional[int] = None
     prompt: str
+    
+    
+class ChatbotRequest(BaseModel):
+    chatbot_id : UUID 
+    
