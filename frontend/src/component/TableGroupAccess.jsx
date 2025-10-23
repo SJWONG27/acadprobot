@@ -7,7 +7,8 @@ import { useAdminContent } from "../context/AdminContentProvider";
 
 export default function TableGroupAccess() {
     const {
-        usersUnderChatbot
+        usersUnderChatbot,
+        confirmRevokeUser
     } = useAdminContent();
     const [showPanel, setShowPanel] = useState(false);
 
@@ -57,7 +58,7 @@ export default function TableGroupAccess() {
                                             {format(new Date(user.created_at), 'yyy MMM dd, h:mm a')}
                                         </td>
                                         <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
-                                            <a href="#" className="text-red-500 hover:text-red-700">
+                                            <a onClick={()=> confirmRevokeUser(user.id)} className="text-red-500 hover:text-red-700">
                                                 Revoke Access<span className="sr-only">{user.email}</span>
                                             </a>
                                         </td>

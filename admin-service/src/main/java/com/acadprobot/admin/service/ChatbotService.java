@@ -23,22 +23,50 @@ public class ChatbotService {
     @Autowired
     private UserChatbotRepository userChatbotRepository;
 
-    public UserChatbots joinChatbot(UUID user_id, String refercode){
+//    public UserChatbots joinChatbot(UUID user_id, String refercode){
+//        Chatbots chatbot = chatbotRepository.findByRefercode(refercode)
+//                .orElseThrow(() -> new RuntimeException("chatbot not found"));
+//
+//        UUID chatbot_id = chatbot.getId();
+//
+//        UserChatbotID id = new UserChatbotID(user_id, chatbot_id);
+//
+//        if (userChatbotRepository.existsById(id)) {
+//            throw new RuntimeException("User already joined this chatbot");
+//        }
+//
+//        UserChatbots newJoin = new UserChatbots(id);
+//
+//        return userChatbotRepository.save(newJoin);
+//    }
+
+    public UserChatbots joinChatbot(UUID user_id, String refercode) {
+        // 1️⃣ Find the chatbot
         Chatbots chatbot = chatbotRepository.findByRefercode(refercode)
-                .orElseThrow(() -> new RuntimeException("chatbot not found"));
+                .orElseThrow(() -> new RuntimeException("Chatbot not found"));
 
-        UUID chatbot_id = chatbot.getId();
+        // 2️⃣ Find the user
+        User user = userRepository.findById(user_id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        UserChatbotID id = new UserChatbotID(user_id, chatbot_id);
+        // 3️⃣ Create composite ID
+        UserChatbotID id = new UserChatbotID(user_id, chatbot.getId());
 
+        // 4️⃣ Prevent duplicate join
         if (userChatbotRepository.existsById(id)) {
             throw new RuntimeException("User already joined this chatbot");
         }
 
-        UserChatbots newJoin = new UserChatbots(id);
+        // 5️⃣ Create and link entities properly
+        UserChatbots newJoin = new UserChatbots();
+        newJoin.setId(id);
+        newJoin.setUser(user);
+        newJoin.setChatbot(chatbot);
 
+        // 6️⃣ Save
         return userChatbotRepository.save(newJoin);
     }
+
 
     public List<Chatbots> getChatbotsByUser(UUID userId) {
         return userChatbotRepository.findChatbotsByUserId(userId);

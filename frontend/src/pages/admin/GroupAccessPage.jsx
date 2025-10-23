@@ -5,14 +5,19 @@ import { getUsersUnderChatbot } from '../../services/adminService'
 import Toggles from '../../component/Toggles'
 import { ArrowPathIcon } from '@heroicons/react/24/solid'
 import SelectMenu from '../../component/SelectMenu';
+import ConfirmationModal from '../../component/ConfirmationModal'
 import { useAdminContent } from '../../context/AdminContentProvider'
 
 const GroupAccessPage = () => {
   const {
-      chatbotsUnderAdmin,
-      selectedChatbot,
-      setSelectedChatbot
-    } = useAdminContent();
+    chatbotsUnderAdmin,
+    selectedChatbot,
+    setSelectedChatbot,
+    confirmRevokeUser,
+    handleRevokeUserAccess,
+    cancelDelete,
+    confirmationModal
+  } = useAdminContent();
 
   // const [refercode, setRefercode] = useState("");
   // useEffect(() => {
@@ -32,7 +37,7 @@ const GroupAccessPage = () => {
   //   }
   //   fetchAdmin();
   // }, [])
-  
+
   // const [selectedChatbot, setSelectedChatbot] = useState(null);
   // const [usersUnderChatbot, setUsersUnderChatbot] = useState([]);
 
@@ -66,13 +71,26 @@ const GroupAccessPage = () => {
 
       <div className='flex flex-col pb-3 mt-15'>
         <div className='flex flex-col self-center items-center justify-center mt-4 border-2 border-indigo-300 p-2 w-6/12 rounded-md shadow-md sm:w-100'>
-            <span className='text-xs font-light'>Refer Code: </span>
-            <span className='text-indigo-500 text-center text-xl font-semibold mb-1'>{selectedChatbot?.refercode || "null"}</span>
+          <span className='text-xs font-light'>Refer Code: </span>
+          <span className='text-indigo-500 text-center text-xl font-semibold mb-1'>{selectedChatbot?.refercode || "null"}</span>
         </div>
         <div className='mt-12'>
           <TableGroupAccess />
         </div>
       </div>
+
+      {confirmationModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black opacity-50"></div>
+          <div className="relative z-10">
+            <ConfirmationModal
+              title="User Access Revoke Confirmation"
+              onConfirm={handleRevokeUserAccess}
+              onCancel={cancelDelete}
+            />
+          </div>
+        </div>
+      )}
     </div>
   )
 }

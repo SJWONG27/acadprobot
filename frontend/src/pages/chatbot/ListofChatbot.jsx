@@ -123,6 +123,9 @@ export default function LisofChatbot() {
         try {
             await joinChatbot(userId, refercode);
             triggerAlert("Chatbot Joined Successfully");
+
+            const data = await getChatbotUnderUser(userId);
+            setListChatbots(data);
         } catch (error) {
             console.error("HandleJoinChatbot: ", error);
             triggerAlert("Chatbot not exist or dy joined");
@@ -134,7 +137,6 @@ export default function LisofChatbot() {
     const handleEnterChatbot = (chatbot_id) => {
         setSelectedChatbotId(chatbot_id);
         console.log(chatbot_id);
-        // navigate("/chat");
         navigate(`/chat?chatbot_id=${chatbot_id}`);
     }
 

@@ -7,7 +7,8 @@ import {
     getWebsiteDocs,
     deleteDocument,
     deleteWebsiteDocument,
-    getUsersUnderChatbot
+    getUsersUnderChatbot,
+    deleteUsersFromChatbot
 } from "../services/adminService";
 
 import { getCurrentUser } from "../services/authService";
@@ -52,7 +53,7 @@ export const AdminContentProvider = ({ children }) => {
 
     useEffect(() => {
         const fetchChatbotsUnderAdmin = async () => {
-            if (!adminId || adminId.length < 10) return; 
+            if (!adminId || adminId.length < 10) return;
             try {
                 const response = await getChatbotsOfAdmin(adminId);
                 setChatbotsUnderAdmin(response);
@@ -68,7 +69,7 @@ export const AdminContentProvider = ({ children }) => {
 
         const chatbotId = selectedChatbot.id;
         console.log(chatbotId)
-        if(!chatbotId) {
+        if (!chatbotId) {
             console.error("No chatbot id");
             return;
         }
@@ -94,7 +95,7 @@ export const AdminContentProvider = ({ children }) => {
         }
 
         const chatbotId = selectedChatbot.id;
-        if(!chatbotId) {
+        if (!chatbotId) {
             console.error("No chatbot id");
             return;
         }
@@ -138,7 +139,7 @@ export const AdminContentProvider = ({ children }) => {
 
     const handleDeleteDoc = async () => {
         const chatbotId = selectedChatbot.id;
-        if(!chatbotId) {
+        if (!chatbotId) {
             console.error("No chatbot id");
             return;
         }
@@ -156,7 +157,7 @@ export const AdminContentProvider = ({ children }) => {
 
     const hanldeDeleteWebsiteDoc = async () => {
         const chatbotId = selectedChatbot.id;
-        if(!chatbotId) {
+        if (!chatbotId) {
             console.error("No chatbot id");
             return;
         }
@@ -176,19 +177,45 @@ export const AdminContentProvider = ({ children }) => {
 
     // access control page
     const [usersUnderChatbot, setUsersUnderChatbot] = useState([]);
-    
-      useEffect(()=>{
-        const fetchUsersUnderChatbot = async() =>{
-          if(!selectedChatbot) return;
-          try {
-            const data = await getUsersUnderChatbot(selectedChatbot.id);
-            setUsersUnderChatbot(data);
-          } catch (error) {
-            console.error("fetchUsersUnderChatbot", error);
-          }
+
+    useEffect(() => {
+        const fetchUsersUnderChatbot = async () => {
+            if (!selectedChatbot) return;
+            try {
+                const data = await getUsersUnderChatbot(selectedChatbot.id);
+                setUsersUnderChatbot(data);
+            } catch (error) {
+                console.error("fetchUsersUnderChatbot", error);
+            }
         }
         fetchUsersUnderChatbot()
-      },[selectedChatbot])
+    }, [selectedChatbot])
+
+
+    const confirmRevokeUser = async (userId) => {
+        if (!selectedChatbot || !usersUnderChatbot) return;
+        setPendingDeleteID(userId);
+        setConfirmationModal(true);
+    };
+
+    const handleRevokeUserAccess = async() => {
+        if (!selectedChatbot || !pendingDeleteID) {
+            console.log("selectedChatbot: ", selectedChatbot?.id || null);
+            console.log("pendingDeleteID: ", pendingDeleteID);
+            return;
+        };
+        try {
+            await deleteUsersFromChatbot(selectedChatbot.id, pendingDeleteID);
+
+            const data = await getUsersUnderChatbot(selectedChatbot.id);
+            setUsersUnderChatbot(data);
+        } catch (error) {
+            console.error("handleRevokeUserAccess", error)
+        } finally {
+            setConfirmationModal(false);
+            setPendingDeleteID(null);
+        }
+    }
 
     const triggerConfirmationModal = (title) => {
         setConfirmationModal(title);
@@ -233,9 +260,11 @@ export const AdminContentProvider = ({ children }) => {
                 hanldeDeleteWebsiteDoc,
                 chatbotsUnderAdmin,
                 adminId,
-                selectedChatbot, 
+                selectedChatbot,
                 setSelectedChatbot,
-                usersUnderChatbot
+                usersUnderChatbot,
+                confirmRevokeUser,
+                handleRevokeUserAccess
             }}
         >
             {children}
