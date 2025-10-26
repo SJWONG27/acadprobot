@@ -94,6 +94,7 @@ export default function RegisterPage() {
                                         id="email"
                                         name="email"
                                         type="email"
+                                        maxLength={50}
                                         required
                                         autoComplete="email"
                                         placeholder="you@example.com"
@@ -113,6 +114,7 @@ export default function RegisterPage() {
                                         id="password"
                                         name="password"
                                         type={!showPassword ? "password" : "text"}
+                                        maxLength={50}
                                         required
                                         autoComplete="current-password"
                                         placeholder='Min. 8 chars with letters, numbers, symbols'
@@ -142,6 +144,7 @@ export default function RegisterPage() {
                                     <input
                                         id="confirmpassword"
                                         name="confirmpassword"
+                                        maxLength={50}
                                         type={!showConfirmPassword ? "password" : "text"}
                                         required
                                         autoComplete="current-password"

@@ -65,6 +65,7 @@ const footerNavigation = {
   ],
   support: [
     { name: 'Admin Dashboard', href: '/login' },
+    { name: 'Request to be admin', href: '/requestadmin' },
     { name: 'Documentation', href: '#' },
     { name: 'Guides', href: '#' },
   ],

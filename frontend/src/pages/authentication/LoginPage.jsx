@@ -72,6 +72,7 @@ export default function LoginPage() {
                                         id="email"
                                         name="email"
                                         type="email"
+                                        maxLength={50}
                                         required
                                         autoComplete="email"
                                         placeholder="you@example.com"
@@ -90,6 +91,7 @@ export default function LoginPage() {
                                     <input
                                         id="password"
                                         name="password"
+                                        maxLength={50}
                                         type={!showPassword ? "password" : "text"}
                                         required
                                         autoComplete="current-password"
