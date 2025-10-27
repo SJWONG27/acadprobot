@@ -3,11 +3,13 @@ import logo_acadprobot_long from '../../../src/assets/logo_acadprobot_long.svg'
 import { useState } from 'react'
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline'
 import { login } from '../../services/authService'
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 
 export default function LoginPage() {
     const navigate = useNavigate();
+    const location = useLocation();
+    const from = location.state?.from; 
     const [loginEmail, setloginEmail] = useState("");
     const [loginPassword, setloginPassword] = useState(""); 
     const [showPassword, setShowPassword] = useState(false);
@@ -19,11 +21,14 @@ export default function LoginPage() {
             localStorage.setItem("token", data.access_token);
             localStorage.setItem("role", data.role);
 
-            if(data.role == "admin"){
-                navigate("/admin")
+            if (from) {
+                navigate(from);
+            } else if (data.role === "admin") {
+                navigate("/admin");
             } else {
-                navigate("/listofchatbots")
+                navigate("/listofchatbots");
             }
+            
             alert("Login successful")          
         } catch (error){
             console.error("Login error: ", error);

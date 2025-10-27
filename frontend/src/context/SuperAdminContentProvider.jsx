@@ -3,7 +3,8 @@ import { createContext, useContext, useState, useEffect } from "react";
 import {
     createChatbot,
     deleteChatbot,
-    getAllChatbots
+    getAllChatbots,
+    getAllRequest
 } from "../services/superadminService"
 
 const SuperAdminContentContext = createContext();
@@ -61,6 +62,23 @@ export const SuperAdminContentProvider = ({ children }) => {
         setPendingDeleteID(null);
     }
 
+    // access management
+    const [activeTab, setActiveTab] = useState("pending");
+    const [requestSubmitted, setRequestSubmitted] = useState([]);
+
+    useEffect(()=>{
+        const fetchAllRequestByStatus = async() =>{
+            try {
+                const response = await getAllRequest(activeTab);
+                console.log(response)
+                setRequestSubmitted(response);
+            } catch (error) {
+                console.error("fetchAllRequestByStatus", error);
+            }
+        }
+        fetchAllRequestByStatus()
+    },[activeTab])
+
     return (
         <SuperAdminContentContext.Provider
             value={{
@@ -75,7 +93,8 @@ export const SuperAdminContentProvider = ({ children }) => {
                 chatbots,     //details
                 setChatbots,  //details
                 confirmationModal,
-                setConfirmationModal
+                setConfirmationModal,
+                requestSubmitted
             }}
         >
             {children}

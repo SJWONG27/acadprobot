@@ -2,6 +2,7 @@
 import logo_acadprobot_square from '../../src/assets/logo_acadprobot_square.svg'
 import logo_acadprobot_long from '../../src/assets/logo_acadprobot_long.svg'
 import img_showcase from '../assets/img_showcase.png';
+import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react'
 import { Dialog, DialogPanel } from '@headlessui/react'
 import {
@@ -55,34 +56,52 @@ const faqs = [
   },
   // More questions...
 ]
-const footerNavigation = {
-  solutions: [
-    { name: 'Hosting', href: '#' },
-    { name: 'Data services', href: '#' },
-    { name: 'Uptime monitoring', href: '#' },
-    { name: 'Enterprise services', href: '#' },
-    { name: 'Analytics', href: '#' },
-  ],
-  support: [
-    { name: 'Admin Dashboard', href: '/login' },
-    { name: 'Request to be admin', href: '/requestadmin' },
-    { name: 'Documentation', href: '#' },
-    { name: 'Guides', href: '#' },
-  ],
-  company: [
-    { name: 'About', href: '#' },
-    { name: 'Blog', href: '#' },
-    { name: 'Jobs', href: '#' },
-    { name: 'Press', href: '#' },
-  ],
-}
+
+
+
+
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
 export default function LandingPage() {
+  
+
+  const navigate = useNavigate();
+
+  const handleRequestAdminClick = () => {
+    const token = localStorage.getItem("token");
+    console.log(token);
+    if (!token) {
+      navigate("/login", { state: { from: "/requestadmin" } });
+    } else {
+      navigate("/requestadmin");
+    }
+  };
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  const footerNavigation = {
+    solutions: [
+      { name: 'Hosting', href: '#' },
+      { name: 'Data services', href: '#' },
+      { name: 'Uptime monitoring', href: '#' },
+      { name: 'Enterprise services', href: '#' },
+      { name: 'Analytics', href: '#' },
+    ],
+    support: [
+      { name: 'Admin Dashboard', href: '/login' },
+      { name: 'Request to be admin', onClick: handleRequestAdminClick },
+      { name: 'Documentation', href: '#' },
+      { name: 'Guides', href: '#' },
+    ],
+    company: [
+      { name: 'About', href: '#' },
+      { name: 'Blog', href: '#' },
+      { name: 'Jobs', href: '#' },
+      { name: 'Press', href: '#' },
+    ],
+  }
 
   return (
     <div className="bg-white">
@@ -181,7 +200,7 @@ export default function LandingPage() {
               style={{
                 clipPath:
                   'ellipse(70% 100% at 50% 0%)',
-                  // 'polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)',
+                // 'polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)',
               }}
               // className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-60deg bg-gradient-to-tr from-[#7c8ede] to-[#577ceb] opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"
               className="relative top-0 left-1/2 -translate-x-1/2  w-[90vw] h-[90vh] bg-gradient-to-b from-[#dcd0ff] via-[#5245fc] to-[#fbfbfb] opacity-20 blur-3xl -z-10"
@@ -241,7 +260,7 @@ export default function LandingPage() {
           <div className="mx-auto max-w-2xl lg:text-center">
             <h2 className="text-base/7 font-semibold text-indigo-600">Get Help Fast</h2>
             <p className="mt-2 text-pretty text-4xl font-semibold tracking-tight text-gray-900 sm:text-5xl lg:text-balance">
-              Everything you need for your academic journey            
+              Everything you need for your academic journey
             </p>
             <p className="mt-6 text-pretty text-lg/8 text-gray-600">
               AcadProBot is your personal academic buddy — ready to guide you through programs, courses, and everything in between.
@@ -297,7 +316,7 @@ export default function LandingPage() {
                 src={logo_acadprobot_long}
                 className="w-50 h-18"
               />
-            </div>    
+            </div>
             <div className="mt-16 grid grid-cols-2 gap-8 xl:col-span-2 xl:mt-0">
               <div className="md:grid md:grid-cols-2 md:gap-8">
                 {/* <div>
@@ -317,15 +336,28 @@ export default function LandingPage() {
                   <ul role="list" className="mt-6 space-y-4">
                     {footerNavigation.support.map((item) => (
                       <li key={item.name}>
-                        <a href={item.href} className="text-sm/6 text-gray-600 hover:text-gray-900">
-                          {item.name}
-                        </a>
+                        {item.onClick ? (
+                          <button
+                            onClick={item.onClick}
+                            className="text-sm/6 text-gray-600 hover:text-gray-900"
+                          >
+                            {item.name}
+                          </button>
+                        ) : (
+                          <a
+                            href={item.href}
+                            className="text-sm/6 text-gray-600 hover:text-gray-900"
+                          >
+                            {item.name}
+                          </a>
+                        )}
                       </li>
                     ))}
+
                   </ul>
                 </div>
               </div>
-              
+
               {/* <div className="md:grid md:grid-cols-2 md:gap-8">
                 <div>
                   <h3 className="text-sm/6 font-semibold text-gray-900">Company</h3>

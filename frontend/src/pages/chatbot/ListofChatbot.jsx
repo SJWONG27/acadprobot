@@ -66,8 +66,8 @@ export default function LisofChatbot() {
     const navigate = useNavigate();
 
     const handleLogout = () => {
-        localStorage.removeItem("acess_token");
-        console.log("access_token after logout:", localStorage.getItem("access_token"));
+        localStorage.removeItem("token");
+        console.log("access_token after logout:", localStorage.getItem("token"));
         navigate('/');
     }
 

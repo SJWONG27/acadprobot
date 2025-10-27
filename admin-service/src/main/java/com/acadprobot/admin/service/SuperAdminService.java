@@ -1,6 +1,8 @@
 package com.acadprobot.admin.service;
 
 import com.acadprobot.admin.model.Admin;
+import com.acadprobot.admin.model.AdminChatbotRequest;
+import com.acadprobot.admin.repository.AdminChatbotRequestRepository;
 import com.acadprobot.admin.repository.AdminRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +20,9 @@ public class SuperAdminService {
 
     @Autowired
     private AdminRepository adminRepository;
+
+    @Autowired
+    private AdminChatbotRequestRepository adminChatbotRequestRepository;
 
     public Chatbots createChatbot(String chatbotName, String adminEmail){
         Admin admin = adminRepository.findByEmail(adminEmail)
@@ -37,6 +42,30 @@ public class SuperAdminService {
     public ResponseEntity<?> deleteChatbot(@PathVariable UUID id){
         chatbotRepository.deleteById(id);
         return ResponseEntity.ok("Chatbot deleted successfully");
+    }
+
+    // admin chatbot request handling
+    public AdminChatbotRequest createAdminChatbotRequest(
+            String email,
+            String fullname,
+            String title,
+            String chatbot_name,
+            String departmentProgram,
+            String purpose
+    ){
+        AdminChatbotRequest adminChatbotRequest = new AdminChatbotRequest();
+        adminChatbotRequest.setEmail(email);
+        adminChatbotRequest.setFullname(fullname);
+        adminChatbotRequest.setTitle(title);
+        adminChatbotRequest.setChatbot_name(chatbot_name);
+        adminChatbotRequest.setDepartment_program(departmentProgram);
+        adminChatbotRequest.setPurpose(purpose);
+
+        return adminChatbotRequestRepository.save(adminChatbotRequest);
+    }
+
+    public List<AdminChatbotRequest> getAllRequestByStatus(String status){
+        return adminChatbotRequestRepository.findByStatus(status);
     }
 
 }

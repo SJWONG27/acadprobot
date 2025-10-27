@@ -1,22 +1,85 @@
 'use client'
 
-import { useState } from 'react'
+import AlertSuccess from '../component/AlertSuccess'
+import { useEffect, useState } from 'react'
 import { Dialog, DialogBackdrop, DialogPanel, Textarea, TransitionChild } from '@headlessui/react'
 import logo_acadprobot_square from '../../src/assets/logo_acadprobot_square.svg'
 import logo_acadprobot_long from '../../src/assets/logo_acadprobot_long.svg'
 import { useNavigate } from 'react-router-dom'
-
+import { requestAdminChatbot } from '../services/superadminService'
+import { getCurrentUser } from '../services/authService'
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
 }
 
 export default function AdminRequestForm() {
+
+    const [successAlertMessage, setSuccessAlertMessage] = useState("");
+
+    const triggerAlert = (message) => {
+        setSuccessAlertMessage(message);
+        setTimeout(() => setSuccessAlertMessage(""), 10000);
+    };
+
     const navigate = useNavigate();
 
-    const [sidebarOpen, setSidebarOpen] = useState(false)
+    const [requestEmail, setRequestEmail] = useState("");
+    const [fullName, setFullName] = useState("");
+    const [title, setTitle] = useState("");
+    const [chatbotName, setChatbotName] = useState("");
+    const [departmentProgram, setDepartmentProgram] = useState("");
+    const [purpose, setPurpose] = useState("");
 
-    // const [user, setUser] = useState("eded");
+    useEffect(() => {
+        const fetchUser = async () => {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                console.log("No token");
+                return;
+            }
+
+            try {
+                const data = await getCurrentUser(token);
+                console.log(data);
+                setRequestEmail(data.data.email);
+            } catch (error) {
+                console.error("Fetch user email error: ", error)
+                navigate("/");
+            }
+        }
+        fetchUser();
+    }, [])
+
+    const handleRequestAdminChatbotSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            await requestAdminChatbot(
+                requestEmail,
+                fullName,
+                title,
+                chatbotName,
+                departmentProgram,
+                purpose
+            )
+            triggerAlert("Request submitted successfully. You will receive an email response within 14 working days.")
+        } catch (error) {
+            console.error("handleRequestAdminChatbotSubmit", error);
+            triggerAlert("Error in submitting request")
+        }
+    }
+
+    const handleBacktoHome = () => {
+        setChatbotName(null);
+        setDepartmentProgram(null);
+        setFullName(null);
+        setPurpose(null);
+        setRequestEmail(null);
+        setTitle(null);
+        localStorage.removeItem("token");
+        navigate("/");
+    }
+
 
     const user = [
         {
@@ -67,7 +130,7 @@ export default function AdminRequestForm() {
 
                 <div className="w-full p-2">
 
-                    <form className='grid grid-rows-2 place-items-center gap-x-8 gap-y-12'>
+                    <form className='grid grid-rows-2 place-items-center gap-x-8 gap-y-12' onSubmit={handleRequestAdminChatbotSubmit}>
                         <div className='grid gap-y-7 gap-x-10 md:grid-cols-2'>
                             <div className="">
                                 <h2 className="text-base/7 font-semibold text-black">Requester Information</h2>
@@ -84,7 +147,7 @@ export default function AdminRequestForm() {
                                             id="email"
                                             name="email"
                                             type="email"
-                                            value={user?.email || "null"}
+                                            value={requestEmail || "null"}
                                             readOnly
                                             className="block w-full rounded-md bg-indigo-100 px-3 py-1.5 text-base text-black outline-1 -outline-offset-1 outline-indigo-100 placeholder:text-gray-500 sm:text-sm/6"
                                         />
@@ -102,6 +165,8 @@ export default function AdminRequestForm() {
                                                 id="fullname"
                                                 name="fullname"
                                                 type="text"
+                                                value={fullName}
+                                                onChange={(e) => setFullName(e.target.value)}
                                                 required
                                                 maxLength={50}
                                                 placeholder="Enter your full name"
@@ -122,6 +187,8 @@ export default function AdminRequestForm() {
                                                 id="fullname"
                                                 name="fullname"
                                                 type="text"
+                                                value={title}
+                                                onChange={(e) => setTitle(e.target.value)}
                                                 required
                                                 maxLength={30}
                                                 placeholder="Mr. / Mrs. / Dr. / Prof."
@@ -149,6 +216,8 @@ export default function AdminRequestForm() {
                                             id="chatbot-name"
                                             name="chatbot-name"
                                             type="text"
+                                            value={chatbotName}
+                                            onChange={(e) => setChatbotName(e.target.value)}
                                             maxLength={50}
                                             required
                                             placeholder='Enter your chatbot name'
@@ -166,6 +235,8 @@ export default function AdminRequestForm() {
                                             id="department-program"
                                             name="department-program"
                                             type="text"
+                                            value={departmentProgram}
+                                            onChange={(e) => setDepartmentProgram(e.target.value)}
                                             maxLength={50}
                                             required
                                             placeholder='Computer Science Department'
@@ -182,6 +253,8 @@ export default function AdminRequestForm() {
                                         <Textarea
                                             id="purpose"
                                             name="purpose"
+                                            value={purpose}
+                                            onChange={(e) => setPurpose(e.target.value)}
                                             required
                                             rows={4}
                                             maxLength={600}
@@ -197,13 +270,13 @@ export default function AdminRequestForm() {
 
                         <div className="mt-6 grid gap-y-5 md:grid-cols-2 gap-x-5 md:w-5/12">
                             <button
-                                type="submit"
+                                onClick={() => handleRequestAdminChatbotSubmit()}
                                 className="rounded-md  bg-indigo-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-400  focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
                             >
                                 Submit Request
                             </button>
                             <button
-                                onClick={()=>navigate("/")}
+                                onClick={() => handleBacktoHome()}
                                 className="rounded-md bg-red-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
                             >
                                 Back to Home
@@ -213,6 +286,15 @@ export default function AdminRequestForm() {
 
                 </div>
             </main>
+
+            {successAlertMessage && (
+                <AlertSuccess
+                    text={successAlertMessage}
+                    onClose={() => setSuccessAlertMessage("")}
+                    className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50"
+                />
+            )}
+
         </div>
     )
 }
