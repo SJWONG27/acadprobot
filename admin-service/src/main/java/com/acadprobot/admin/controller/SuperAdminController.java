@@ -59,4 +59,14 @@ public class SuperAdminController {
     public ResponseEntity<List<AdminChatbotRequest>> getAllRequestByStatus(@RequestParam("status") String status){
         return ResponseEntity.ok(superAdminService.getAllRequestByStatus(status));
     }
+
+    @PostMapping("/approverequest")
+    public ResponseEntity<?> approveRequest(@RequestParam("request_id")  UUID request_id){
+        return ResponseEntity.ok(superAdminService.approveRequest(request_id));
+    }
+
+    @PostMapping("/rejectrequest")
+    public ResponseEntity<?> rejectRequest(@RequestParam("request_id")  UUID request_id){
+        return ResponseEntity.ok(superAdminService.rejectRequest(request_id));
+    }
 }

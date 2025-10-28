@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react"
 import React from "react";
+import APReviewApproveRequest from "./APReviewApproveRequest";
+import APReviewRejectRequest from "./APReviewRejectRequest";
 import APUploadGroupAccessFile from "./APUploadGroupAccessFile"
 import { useSuperAdminContent } from "../context/SuperAdminContentProvider";
 import { format } from "date-fns"
@@ -8,60 +10,19 @@ import { format } from "date-fns"
 export default function TableAdminChatbotRequest({ status, description }) {
 
     const {
-        requestSubmitted
+        requestSubmitted, 
+        setSelectedRequest,
+        handleApproveRequest,
+        handleRejectRequest,
+        showAPReviewApproveRequest, setShowAPReviewApproveRequest,
+        showAPReviewRejectRequest, setShowAPReviewRejectRequest
     } = useSuperAdminContent();
-
-    const [showPanel, setShowPanel] = useState(false);
 
     const [expandedRowId, setExpandedRowId] = useState(null);
 
     const toggleRow = (id) => {
         setExpandedRowId(expandedRowId === id ? null : id);
     };
-
-
-    // const requestSubmitted = [
-    //     {
-    //         "id": 1,
-    //         "requester": "Wong Soon Jit",
-    //         "email": "test@gmail.com",
-    //         "department": "Department of Computer Science",
-    //         "chatbot_name": "computer science chatbot",
-    //         "purpose": "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).",
-    //         "submitted_at": "22222",
-    //         status: "pending",
-    //     },
-    //     {
-    //         "id": 2,
-    //         "requester": "Wong  Jit",
-    //         "email": "test@gmail.com",
-    //         "department": "Department of Computer Science",
-    //         "chatbot_name": "computer science chatbot",
-    //         "purpose": "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).",
-    //         "submitted_at": "22222",
-    //         status: "approved",
-    //     },
-    //     {
-    //         "id": 3,
-    //         "requester": "Wong Soon Jit",
-    //         "email": "test@gmail.com",
-    //         "department": "Department of Computer Science",
-    //         "chatbot_name": "computer science chatbot",
-    //         "purpose": "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).",
-    //         "submitted_at": "22222",
-    //         status: "rejected",
-    //     },
-    //     {
-    //         "id": 4,
-    //         "requester": "Wong  Jit",
-    //         "email": "test@gmail.com",
-    //         "department": "Department of Computer Science",
-    //         "chatbot_name": "computer science chatbot",
-    //         "purpose": "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).",
-    //         "submitted_at": "22222",
-    //         status: "approved",
-    //     }
-    // ]
 
     return (
         <div>
@@ -119,7 +80,8 @@ export default function TableAdminChatbotRequest({ status, description }) {
                                                             <button
                                                                 onClick={(e) => {
                                                                     e.stopPropagation();
-                                                                    confirmApprove(request.id);
+                                                                    setSelectedRequest(request)
+                                                                    setShowAPReviewApproveRequest(true);
                                                                 }}
                                                                 className="bg-indigo-500 text-white px-3 py-1 rounded-sm hover:bg-indigo-200"
                                                             >
@@ -129,7 +91,8 @@ export default function TableAdminChatbotRequest({ status, description }) {
                                                             <button
                                                                 onClick={(e) => {
                                                                     e.stopPropagation();
-                                                                    confirmReject(request.id);
+                                                                    setSelectedRequest(request)
+                                                                    setShowAPReviewRejectRequest(true);
                                                                 }}
                                                                 className="bg-red-500 text-white px-5 py-1 rounded-sm hover:bg-red-200"
                                                             >
@@ -137,7 +100,6 @@ export default function TableAdminChatbotRequest({ status, description }) {
                                                             </button>
                                                         </div>
                                                     )}
-
                                                 </td>
                                             </tr>
 
@@ -157,7 +119,7 @@ export default function TableAdminChatbotRequest({ status, description }) {
                                                             <p>
                                                                 <strong>Submitted At</strong>
                                                             </p>
-                                                            <p>{request.submitted_at}</p>
+                                                            <p>{format(new Date(request.submitted_at), 'yyy MMM dd, h:mm a')}</p>
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -169,9 +131,14 @@ export default function TableAdminChatbotRequest({ status, description }) {
                     </div>
                 </div>
             </div>
-            {showPanel && (
+            {showAPReviewApproveRequest && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50">
-                    <APUploadGroupAccessFile />
+                    <APReviewApproveRequest />
+                </div>
+            )}
+            {showAPReviewRejectRequest && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50">
+                    <APReviewRejectRequest />
                 </div>
             )}
         </div>

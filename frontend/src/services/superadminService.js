@@ -43,3 +43,17 @@ export const getAllRequest = async(status) =>{
     });
     return response.data;
 }
+
+export const approveRequest = async(request_id) =>{
+    const response = await axios.post(`${springbootAuthAPI}/approverequest`, null,{
+        params: {request_id}
+    })
+    return response.data;
+}
+
+export const rejectRequest = async(request_id) =>{
+    const response = await axios.post(`${springbootAuthAPI}/rejectrequest`, null, {
+        params: {request_id}
+    })
+    return response.data;
+}

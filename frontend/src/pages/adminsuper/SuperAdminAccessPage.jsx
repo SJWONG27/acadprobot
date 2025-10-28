@@ -4,6 +4,7 @@ import Tab from '../../component/Tab'
 import { getCurrentUser } from '../../services/authService'
 import Toggles from '../../component/Toggles'
 import { ArrowPathIcon } from '@heroicons/react/24/solid'
+import { useSuperAdminContent } from '../../context/SuperAdminContentProvider'
 
 const tabs = [
   { name: 'pending' },
@@ -13,7 +14,12 @@ const tabs = [
 
 const SuperAdminAccessPage = () => {
 
-  const [activeTab, setActiveTab] = useState("pending");
+  const {
+    activeTab,
+    setActiveTab,
+  } = useSuperAdminContent();
+
+
   
   return (
     <div>

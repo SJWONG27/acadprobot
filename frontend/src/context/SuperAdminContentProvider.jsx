@@ -4,8 +4,12 @@ import {
     createChatbot,
     deleteChatbot,
     getAllChatbots,
-    getAllRequest
+    getAllRequest,
+    approveRequest,
+    rejectRequest,
 } from "../services/superadminService"
+
+import { sendAdminChatbotResultEmail } from "../services/emailService";
 
 const SuperAdminContentContext = createContext();
 
@@ -70,7 +74,6 @@ export const SuperAdminContentProvider = ({ children }) => {
         const fetchAllRequestByStatus = async() =>{
             try {
                 const response = await getAllRequest(activeTab);
-                console.log(response)
                 setRequestSubmitted(response);
             } catch (error) {
                 console.error("fetchAllRequestByStatus", error);
@@ -78,6 +81,70 @@ export const SuperAdminContentProvider = ({ children }) => {
         }
         fetchAllRequestByStatus()
     },[activeTab])
+
+    const [selectedRequest, setSelectedRequest] = useState([]);
+    const [requestRemark, setRequestRemark] = useState("");
+    const [showAPReviewApproveRequest, setShowAPReviewApproveRequest] = useState(false);
+    const [showAPReviewRejectRequest, setShowAPReviewRejectRequest] = useState(false);
+
+    const handleApproveRequest = async() =>{
+        if(!selectedRequest || !selectedRequest.id){
+            console.log("no selected request")
+            return;
+        }
+        const request_id = selectedRequest.id;
+        const title = selectedRequest.title;
+        const fullname = selectedRequest.fullname;
+        const chatbotName = selectedRequest.chatbot_name;
+        const recipient_email = selectedRequest.email;
+        const requestStatus = "approved";
+        try {
+            await approveRequest(request_id);
+            await sendAdminChatbotResultEmail(
+                title,
+                fullname,
+                chatbotName,
+                recipient_email,
+                requestStatus,
+                requestRemark
+            )
+            console.log("Request approved and email sent!");
+
+            const response = await getAllRequest(activeTab);
+            setRequestSubmitted(response);
+        } catch (error) {
+            console.error("handleApproveRequest", error)
+        } 
+    }
+
+    const handleRejectRequest = async() =>{
+        if(!selectedRequest || !selectedRequest.id){
+            console.log("no selected request")
+            return;
+        }
+        const request_id = selectedRequest.id;
+        const title = selectedRequest.title;
+        const fullname = selectedRequest.fullname;
+        const chatbotName = selectedRequest.chatbot_name;
+        const recipient_email = selectedRequest.email;
+        const requestStatus = "rejected";
+        try {
+            await rejectRequest(request_id);
+            await sendAdminChatbotResultEmail(
+                title,
+                fullname,
+                chatbotName,
+                recipient_email,
+                requestStatus,
+                requestRemark
+            )
+
+            const response = await getAllRequest(activeTab);
+            setRequestSubmitted(response);
+        } catch (error) {
+            console.error("handleRejectRequest", error)
+        }
+    }
 
     return (
         <SuperAdminContentContext.Provider
@@ -94,7 +161,17 @@ export const SuperAdminContentProvider = ({ children }) => {
                 setChatbots,  //details
                 confirmationModal,
                 setConfirmationModal,
-                requestSubmitted
+                requestSubmitted,
+                activeTab,
+                setActiveTab,
+                selectedRequest, 
+                setSelectedRequest,
+                handleApproveRequest,
+                handleRejectRequest,
+                handleRejectRequest,
+                requestRemark, setRequestRemark,
+                showAPReviewApproveRequest, setShowAPReviewApproveRequest,
+                showAPReviewRejectRequest, setShowAPReviewRejectRequest
             }}
         >
             {children}

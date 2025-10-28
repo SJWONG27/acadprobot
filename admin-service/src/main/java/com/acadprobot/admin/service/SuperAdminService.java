@@ -68,4 +68,30 @@ public class SuperAdminService {
         return adminChatbotRequestRepository.findByStatus(status);
     }
 
+    public String approveRequest(UUID id){
+        Optional<AdminChatbotRequest> requestOpt = adminChatbotRequestRepository.findById(id);
+        if(requestOpt.isEmpty()){
+            return "Request not found" + id;
+        }
+        AdminChatbotRequest adminChatbotRequest = requestOpt.get();
+        adminChatbotRequest.setStatus("approved");
+
+        adminChatbotRequestRepository.save(adminChatbotRequest);
+
+        return "Request approved for " + adminChatbotRequest.getEmail();
+    }
+
+    public String rejectRequest(UUID id){
+        Optional<AdminChatbotRequest> requestOpt = adminChatbotRequestRepository.findById(id);
+        if(requestOpt.isEmpty()){
+            return "Request not found" + id;
+        }
+        AdminChatbotRequest adminChatbotRequest = requestOpt.get();
+        adminChatbotRequest.setStatus("rejected");
+
+        adminChatbotRequestRepository.save(adminChatbotRequest);
+
+        return "Request rejected for " + adminChatbotRequest.getEmail();
+    }
+
 }
