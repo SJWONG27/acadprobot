@@ -1,18 +1,23 @@
 package com.acadprobot.admin.controller;
 
 import com.acadprobot.admin.service.EmailService;
+import com.acadprobot.admin.service.ExcelService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:5173")
-@RequestMapping("/superadmin")
+@RequestMapping("/emailservice")
 public class EmailController {
 
     @Autowired
     private  EmailService emailService;
+
+    @Autowired
+    private ExcelService excelService;
 
     public EmailController(EmailService emailService) {
         this.emailService = emailService;
@@ -70,5 +75,40 @@ public class EmailController {
         emailService.sendEmail(recipientEmail, subject, emailBody.toString());
         return "Chatbot approval result email sent.";
     }
+
+
+    @PostMapping("/sendchatbotinvitation")
+    public String sendChatbotInvitationsFromExcel(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("refercode") String refercode,
+            @RequestParam("chatbot_name") String chatbotName,
+            @RequestParam("sender_email") String senderEmail ) {
+
+        if (file.isEmpty()) return "Uploaded file is empty.";
+
+        try {
+            List<String> emailList = excelService.extractEmailsFromExcel(file);
+
+            for (String recipientEmail : emailList) {
+                String subject = "AcadProBot - Invitation to " + chatbotName;
+
+                String body = String.format(
+                        "Hi,\n\nHere is the joining refercode for %s.\n\n%s\n\n" +
+                                "If you encounter any problem joining the chatbot, kindly reach out to the chatbot admin at %s.\n\n" +
+                                "Thank you for using AcadProBot!\n\nBest regards,\nAcadProBot Admin Team",
+                        chatbotName, refercode, senderEmail
+                );
+
+                emailService.sendEmail(recipientEmail, subject, body);
+            }
+
+            return "Invitations sent successfully to " + emailList.size() + " recipients.";
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Failed to process Excel file: " + e.getMessage();
+        }
+    }
+
 
 }

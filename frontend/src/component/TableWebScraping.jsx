@@ -2,34 +2,13 @@ import APAddWebUrl from "./APAddWebUrl";
 import { useAdminContent } from "../context/AdminContentProvider";
 
 export default function TableWebScraping() {
-    
+
     const {
-        confirmationModal,
-        setConfirmationModal,
-        confirmDelete,
         confirmDeleteWebsiteDoc,
-        cancelDelete,
-        successAlertMessage,
-        setSuccessAlertMessage,
-        fileUpload,
-        setFileUpload,
-        documents,
-        setDocuments,
-        showDocPanel,
-        setShowDocPanel,
-        websiteUpload,
-        setWebsiteUpload,
         websites,
-        setWebsites,
-        showWebsiteDocPanel,
         setShowWebsiteDocPanel,
-        handleDocsUpload,
-        handleWebsiteDocsUpload,
-        handleDeleteDoc,
-        hanldeDeleteWebsiteDoc,
-        chatbotsUnderAdmin
-      } = useAdminContent();
-    
+    } = useAdminContent();
+
     return (
         <div>
             <div className="sm:flex sm:items-center">
@@ -41,7 +20,7 @@ export default function TableWebScraping() {
                 </div>
                 <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
                     <button
-                        onClick={()=>{setShowWebsiteDocPanel(true)}}
+                        onClick={() => { setShowWebsiteDocPanel(true) }}
                         type="button"
                         className="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                     >
@@ -88,22 +67,11 @@ export default function TableWebScraping() {
                                     </tr>
                                 ))}
                             </tbody>
-                            
+
                         </table>
                     </div>
                 </div>
             </div>
-
-            {showWebsiteDocPanel && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50">
-                    <APAddWebUrl
-                        websiteUpload={websiteUpload}
-                        setWebsiteUpload={setWebsiteUpload}
-                        handleWebsiteDocsUpload={handleWebsiteDocsUpload}
-                        setShowWebsiteDocPanel={setShowWebsiteDocPanel}
-                    />
-                </div>
-            )}
         </div>
     )
 }

@@ -1,6 +1,15 @@
 import { useState, useRef } from "react"
+import { useAdminContent } from "../context/AdminContentProvider";
+import AlertSuccess from "./AlertSuccess";
 
 export default function APUploadGroupAccessFile() {
+
+    const {
+        isLoading,
+        handleInviteUser,
+        setShowGroupAccessPanel,
+    } = useAdminContent();
+
     const fileInputRef = useRef(null);
     const [fileUpload, setFileUpload] = useState(null);
 
@@ -23,16 +32,17 @@ export default function APUploadGroupAccessFile() {
     return (
         <div className="bg-white shadow sm:rounded-lg">
             <div className="px-4 py-5 sm:p-6">
-                <h3 className="text-base font-semibold text-gray-900">Upload Document</h3>
+                <h3 className="text-base font-semibold text-gray-900">Upload Excel File</h3>
                 <div className="mt-2 max-w-xl text-sm text-gray-500">
-                    <p>Upload document you wish to scrape.</p>
+                    <p>Use an Excel file with one column containing user emails.</p>
+                    <p>See the documentation for upload guidelines.</p>
                 </div>
-                <form className="mt-5 flex flex-col sm:items-center">
+                <form className="mt-5 flex flex-col sm:items-center" >
                     <input
                         type="file"
                         ref={fileInputRef}
-                        onChange={handleFileChange} 
-                        accept=".csv, .xlsx"
+                        onChange={handleFileChange}
+                        accept=".xlsx"
                         className="hidden"
                     />
                     {!fileUpload ? (
@@ -76,13 +86,31 @@ export default function APUploadGroupAccessFile() {
 
                     <div className="flex flex-row mt-6">
                         <button
-                            type="submit"
-                            className="mt-3 inline-flex w-full items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 sm:ml-3 sm:mt-0 sm:w-auto"
+                            type="button"
+                            onClick={() => {
+                                handleInviteUser(fileUpload)
+                            }}
+                            disabled={!fileUpload || isLoading}
+                            className={`mt-3 inline-flex w-full items-center justify-center rounded-md  px-3 py-2 text-sm font-semibold text-white shadow-sm  sm:ml-3 sm:mt-0 sm:w-auto
+                                ${isLoading ?
+                                    "bg-gray-400 cursor-not-allowed"
+                                    : "bg-indigo-600 hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                                }`
+                            }
                         >
-                            Start Scraping
+                            Start
                         </button>
                         <button
-                            className="mt-3 inline-flex w-full items-center justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 sm:ml-3 sm:mt-0 sm:w-auto"
+                            disabled={isLoading}
+                            onClick={() => {
+                                setShowGroupAccessPanel(false)
+                                setFileUpload(null)
+                            }}
+                            className={`mt-3 inline-flex w-full items-center justify-center rounded-md  px-3 py-2 text-sm font-semibold text-white shadow-sm sm:ml-3 sm:mt-0 sm:w-auto
+                                ${isLoading ? "bg-gray-400 cursor-not-allowed"
+                                    : "bg-red-600 hover:bg-red-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
+                                }`
+                            }
                         >
                             Discard
                         </button>
@@ -90,6 +118,7 @@ export default function APUploadGroupAccessFile() {
 
                 </form>
             </div>
+
         </div>
     )
 }

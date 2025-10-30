@@ -10,15 +10,19 @@ import {
     getUsersUnderChatbot,
     deleteUsersFromChatbot
 } from "../services/adminService";
-
+import { sendChatbotInvitation } from "../services/emailService";
 import { getCurrentUser } from "../services/authService";
 
 const AdminContentContext = createContext();
 
 export const AdminContentProvider = ({ children }) => {
+    const [alertLogin, setAlertLogin] = useState(false);
+
+    const [isLoading, setIsLoading] = useState(false);
+
     const [chatbotsUnderAdmin, setChatbotsUnderAdmin] = useState("");
     const [adminId, setAdminId] = useState("");
-    const [chatbotId, setChatbotId] = useState("");
+    const [adminEmail, setAdminEmail] = useState("");
     const [selectedChatbot, setSelectedChatbot] = useState(null);
 
     const [successAlertMessage, setSuccessAlertMessage] = useState("");
@@ -34,17 +38,23 @@ export const AdminContentProvider = ({ children }) => {
     const [websites, setWebsites] = useState([]);
     const [showWebsiteDocPanel, setShowWebsiteDocPanel] = useState(false);
 
+    const [showGroupAccessPanel, setShowGroupAccessPanel ] = useState(false);
+
+
     useEffect(() => {
         const fetchCurrentAdmin = async () => {
             const token = localStorage.getItem("token");
             if (!token) {
                 console.error("No token in fetchCurrentAdmin");
+                setAlertLogin(true)
                 return;
             }
             try {
                 const data = await getCurrentUser(token);
                 setAdminId(data.data.id);
+                setAdminEmail(data.data.email);
             } catch (error) {
+                setAlertLogin(true)
                 console.error("fetchCurrentAdmin", error);
             }
         }
@@ -68,12 +78,12 @@ export const AdminContentProvider = ({ children }) => {
         if (!fileUpload) return;
 
         const chatbotId = selectedChatbot.id;
-        console.log(chatbotId)
         if (!chatbotId) {
             console.error("No chatbot id");
             return;
         }
         try {
+            triggerAlert("Document uploading")
             await uploadDocs(fileUpload, chatbotId);
             setFileUpload(null);
             setShowDocPanel(false);
@@ -101,16 +111,17 @@ export const AdminContentProvider = ({ children }) => {
         }
 
         try {
+            triggerAlert("Website Uploading");
             await uploadWebsiteDocs(websiteUpload, chatbotId);
             setWebsiteUpload(null);
             setShowWebsiteDocPanel(false);
 
             const updatedSites = await getWebsiteDocs(chatbotId);
             setWebsites(updatedSites);
-
-            triggerAlert("Website uploading");
         } catch (err) {
             console.error("Website upload error:", err);
+            const updatedSites = await getWebsiteDocs(chatbotId);
+            setWebsites(updatedSites);
         }
     };
 
@@ -139,12 +150,15 @@ export const AdminContentProvider = ({ children }) => {
 
     const handleDeleteDoc = async () => {
         const chatbotId = selectedChatbot.id;
+        console.log(selectedChatbot);
         if (!chatbotId) {
             console.error("No chatbot id");
             return;
         }
         try {
+            triggerAlert("Document deleted successfully");
             await deleteDocument(pendingDeleteID);
+
             const updatedDocs = await getDocs(chatbotId);
             setDocuments(updatedDocs);
         } catch (err) {
@@ -155,14 +169,15 @@ export const AdminContentProvider = ({ children }) => {
         }
     };
 
-    const hanldeDeleteWebsiteDoc = async () => {
+    const handleDeleteWebsiteDoc = async () => {
         const chatbotId = selectedChatbot.id;
-        if (!chatbotId) {
+        if (!chatbotId || !pendingDeleteID) {
             console.error("No chatbot id");
             return;
         }
 
         try {
+            triggerAlert("Website deleted successfully");
             await deleteWebsiteDocument(pendingDeleteID);
 
             const updatedSites = await getWebsiteDocs(chatbotId);
@@ -217,10 +232,31 @@ export const AdminContentProvider = ({ children }) => {
         }
     }
 
-    const triggerConfirmationModal = (title) => {
-        setConfirmationModal(title);
-        triggerAlert("Deleted Successfully");
-    }
+    // invitation to user
+    const handleInviteUser = async (fileUpload) => {
+        if (!selectedChatbot || !adminEmail || !fileUpload) {
+            return;
+        }
+        setIsLoading(true);
+        try {
+            triggerAlert("Sending Invitation. Please wait.");
+            await sendChatbotInvitation(fileUpload, selectedChatbot.refercode, selectedChatbot.name, adminEmail);
+            setShowGroupAccessPanel(false);
+            triggerAlert("Invitation sent");
+            
+            setFileUpload(null);
+        } catch (err) {
+            console.error("handleInviteUser:", err.response || err);
+        } finally{
+            setIsLoading(false);
+        }
+        
+    };
+
+    // const triggerConfirmationModal = (title) => {
+    //     setConfirmationModal(title);
+    //     triggerAlert("Deleted Successfully");
+    // }
 
     const triggerAlert = (message) => {
         setSuccessAlertMessage(message);
@@ -230,6 +266,10 @@ export const AdminContentProvider = ({ children }) => {
     return (
         <AdminContentContext.Provider
             value={{
+                alertLogin, 
+                setAlertLogin,
+                isLoading, 
+                setIsLoading,
                 confirmationModal,
                 setConfirmationModal,
                 confirmDelete,
@@ -257,14 +297,17 @@ export const AdminContentProvider = ({ children }) => {
                 handleDocsUpload,
                 handleWebsiteDocsUpload,
                 handleDeleteDoc,
-                hanldeDeleteWebsiteDoc,
+                handleDeleteWebsiteDoc,
                 chatbotsUnderAdmin,
                 adminId,
                 selectedChatbot,
                 setSelectedChatbot,
                 usersUnderChatbot,
                 confirmRevokeUser,
-                handleRevokeUserAccess
+                handleRevokeUserAccess,
+                handleInviteUser,
+                showGroupAccessPanel, 
+                setShowGroupAccessPanel
             }}
         >
             {children}

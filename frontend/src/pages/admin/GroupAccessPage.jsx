@@ -1,58 +1,20 @@
 import React, { useEffect, useState } from 'react'
 import TableGroupAccess from '../../component/TableGroupAccess'
-import { getCurrentUser } from '../../services/authService'
-import { getUsersUnderChatbot } from '../../services/adminService'
-import Toggles from '../../component/Toggles'
-import { ArrowPathIcon } from '@heroicons/react/24/solid'
 import SelectMenu from '../../component/SelectMenu';
 import ConfirmationModal from '../../component/ConfirmationModal'
+import APUploadGroupAccessFile from '../../component/APUploadGroupAccessFile'
 import { useAdminContent } from '../../context/AdminContentProvider'
 
 const GroupAccessPage = () => {
   const {
+    confirmationModal,
     chatbotsUnderAdmin,
     selectedChatbot,
     setSelectedChatbot,
-    confirmRevokeUser,
+    showGroupAccessPanel,
     handleRevokeUserAccess,
     cancelDelete,
-    confirmationModal
   } = useAdminContent();
-
-  // const [refercode, setRefercode] = useState("");
-  // useEffect(() => {
-  //   const fetchAdmin = async () => {
-  //     const token = localStorage.getItem("token");
-  //     if (!token) {
-  //       console.log("No token available");
-  //       return;
-  //     }
-
-  //     try {
-  //       const data = await getCurrentUser(token);
-  //       setRefercode(data.data.refercode);
-  //     } catch (error) {
-  //       console.log("Group access (refercode): ", error)
-  //     }
-  //   }
-  //   fetchAdmin();
-  // }, [])
-
-  // const [selectedChatbot, setSelectedChatbot] = useState(null);
-  // const [usersUnderChatbot, setUsersUnderChatbot] = useState([]);
-
-  // useEffect(()=>{
-  //   const fetchUsersUnderChatbot = async() =>{
-  //     if(!selectedChatbot) return;
-  //     try {
-  //       const data = await getUsersUnderChatbot(selectedChatbot.id);
-  //       setUsersUnderChatbot(data);
-  //     } catch (error) {
-  //       console.error("fetchUsersUnderChatbot", error);
-  //     }
-  //   }
-  //   fetchUsersUnderChatbot()
-  // },[])
 
   return (
     <div>
@@ -79,6 +41,14 @@ const GroupAccessPage = () => {
         </div>
       </div>
 
+      {/* Group Access Panel */}
+      {showGroupAccessPanel && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50">
+          <APUploadGroupAccessFile />
+        </div>
+      )}
+
+      {/* Group Access Confirmation Modal */}
       {confirmationModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black opacity-50"></div>

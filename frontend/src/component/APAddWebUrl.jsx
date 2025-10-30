@@ -2,28 +2,10 @@ import { useAdminContent } from "../context/AdminContentProvider";
 
 export default function APAddWebUrl() {
     const {
-        confirmationModal,
-        setConfirmationModal,
-        confirmDelete,
-        cancelDelete,
-        successAlertMessage,
-        setSuccessAlertMessage,
-        fileUpload,
-        setFileUpload,
-        documents,
-        setDocuments,
-        showDocPanel,
-        setShowDocPanel,
         websiteUpload,
         setWebsiteUpload,
-        websites,
-        setWebsites,
-        showWebsiteDocPanel,
         setShowWebsiteDocPanel,
-        handleDocsUpload,
-        handleWebsiteDocsUpload,
-        handleDeleteDoc,
-        hanldeDeleteWebsiteDoc
+        handleWebsiteDocsUpload
       } = useAdminContent();
 
     const handleWebsiteSelect = (url)=>{
@@ -62,8 +44,11 @@ export default function APAddWebUrl() {
                     </div>
                     <div className="flex flex-row mt-6">
                         <button
-                            type="submit"
-                            onClick={handleWebsiteDocsUpload}
+                            type="button"
+                            onClick={()=>{
+                                handleWebsiteDocsUpload()
+                                setShowWebsiteDocPanel(false)
+                            }}
                             disabled={!websiteUpload}
                             className="mt-3 inline-flex w-full items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 sm:ml-3 sm:mt-0 sm:w-auto"
                         >

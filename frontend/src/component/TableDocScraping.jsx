@@ -5,14 +5,9 @@ import { useEffect } from "react";
 
 export default function TableDocScraping() {
     const {
-        confirmDelete,
         confirmDeleteDoc,
         documents,
-        setDocuments,
-        showDocPanel,
         setShowDocPanel,
-        setWebsites,
-        selectedChatbot,
     } = useAdminContent();
 
 
@@ -82,12 +77,6 @@ export default function TableDocScraping() {
                     </div>
                 </div>
             </div>
-
-            {showDocPanel && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50">
-                    <APAddDocs />
-                </div>
-            )}
         </div>
     )
 }

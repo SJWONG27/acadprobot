@@ -4,9 +4,11 @@ import ChatInterface from './ChatInterface'
 import { useChatContent } from '../../context/ChatContentProvider'
 import ConfirmationModal from '../../component/ConfirmationModal'
 import AlertSuccess from '../../component/AlertSuccess'
+import AlertLoginRequired from '../../component/AlertLoginRequired'
 
 const Chat = () => {
   const {
+    alertLogin,
     deleteChat,
     confirmationModal,
     cancelDelete,
@@ -24,7 +26,7 @@ const Chat = () => {
       <div className={`h-full w-full overflow-hidden transition-all duration-800 `}>
         <ChatInterface />
       </div>
-      
+
       {successAlertMessage && (
         <AlertSuccess
           text={successAlertMessage}
@@ -45,7 +47,11 @@ const Chat = () => {
           </div>
         </div>
       )}
-
+      {alertLogin && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50">
+          <AlertLoginRequired />
+        </div>
+      )}
     </div>
   )
 }

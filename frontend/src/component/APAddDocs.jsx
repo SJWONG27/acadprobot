@@ -92,8 +92,11 @@ export default function APAddDocs() {
 
                     <div className="flex flex-row mt-6">
                         <button
-                            type="submit"
-                            onClick={handleDocsUpload}
+                            type="button"
+                            onClick={()=>{
+                                handleDocsUpload()
+                                setShowDocPanel(false)
+                            }}
                             disabled={!fileUpload}
                             className="mt-3 inline-flex w-full items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 sm:ml-3 sm:mt-0 sm:w-auto"
                         >

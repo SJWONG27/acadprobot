@@ -12,8 +12,6 @@ export default function TableAdminChatbotRequest({ status, description }) {
     const {
         requestSubmitted, 
         setSelectedRequest,
-        handleApproveRequest,
-        handleRejectRequest,
         showAPReviewApproveRequest, setShowAPReviewApproveRequest,
         showAPReviewRejectRequest, setShowAPReviewRejectRequest
     } = useSuperAdminContent();

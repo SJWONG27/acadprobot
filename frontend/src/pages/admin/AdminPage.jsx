@@ -5,6 +5,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import logo_acadprobot_square from '../../../src/assets/logo_acadprobot_square.svg'
 import logo_acadprobot_long from '../../../src/assets/logo_acadprobot_long.svg'
 import { getCurrentUser } from '../../services/authService';
+import AlertLoginRequired from '../../component/AlertLoginRequired';
 
 import {
   Dialog,
@@ -18,12 +19,6 @@ import {
 } from '@headlessui/react'
 import {
   Bars3Icon,
-  BellIcon,
-  CalendarIcon,
-  ChartPieIcon,
-  Cog6ToothIcon,
-  DocumentDuplicateIcon,
-  FolderIcon,
   HomeIcon,
   UsersIcon,
   XMarkIcon,
@@ -34,25 +29,10 @@ import { ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/react/20/solid'
 import OverviewPage from './OverviewPage'
 import ChatbotContentPage from './ChatbotContentPage'
 import GroupAccessPage from './GroupAccessPage'
-
-
-// const navigation = [
-//   { name: 'Dashboard', href: '#', icon: HomeIcon, current: true },
-//   { name: 'Chatbot Content', href: '#', icon: ChatBubbleBottomCenterTextIcon, current: false },
-//   { name: 'Group Access', href: '#', icon: UsersIcon, current: false },
-//   { name: 'FAQs Update', href: '#', icon: FolderIcon, current: false },
-// ]
-// const teams = [
-//   { id: 1, name: 'Heroicons', href: '#', initial: 'H', current: false },
-//   { id: 2, name: 'Tailwind Labs', href: '#', initial: 'T', current: false },
-//   { id: 3, name: 'Workcation', href: '#', initial: 'W', current: false },
-// ]
-
-
-// Render function for switching pages dynamically
+import AlertSuccess from '../../component/AlertSuccess';
+import { useAdminContent } from '../../context/AdminContentProvider';
 
 const userNavigation = [
-  //   { name: 'Your profile', href: '#' },
   { name: 'Sign out', href: '#' },
 ]
 
@@ -61,13 +41,18 @@ function classNames(...classes) {
 }
 
 export default function AdminPage() {
+  const {
+    alertLogin, 
+    successAlertMessage,
+    setSuccessAlertMessage,
+  } = useAdminContent();
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { section } = useParams();
   const navigation = [
     { name: 'Dashboard', icon: HomeIcon, current: section === 'overview', id: 'overview' },
     { name: 'Chatbot Content', icon: ChatBubbleBottomCenterTextIcon, current: section === 'chatbot', id: 'chatbot' },
     { name: 'Group Access', icon: UsersIcon, current: section === 'group', id: 'group' },
-    // { name: 'FAQs Update', icon: FolderIcon, current: section === 'faqs', id: 'faqs' },
   ];
   const navigate = useNavigate();
   const handleNavClick = (page) => {
@@ -81,8 +66,6 @@ export default function AdminPage() {
         return <ChatbotContentPage />;
       case 'group':
         return <GroupAccessPage />;
-      // case 'faqs':
-      //   return <FAQsManager />;
       default:
         return <OverviewPage />;
     }
@@ -90,25 +73,25 @@ export default function AdminPage() {
 
   const [adminEmail, setAdminEmail] = useState("");
 
-  useEffect(()=>{
-    const fetchAdmin = async()=>{
+  useEffect(() => {
+    const fetchAdmin = async () => {
       const token = localStorage.getItem("token");
-      if(!token){
+      if (!token) {
         console.log("No token");
         return;
       }
 
-      try{
+      try {
         const data = await getCurrentUser(token);
         setAdminEmail(data.data.email);
-      } catch(error){
+      } catch (error) {
         console.error("Fetch admin email error: ", error)
       }
     }
     fetchAdmin();
-  },[])
+  }, [])
 
-  const handleLogout = () =>{
+  const handleLogout = () => {
     localStorage.removeItem("token");
     console.log("access_token after logout:", localStorage.getItem("token"));
     navigate('/');
@@ -116,14 +99,6 @@ export default function AdminPage() {
 
   return (
     <>
-      {/*
-        This example requires updating your template:
-
-        ```
-        <html class="h-full bg-white">
-        <body class="h-full">
-        ```
-      */}
       <div className="h-full overflow-x-hidden">
         <Dialog open={sidebarOpen} onClose={setSidebarOpen} className="relative z-50 lg:hidden">
           <DialogBackdrop
@@ -147,13 +122,13 @@ export default function AdminPage() {
               {/* Sidebar component, swap this element with another sidebar if you like */}
               <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pb-4">
                 <div className="flex h-16 shrink-0 items-center">
-                  <a 
+                  <a
                     href='/'>
-                  <img
-                    alt="AcadProBot"
-                    src={logo_acadprobot_square}
-                    className="h-8 w-auto"
-                  />
+                    <img
+                      alt="AcadProBot"
+                      src={logo_acadprobot_square}
+                      className="h-8 w-auto"
+                    />
                   </a>
                 </div>
                 <nav className="flex flex-1 flex-col">
@@ -184,48 +159,6 @@ export default function AdminPage() {
                         ))}
                       </ul>
                     </li>
-                    {/* <li>
-                      <div className="text-xs/6 font-semibold text-gray-400">Your teams</div>
-                      <ul role="list" className="-mx-2 mt-2 space-y-1">
-                        {teams.map((team) => (
-                          <li key={team.name}>
-                            <a
-                              href={team.href}
-                              className={classNames(
-                                team.current
-                                  ? 'bg-gray-50 text-indigo-600'
-                                  : 'text-gray-700 hover:bg-gray-50 hover:text-indigo-600',
-                                'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold',
-                              )}
-                            >
-                              <span
-                                className={classNames(
-                                  team.current
-                                    ? 'border-indigo-600 text-indigo-600'
-                                    : 'border-gray-200 text-gray-400 group-hover:border-indigo-600 group-hover:text-indigo-600',
-                                  'flex size-6 shrink-0 items-center justify-center rounded-lg border bg-white text-[0.625rem] font-medium',
-                                )}
-                              >
-                                {team.initial}
-                              </span>
-                              <span className="truncate">{team.name}</span>
-                            </a>
-                          </li>
-                        ))}
-                      </ul>
-                    </li> */}
-                    {/* <li className="mt-auto">
-                      <a
-                        href="#"
-                        className="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-gray-700 hover:bg-gray-50 hover:text-indigo-600"
-                      >
-                        <Cog6ToothIcon
-                          aria-hidden="true"
-                          className="size-6 shrink-0 text-gray-400 group-hover:text-indigo-600"
-                        />
-                        Settings
-                      </a>
-                    </li> */}
                   </ul>
                 </nav>
               </div>
@@ -258,7 +191,7 @@ export default function AdminPage() {
                     {navigation.map((item) => (
                       <li key={item.name}>
                         <button
-                          onClick={() => handleNavClick(item.id)}      
+                          onClick={() => handleNavClick(item.id)}
                           className={classNames(
                             item.current
                               ? 'bg-gray-50 text-indigo-600'
@@ -279,48 +212,6 @@ export default function AdminPage() {
                     ))}
                   </ul>
                 </li>
-                {/* <li>
-                  <div className="text-xs/6 font-semibold text-gray-400">Your teams</div>
-                  <ul role="list" className="-mx-2 mt-2 space-y-1">
-                    {teams.map((team) => (
-                      <li key={team.name}>
-                        <a
-                          href={team.href}
-                          className={classNames(
-                            team.current
-                              ? 'bg-gray-50 text-indigo-600'
-                              : 'text-gray-700 hover:bg-gray-50 hover:text-indigo-600',
-                            'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold',
-                          )}
-                        >
-                          <span
-                            className={classNames(
-                              team.current
-                                ? 'border-indigo-600 text-indigo-600'
-                                : 'border-gray-200 text-gray-400 group-hover:border-indigo-600 group-hover:text-indigo-600',
-                              'flex size-6 shrink-0 items-center justify-center rounded-lg border bg-white text-[0.625rem] font-medium',
-                            )}
-                          >
-                            {team.initial}
-                          </span>
-                          <span className="truncate">{team.name}</span>
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                </li>
-                <li className="mt-auto">
-                  <a
-                    href="#"
-                    className="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-gray-700 hover:bg-gray-50 hover:text-indigo-600"
-                  >
-                    <Cog6ToothIcon
-                      aria-hidden="true"
-                      className="size-6 shrink-0 text-gray-400 group-hover:text-indigo-600"
-                    />
-                    Settings
-                  </a>
-                </li> */}
               </ul>
             </nav>
           </div>
@@ -343,7 +234,7 @@ export default function AdminPage() {
                 <Menu as="div" className="relative">
                   <MenuButton className="-m-1.5 flex items-center p-1.5">
                     <span className="sr-only">Open user menu</span>
-                    <UserCircleIcon className="size-8"/>
+                    <UserCircleIcon className="size-8" />
                     <span className="flex items-center">
                       <span aria-hidden="true" className="ml-4 text-sm/6 font-semibold text-gray-900">
                         {adminEmail}
@@ -357,7 +248,7 @@ export default function AdminPage() {
                   >
                     {userNavigation.map((item) => (
                       <MenuItem key={item.name}>
-                       <button
+                        <button
                           onClick={handleLogout}
                           className="block w-full text-left px-3 py-1 text-sm/6 text-gray-900 data-[focus]:bg-gray-50 data-[focus]:outline-none"
                         >
@@ -378,6 +269,20 @@ export default function AdminPage() {
           </main>
         </div>
       </div>
+
+      {successAlertMessage && (
+        <AlertSuccess
+          text={successAlertMessage}
+          onClose={() => setSuccessAlertMessage("")}
+          className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50"
+        />
+      )}
+
+      {alertLogin && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50">
+          <AlertLoginRequired />
+        </div>
+      )}
     </>
   )
 }

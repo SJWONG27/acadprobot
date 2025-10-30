@@ -7,10 +7,10 @@ import { useAdminContent } from "../context/AdminContentProvider";
 
 export default function TableGroupAccess() {
     const {
+        setShowGroupAccessPanel,
         usersUnderChatbot,
-        confirmRevokeUser
+        confirmRevokeUser,
     } = useAdminContent();
-    const [showPanel, setShowPanel] = useState(false);
 
     return (
         <div>
@@ -23,7 +23,7 @@ export default function TableGroupAccess() {
                 </div>
                 <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
                     <button
-                        onClick={()=>setShowPanel(true)}
+                        onClick={()=>setShowGroupAccessPanel(true)}
                         type="button"
                         className="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                     >
@@ -69,11 +69,6 @@ export default function TableGroupAccess() {
                     </div>
                 </div>
             </div>
-            {showPanel && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50">
-                    <APUploadGroupAccessFile/>
-                </div>
-            )}
         </div>
     )
 }

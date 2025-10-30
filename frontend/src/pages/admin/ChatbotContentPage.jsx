@@ -1,55 +1,28 @@
 import React, { useState, useEffect } from 'react'
-import Toggles from '../../component/Toggles'
 import TableWebScraping from '../../component/TableWebScraping'
 import TableDocScraping from '../../component/TableDocScraping'
 import { uploadDocs, getDocs, uploadWebsiteDocs, getWebsiteDocs, deleteDocument, deleteWebsiteDocument } from '../../services/adminService'
-import AlertSuccess from '../../component/AlertSuccess'
 import ConfirmationModal from '../../component/ConfirmationModal'
 import { useAdminContent } from '../../context/AdminContentProvider'
 import SelectMenu from '../../component/SelectMenu'
+import APAddWebUrl from '../../component/APAddWebUrl'
+import APAddDocs from '../../component/APAddDocs'
 
 const ChatbotContentPage = () => {
   const {
     confirmationModal,
-    setConfirmationModal,
-    confirmDelete,
     cancelDelete,
     deleteTarget,
-    successAlertMessage,
-    setSuccessAlertMessage,
-    fileUpload,
-    setFileUpload,
-    documents,
     setDocuments,
-    showDocPanel,
-    setShowDocPanel,
-    websiteUpload,
-    setWebsiteUpload,
-    websites,
     setWebsites,
-    showWebsiteDocPanel,
-    setShowWebsiteDocPanel,
-    handleDocsUpload,
-    handleWebsiteDocsUpload,
     handleDeleteDoc,
-    hanldeDeleteWebsiteDoc,
+    handleDeleteWebsiteDoc,
     chatbotsUnderAdmin,
     selectedChatbot,
-    setSelectedChatbot
+    setSelectedChatbot,
+    showWebsiteDocPanel,
+    showDocPanel,
   } = useAdminContent();
-
-  // useEffect(() => {
-  //   const token = localStorage.getItem("token");
-  //   if (!token) return;
-
-  //   getDocs(token)
-  //     .then((data) => setDocuments(data))
-  //     .catch((err) => console.error("Failed to fetch documents:", err));
-
-  //   getWebsiteDocs(token)
-  //     .then((data) => setWebsites(data))
-  //     .catch((err) => console.error("Failed to website url:", err));
-  // }, []);
 
   useEffect(() => {
     const fetchDocument = async () => {
@@ -125,15 +98,6 @@ const ChatbotContentPage = () => {
         </div>
       </div>
 
-
-      {successAlertMessage && (
-        <AlertSuccess
-          text={successAlertMessage}
-          onClose={() => setSuccessAlertMessage("")}
-          className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50"
-        />
-      )}
-
       {confirmationModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black opacity-50"></div>
@@ -153,11 +117,22 @@ const ChatbotContentPage = () => {
           <div className="relative z-10">
             <ConfirmationModal
               title="Delete Confirmation"
-              // onConfirm={hanldeDeleteWebsiteDoc}
-              onConfirm={deleteTarget === "document" ? handleDeleteDoc : hanldeDeleteWebsiteDoc}
+              onConfirm={deleteTarget === "website" ?  handleDeleteWebsiteDoc: handleDeleteDoc }
               onCancel={cancelDelete}
             />
           </div>
+        </div>
+      )}
+
+      {showWebsiteDocPanel && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50">
+          <APAddWebUrl />
+        </div>
+      )}
+
+      {showDocPanel && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50">
+          <APAddDocs />
         </div>
       )}
 
