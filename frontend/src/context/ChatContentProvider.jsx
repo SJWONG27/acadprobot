@@ -34,6 +34,7 @@ export const ChatContentProvider = ({ children }) => {
 
             try {
                 const data = await getCurrentUser(token);
+                console.log(data.data);
                 setUserId(data.data.id);
             } catch (error) {
                 console.error("Fetch user id error: ", error)

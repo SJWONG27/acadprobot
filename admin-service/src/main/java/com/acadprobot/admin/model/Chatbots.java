@@ -40,9 +40,9 @@ public class Chatbots {
     private LocalDateTime created_at = LocalDateTime.now();
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "admin_id", nullable = false)
-    @JsonBackReference // only go from Admin → Users, not the other way around.
-    private Admin admin;
+    @JoinColumn(name = "user_id", nullable = false)
+    @JsonBackReference
+    private User user;
 
     public UUID getId() {
         return id;
@@ -60,8 +60,8 @@ public class Chatbots {
         return created_at;
     }
 
-    public Admin getAdmin() {
-        return admin;
+    public User getUser() {
+        return user;
     }
 
     public void setId(UUID id) {
@@ -80,7 +80,7 @@ public class Chatbots {
         this.created_at = created_at;
     }
 
-    public void setAdmin(Admin admin) {
-        this.admin = admin;
+    public void setUser(User user) {
+        this.user = user;
     }
 }

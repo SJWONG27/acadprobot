@@ -1,9 +1,5 @@
 package com.acadprobot.admin.controller;
 
-import com.acadprobot.admin.model.Admin;
-import com.acadprobot.admin.model.User;
-import com.acadprobot.admin.repository.AdminRepository;
-import com.acadprobot.admin.dto.UserDTO;
 import com.acadprobot.admin.service.AdminService;
 import com.acadprobot.admin.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +18,14 @@ public class AdminController {
     @Autowired
     private AdminService adminService;
 
+    @GetMapping("/chatbotsunderadmin")
+    public ResponseEntity<?> getChatbotsUnderAdmin(@RequestParam("user_id") String userIdstr){
+        UUID userId = UUID.fromString(userIdstr);
+        return ResponseEntity.ok(adminService.getChatbotsByAdmin(userId));
+    }
 
-    @GetMapping("/chatbots/")
+
+    @GetMapping("/chatbots")
     public ResponseEntity<?> getUsersByChatbot(@RequestParam("chatbot_id") String chatbotIdstr){
         UUID chatbotId = UUID.fromString(chatbotIdstr);
         return ResponseEntity.ok(adminService.getUsersByChatbot(chatbotId));

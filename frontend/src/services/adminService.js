@@ -3,11 +3,10 @@ import axios from "axios";
 const API = "http://127.0.0.1:8000/admin";
 const springbootAuthAPI = "http://localhost:8080/admin";
 
-export const getChatbotsOfAdmin = async (admin_id) => {
-  const res = await axios.get(`${API}/chatbots/${admin_id}`)
+export const getChatbotsOfAdmin = async (user_id) => {
+  const res = await axios.get(`${springbootAuthAPI}/chatbotsunderadmin?user_id=${user_id}`)
   return res.data;
 };
-
 
 export const uploadDocs = async (file, chatbot_id) => {
   const formData = new FormData();
@@ -56,7 +55,7 @@ export const deleteWebsiteDocument = async (website_id) => {
 }
 
 export const getUsersUnderChatbot = async(chatbot_id)=>{
-    const response = await axios.get(`${springbootAuthAPI}/chatbots/?chatbot_id=${chatbot_id}`);
+    const response = await axios.get(`${springbootAuthAPI}/chatbots?chatbot_id=${chatbot_id}`);
     return response.data;
 }
 

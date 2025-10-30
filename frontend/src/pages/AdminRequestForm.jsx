@@ -45,7 +45,7 @@ export default function AdminRequestForm() {
                 setRequestEmail(data.data.email);
             } catch (error) {
                 console.error("Fetch user email error: ", error)
-                navigate("/");
+                navigate("/login", { state: { from: "/requestadmin" } });
             }
         }
         fetchUser();

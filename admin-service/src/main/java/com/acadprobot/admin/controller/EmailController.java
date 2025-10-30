@@ -48,14 +48,14 @@ public class EmailController {
 
         StringBuilder emailBody = new StringBuilder();
         emailBody.append("Hi ").append(title).append(" ").append(fullname).append(",\n\n")
-                .append("We have completed the review of your chatbot request for **")
-                .append(chatbotName).append("**.\n\n");
+                .append("We have completed the review of your chatbot request for ")
+                .append(chatbotName).append(".\n\n");
 
         if (status.equalsIgnoreCase("approved")) {
-            emailBody.append("🎉 Good news! Your chatbot request has been **approved**. ")
+            emailBody.append("Good news! Your chatbot request has been <b>approved</b>. ")
                     .append("You can now access and manage your chatbot in your AcadProBot dashboard.\n\n");
         } else if (status.equalsIgnoreCase("rejected")) {
-            emailBody.append("Unfortunately, your chatbot request has been **rejected**. ")
+            emailBody.append("Unfortunately, your chatbot request has been rejected. ")
                     .append("Please review the feedback below and make any necessary changes before resubmitting.\n\n");
         }
 
@@ -63,9 +63,9 @@ public class EmailController {
             emailBody.append("Remarks: ").append(remarks).append("\n\n");
         }
 
-        emailBody.append("Thank you for using AcadProBot!\n")
+        emailBody.append("Thank you for using AcadProBot!\n\n\n")
                 .append("Best regards,\n")
-                .append("The AcadProBot Admin Team");
+                .append("AcadProBot Admin Team");
 
         emailService.sendEmail(recipientEmail, subject, emailBody.toString());
         return "Chatbot approval result email sent.";

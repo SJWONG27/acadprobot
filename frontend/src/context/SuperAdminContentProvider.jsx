@@ -168,7 +168,6 @@ export const SuperAdminContentProvider = ({ children }) => {
                 setSelectedRequest,
                 handleApproveRequest,
                 handleRejectRequest,
-                handleRejectRequest,
                 requestRemark, setRequestRemark,
                 showAPReviewApproveRequest, setShowAPReviewApproveRequest,
                 showAPReviewRejectRequest, setShowAPReviewRejectRequest

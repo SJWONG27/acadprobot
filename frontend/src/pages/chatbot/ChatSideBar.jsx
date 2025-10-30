@@ -17,6 +17,7 @@ export default function ChatSideBar() {
     navigate("/listofchatbots")
   }
   const handleClickLibrary = () =>{
+    localStorage.removeItem("token");
     navigate("/")
   }
 

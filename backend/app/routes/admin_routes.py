@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from ..database.schemas import ChatbotRequest
 from ..database.database import SessionLocal
 from..dependencies.auth_dep import get_current_user
-from ..database.models import User, Admin, Embedding, EmbeddingStatus, Document, WebsiteDocument, Chatbots
+from ..database.models import User, Embedding, EmbeddingStatus, Document, WebsiteDocument, Chatbots
 from ..services.embedding_service import get_embedding_docs, get_website_embedding_docs
 
 
@@ -19,17 +19,6 @@ def get_db():
     finally:
         db.close() 
         
-@router.get("/chatbots/{admin_id}")
-def get_chatbots_under_admin(
-    admin_id: str,
-    db: Session = Depends(get_db)
-):
-    # admin_id = request.admin_id
-    chatbots = db.query(Chatbots).filter(Chatbots.admin_id == admin_id).all()
-    if not chatbots:
-        print("no chatbots")
-    return chatbots
-
 
 @router.post("/upload")
 def upload_doc(

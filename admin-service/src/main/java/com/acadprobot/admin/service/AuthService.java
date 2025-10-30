@@ -1,7 +1,5 @@
 package com.acadprobot.admin.service;
-import com.acadprobot.admin.model.Admin;
 import com.acadprobot.admin.model.User;
-import com.acadprobot.admin.repository.AdminRepository;
 import com.acadprobot.admin.repository.UserRepository;
 import com.acadprobot.admin.security.JwtUtil;
 import com.acadprobot.admin.dto.AuthResponse;
@@ -18,8 +16,6 @@ public class AuthService {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private AdminRepository adminRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -31,14 +27,11 @@ public class AuthService {
     public User registerUser(String email, String password){
 
         Optional<User> existingUser = userRepository.findByEmail(email);
-        Optional<Admin> existingAdmin = adminRepository.findByEmail(email);
         System.out.println("🔍 existingUser: " + existingUser);
-        System.out.println("🔍 existingAdmin: " + existingAdmin);
 
-        if (existingAdmin.isPresent() || existingUser.isPresent()) {
+        if (existingUser.isPresent()) {
             throw new RuntimeException("Email already registered");
         }
-
 
         String hashedPassword = passwordEncoder.encode(password);
         System.out.println("✅ Password hashed");
@@ -54,37 +47,20 @@ public class AuthService {
     }
 
 
-
     public AuthResponse login(String email, String password) {
-        Optional<User> user = userRepository.findByEmail(email);
-        if (user.isPresent() ) {
-            if (passwordEncoder.matches(password, user.get().getPassword())) {
-                String token = jwtUtil.generateToken(Map.of(
-                        "sub", user.get().getId().toString(),
-                        "role", "user",
-                        "email", email
-                ));
-                return new AuthResponse(token, "bearer", "user", email);
-            } else {
-                throw new RuntimeException("Invalid credentials wrong password");
-            }
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(()-> new RuntimeException("Invalid credentials"));
+
+        if (!passwordEncoder.matches(password, user.getPassword())){
+            throw new RuntimeException("Invalid credentials");
         }
 
-        Optional<Admin> admin = adminRepository.findByEmail(email);
-        if (admin.isPresent()) {
-            if (passwordEncoder.matches(password, admin.get().getPassword())) {
-                String token = jwtUtil.generateToken(Map.of(
-                        "sub", admin.get().getId().toString(),
-                        "role", "admin",
-                        "email", email
-                ));
-                    return new AuthResponse(token, "bearer", "admin", email);
-            } else {
-                throw new RuntimeException("Invalid credentials wrong password");
-            }
-        }
-
-        throw new RuntimeException("Invalid credentials email not found");
+        String token = jwtUtil.generateToken(Map.of(
+                "sub", user.getId().toString(),
+                "role", user.getRole().toString(),
+                "email", email
+        ));
+        return new AuthResponse(token, "bearer", user.getRole().toString().toLowerCase() , email);
     }
 
 }

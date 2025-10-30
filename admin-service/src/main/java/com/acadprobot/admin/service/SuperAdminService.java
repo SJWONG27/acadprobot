@@ -1,14 +1,12 @@
 package com.acadprobot.admin.service;
 
-import com.acadprobot.admin.model.Admin;
-import com.acadprobot.admin.model.AdminChatbotRequest;
+import com.acadprobot.admin.model.*;
 import com.acadprobot.admin.repository.AdminChatbotRequestRepository;
-import com.acadprobot.admin.repository.AdminRepository;
+import com.acadprobot.admin.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import com.acadprobot.admin.repository.ChatbotRepository;
-import com.acadprobot.admin.model.Chatbots;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.*;
@@ -19,17 +17,22 @@ public class SuperAdminService {
     private ChatbotRepository chatbotRepository;
 
     @Autowired
-    private AdminRepository adminRepository;
+    private UserRepository userRepository;
 
     @Autowired
     private AdminChatbotRequestRepository adminChatbotRequestRepository;
 
     public Chatbots createChatbot(String chatbotName, String adminEmail){
-        Admin admin = adminRepository.findByEmail(adminEmail)
-                .orElseThrow(()->new RuntimeException("Admin not found: " + adminEmail));
+        User user = userRepository.findByEmail(adminEmail)
+                .orElseThrow(()->new RuntimeException("User not found: " + adminEmail));
+
+        if(user.getRole().toString() == "USER"){
+            user.setRole(Role.ADMIN);
+            userRepository.save(user);
+        }
 
         Chatbots newChatbot = new Chatbots();
-        newChatbot.setAdmin(admin);
+        newChatbot.setUser(user);
         newChatbot.setName(chatbotName);
 
         return chatbotRepository.save(newChatbot);

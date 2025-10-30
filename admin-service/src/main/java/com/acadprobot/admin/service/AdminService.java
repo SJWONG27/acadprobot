@@ -1,17 +1,14 @@
 package com.acadprobot.admin.service;
 
-import com.acadprobot.admin.dto.UserDTO;
+import com.acadprobot.admin.model.Chatbots;
 import com.acadprobot.admin.model.User;
-import com.acadprobot.admin.repository.AdminRepository;
+import com.acadprobot.admin.repository.ChatbotRepository;
 import com.acadprobot.admin.repository.UserChatbotRepository;
-import com.acadprobot.admin.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 import com.acadprobot.admin.model.UserChatbotID;
-import java.util.stream.Collectors;
 
 @Service
 public class AdminService {
@@ -19,6 +16,12 @@ public class AdminService {
     @Autowired
     private UserChatbotRepository userChatbotRepository;
 
+    @Autowired
+    private ChatbotRepository chatbotRepository;
+
+    public List<Chatbots> getChatbotsByAdmin(UUID userId){
+        return chatbotRepository.findByUser_Id(userId);
+    }
 
     public List<User> getUsersByChatbot(UUID chatbotId){
         return userChatbotRepository.findUsersByChatbotId(chatbotId);

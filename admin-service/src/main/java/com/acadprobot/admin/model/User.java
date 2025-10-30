@@ -21,6 +21,13 @@ public class User {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime created_at = LocalDateTime.now();
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role = Role.USER;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Chatbots> chatbots;
+
 //    @ManyToOne(fetch = FetchType.LAZY)
 //    @JoinColumn(name = "admin_id", nullable = false)
 //    @JsonBackReference // only go from Admin → Users, not the other way around.
@@ -54,8 +61,23 @@ public class User {
         return created_at;
     }
 
+    public List<Chatbots> getChatbots() {
+        return chatbots;
+    }
+
     public void setCreated_at(LocalDateTime created_at) {
         this.created_at = created_at;
     }
 
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
+    public void setChatbots(List<Chatbots> chatbots) {
+        this.chatbots = chatbots;
+    }
 }
