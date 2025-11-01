@@ -7,7 +7,7 @@ import { sendMessage, getMessages, getChatSessions, deleteChatSession } from "..
 const ChatContentContext = createContext();
 
 export const ChatContentProvider = ({ children }) => {
-    const [alertLogin, setAlertLogin] = useState(false);
+    const [alertLoginChat, setAlertLoginChat] = useState(false);
     const [successAlertMessage, setSuccessAlertMessage] = useState("");
     const [confirmationModal, setConfirmationModal] = useState(false);
     const [pendingDeleteID, setPendingDeleteID] = useState(null);
@@ -30,7 +30,7 @@ export const ChatContentProvider = ({ children }) => {
             const token = localStorage.getItem("token");
             if (!token) {
                 console.log("No token");
-                setAlertLogin(true);
+                setAlertLoginChat(true);
                 return;
             }
 
@@ -203,8 +203,8 @@ export const ChatContentProvider = ({ children }) => {
     return (
         <ChatContentContext.Provider
             value={({
-                alertLogin, 
-                setAlertLogin,
+                alertLoginChat, 
+                setAlertLoginChat,
                 successAlertMessage,
                 setSuccessAlertMessage,
                 confirmationModal,

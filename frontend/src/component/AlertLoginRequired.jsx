@@ -1,8 +1,11 @@
 import { useNavigate } from "react-router-dom"
 import { useAdminContent } from "../context/AdminContentProvider";
+import { useChatContent } from "../context/ChatContentProvider";
 
 export default function AlertLoginRequired() {
     const {setAlertLogin} = useAdminContent();
+
+    const {setAlertLoginChat} = useChatContent();
 
     const navigate = useNavigate();
 
@@ -20,7 +23,8 @@ export default function AlertLoginRequired() {
                         type="button"
                         onClick={() => {
                             navigate("/login")
-                            setAlertLogin(false)
+                            setAlertLogin(false) 
+                            setAlertLoginChat(false)
                         }}
                         className="mt-3 inline-flex w-full items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 sm:ml-3 sm:mt-0 sm:w-auto"
                     >
@@ -30,6 +34,7 @@ export default function AlertLoginRequired() {
                         onClick={() => { 
                             navigate("/")
                             setAlertLogin(false)
+                            setAlertLoginChat(false)
                          }}
                         className="mt-3 inline-flex w-full items-center justify-center rounded-md bg-gray-400 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 sm:ml-3 sm:mt-0 sm:w-auto"
                     >
