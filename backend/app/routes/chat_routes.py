@@ -24,7 +24,7 @@ def get_db():
 
 
 @router.post("/")
-async def chat_with_ollama(request: ChatRequest, db: Session = Depends(get_db)):
+def chat_with_ollama(request: ChatRequest, db: Session = Depends(get_db)):
 
     chatbot_id = request.chatbot_id
         

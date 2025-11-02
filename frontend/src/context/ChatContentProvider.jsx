@@ -2,7 +2,8 @@ import { createContext, useContext, useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { getCurrentUser } from '../services/authService'
 import { sendMessage, getMessages, getChatSessions, deleteChatSession } from "../services/chatService";
-
+import { joinChatbot, getChatbotUnderUser } from "../services/chatbotService";
+import { useNavigate } from "react-router-dom";
 
 const ChatContentContext = createContext();
 
@@ -13,39 +14,123 @@ export const ChatContentProvider = ({ children }) => {
     const [pendingDeleteID, setPendingDeleteID] = useState(null);
 
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const [userEmail, setUserEmail] = useState("");
     const [userId, setUserId] = useState("");
     const [chatSessions, setChatSessions] = useState([]);
     const [selectedSessionId, setSelectedSessionId] = useState(null);
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState("");
 
-    const [selectedChatbotId, setSelectedChatbotId] = useState("");
 
-    const toggleSidebar = () => {
-        setIsSidebarOpen(!isSidebarOpen);
-    }
+    // userId
+    // const [token, setToken] = useState(localStorage.getItem("token"));
+
+    // useEffect(() => {
+    //     const handleStorage = () => setToken(localStorage.getItem("token"));
+    //     window.addEventListener("storage", handleStorage);
+    //     return () => window.removeEventListener("storage", handleStorage);
+    // }, []);
+
+    // useEffect(() => {
+    //     if (!token) return;
+    //     const fetchUser = async () => {
+    //         try {
+    //             const data = await getCurrentUser(token);
+    //             setUserEmail(data.data.email);
+    //             setUserId(data.data.id);
+    //         } catch (error) {
+    //             console.error("Fetch user id error: ", error);
+    //             setAlertLoginChat(true);
+    //         }
+    //     };
+    //     fetchUser();
+    // }, [token]);
 
     useEffect(() => {
         const fetchUser = async () => {
             const token = localStorage.getItem("token");
             if (!token) {
                 console.log("No token");
-                setAlertLoginChat(true);
                 return;
             }
 
             try {
                 const data = await getCurrentUser(token);
-                console.log(data.data);
+                setUserEmail(data.data.email);
                 setUserId(data.data.id);
             } catch (error) {
                 console.error("Fetch user id error: ", error)
-                setAlertLogin(true);
+                setAlertLoginChat(true);
             }
         }
         fetchUser();
-    }, [])
+    }, [localStorage.getItem("token")])
 
+    //list of chatbot handling
+    const [selectedChatbotId, setSelectedChatbotId] = useState("");
+    const [refercode, setRefercode] = useState("");
+    const [listChatbots, setListChatbots] = useState([]);
+
+    const [searchParams] = useSearchParams();
+    const chatbotIdFromUrl = searchParams.get("chatbot_id");
+
+    useEffect(() => {
+        if (chatbotIdFromUrl) {
+            setSelectedChatbotId(chatbotIdFromUrl);
+        }
+    }, [chatbotIdFromUrl, setSelectedChatbotId]);
+
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const fetchChatbots = async () => {
+            if (!userId) return;
+            try {
+                const data = await getChatbotUnderUser(userId);
+                setListChatbots(data);
+            } catch (error) {
+                console.error("Fetch chatbots error: ", error)
+            }
+        }
+        fetchChatbots();
+    }, [userId])
+
+    const handleJoinChatbot = async (userId, refercode) => {
+        try {
+            await joinChatbot(userId, refercode);
+            triggerAlert("Chatbot Joined Successfully");
+
+            const data = await getChatbotUnderUser(userId);
+            setListChatbots(data);
+        } catch (error) {
+            console.error("HandleJoinChatbot: ", error);
+            triggerAlert("Chatbot not exist or dy joined");
+        } finally {
+            setRefercode("");
+        }
+    }
+
+    const handleEnterChatbot = (chatbot_id) => {
+        setSelectedChatbotId(chatbot_id);
+        console.log(chatbot_id);
+        navigate(`/chat?chatbot_id=${chatbot_id}`);
+        window.location.reload();
+    }
+
+    const handleLogout = () => {
+        localStorage.removeItem("token");
+        navigate('/');
+    }
+
+
+    // chat
+    const handleClickRocket = () => {
+        navigate("/listofchatbots")
+    }
+
+    const toggleSidebar = () => {
+        setIsSidebarOpen(!isSidebarOpen);
+    }
 
     useEffect(() => {
         const fetchChatSession = async () => {
@@ -78,17 +163,6 @@ export const ChatContentProvider = ({ children }) => {
     }, [selectedSessionId]);
 
 
-    //list of chatbot handling
-    const [searchParams] = useSearchParams();
-    const chatbotIdFromUrl = searchParams.get("chatbot_id");
-
-    useEffect(() => {
-        if (chatbotIdFromUrl) {
-            setSelectedChatbotId(chatbotIdFromUrl);
-        }
-    }, [chatbotIdFromUrl, setSelectedChatbotId]);
-
-
     const handleSend = async () => {
         if (!input.trim()) return;
         if (!userId) {
@@ -119,6 +193,7 @@ export const ChatContentProvider = ({ children }) => {
         setMessages((prev) => [...prev, typingMsg]);
 
         try {
+            // console.log(selectedChatbotId);
             const data = await sendMessage(userId, selectedChatbotId, input, selectedSessionId);
 
             // Replace typing msg with real bot response
@@ -154,12 +229,10 @@ export const ChatContentProvider = ({ children }) => {
         }
     };
 
-
-
-
     const toggleNewChat = () => {
         setSelectedSessionId(null);
         setMessages([]);
+        window.location.reload();
     }
 
     const confirmDelete = async (session_id) => {
@@ -187,6 +260,7 @@ export const ChatContentProvider = ({ children }) => {
         } finally {
             setPendingDeleteID(null);
             setConfirmationModal(false);
+            window.location.reload();
         }
     }
 
@@ -203,7 +277,7 @@ export const ChatContentProvider = ({ children }) => {
     return (
         <ChatContentContext.Provider
             value={({
-                alertLoginChat, 
+                alertLoginChat,
                 setAlertLoginChat,
                 successAlertMessage,
                 setSuccessAlertMessage,
@@ -213,7 +287,10 @@ export const ChatContentProvider = ({ children }) => {
                 cancelDelete,
                 isSidebarOpen,
                 setIsSidebarOpen,
+                userEmail,
                 userId,
+                refercode,
+                listChatbots,
                 setUserId,
                 chatSessions,
                 setChatSessions,
@@ -229,6 +306,10 @@ export const ChatContentProvider = ({ children }) => {
                 toggleNewChat,
                 selectedChatbotId,
                 setSelectedChatbotId,
+                handleJoinChatbot,
+                handleEnterChatbot,
+                handleLogout,
+                handleClickRocket
             })}
         >
             {children}

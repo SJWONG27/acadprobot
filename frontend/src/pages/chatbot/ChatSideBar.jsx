@@ -3,7 +3,7 @@ import { WindowIcon, TrashIcon, PencilSquareIcon, RocketLaunchIcon, BuildingLibr
 import { format } from "date-fns"
 import { useChatContent } from '../../context/ChatContentProvider'
 import { useNavigate } from "react-router-dom";
-import AlertLoginRequired from '../../component/AlertLoginRequired';
+// import AlertLoginRequired from '../../component/AlertLoginRequired';
 
 
 function classNames(...classes) {
@@ -11,18 +11,10 @@ function classNames(...classes) {
 }
 
 export default function ChatSideBar() {
-  const navigate = useNavigate();
-
-  const handleClickRocket = () =>{
-    navigate("/listofchatbots")
-  }
-  const handleClickLibrary = () =>{
-    localStorage.removeItem("token");
-    navigate("/")
-  }
 
   const {
-    alertLogin,
+    handleClickRocket,
+    handleLogout,
     confirmDelete,
     isSidebarOpen,
     chatSessions,
@@ -46,7 +38,7 @@ export default function ChatSideBar() {
     {
       "icon": BuildingLibraryIcon,
       "desc": "Main menu",
-      "action": handleClickLibrary
+      "action": handleLogout
     },
   ]
 
@@ -146,12 +138,6 @@ export default function ChatSideBar() {
         </ul>
       </nav>
 
-      {alertLogin && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50">
-          <AlertLoginRequired />
-        </div>
-      )}
-      
     </div>
 
   )

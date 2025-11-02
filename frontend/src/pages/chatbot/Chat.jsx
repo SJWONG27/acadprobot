@@ -4,11 +4,11 @@ import ChatInterface from './ChatInterface'
 import { useChatContent } from '../../context/ChatContentProvider'
 import ConfirmationModal from '../../component/ConfirmationModal'
 import AlertSuccess from '../../component/AlertSuccess'
-import AlertLoginRequired from '../../component/AlertLoginRequired'
+import AlertLoginRequiredChat from '../../component/AlertLoginRequiredChat'
 
 const Chat = () => {
   const {
-    alertLogin,
+    alertLoginChat,
     deleteChat,
     confirmationModal,
     cancelDelete,
@@ -47,9 +47,9 @@ const Chat = () => {
           </div>
         </div>
       )}
-      {alertLogin && (
+      {alertLoginChat && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50">
-          <AlertLoginRequired />
+          <AlertLoginRequiredChat />
         </div>
       )}
     </div>

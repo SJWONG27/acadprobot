@@ -10,135 +10,25 @@ import { ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/react/20/solid'
 import AlertSuccess from '../../component/AlertSuccess.jsx'
 import logo_acadprobot_square from '../../../src/assets/logo_acadprobot_square.svg'
 import logo_acadprobot_long from '../../../src/assets/logo_acadprobot_long.svg'
-import { useNavigate } from 'react-router-dom'
-import { useState, useEffect } from 'react'
-import { getCurrentUser } from '../../services/authService.js'
-import { 
-    joinChatbot, 
-    getChatbotUnderUser 
-} from '../../services/chatbotService.js'
-
-import {useChatContent} from '../../context/ChatContentProvider.jsx'
-
-const people = [
-    {
-        name: 'Computer Science',
-        title: '2025 Jun 24',
-        imageUrl:
-            'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60',
-    },
-    {
-        name: 'Computer Science',
-        title: '2025 Jun 24',
-        imageUrl:
-            'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60',
-    },
-    {
-        name: 'Computer Science',
-        title: '2025 Jun 24',
-        imageUrl:
-            'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60',
-    },
-    {
-        name: 'Computer Science',
-        title: '2025 Jun 24',
-        imageUrl:
-            'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60',
-    },
-    {
-        name: 'Computer Science',
-        title: '2025 Jun 24',
-        imageUrl:
-            'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60',
-    },
-    // More people...
-]
-
-
+import { useChatContent } from '../../context/ChatContentProvider.jsx'
 
 
 export default function LisofChatbot() {
 
     const {
-        setSelectedChatbotId
+        userEmail,
+        refercode,
+        listChatbots,
+        successAlertMessage,
+        handleJoinChatbot,
+        handleEnterChatbot,
+        handleLogout
     } = useChatContent();
 
-    const navigate = useNavigate();
-
-    const handleLogout = () => {
-        localStorage.removeItem("token");
-        console.log("access_token after logout:", localStorage.getItem("token"));
-        navigate('/');
-    }
 
     const userNavigation = [
         { name: 'Sign out', href: '/' },
     ]
-
-    const [successAlertMessage, setSuccessAlertMessage] = useState("");
-    const [userEmail, setUserEmail] = useState("");
-    const [userId, setUserId] = useState("");
-    const [refercode, setRefercode] = useState("");
-    const [listChatbots, setListChatbots] = useState([]);
-
-    const triggerAlert = (message) => {
-        setSuccessAlertMessage(message);
-        setTimeout(() => setSuccessAlertMessage(""), 5000);
-    };
-
-    useEffect(() => {
-        const fetchUser = async () => {
-            const token = localStorage.getItem("token");
-            if (!token) {
-                console.log("No token");
-                return;
-            }
-            try {
-                const data = await getCurrentUser(token);
-                setUserEmail(data.data.email);
-                setUserId(data.data.id);
-
-            } catch (error) {
-                console.error("Fetch user id error: ", error)
-            }
-        }
-        fetchUser();
-    }, [])
-
-    useEffect(() => {
-        const fetchChatbots = async () => {
-            if (!userId) return;
-            try {
-                const data = await getChatbotUnderUser(userId);
-                console.log(data);
-                setListChatbots(data);
-            } catch (error) {
-                console.error("Fetch chatbots error: ", error)
-            }
-        }
-        fetchChatbots();
-    }, [userId])
-
-    const handleJoinChatbot = async (userId, refercode) => {
-        try {
-            await joinChatbot(userId, refercode);
-            triggerAlert("Chatbot Joined Successfully");
-
-            const data = await getChatbotUnderUser(userId);
-            setListChatbots(data);
-        } catch (error) {
-            console.error("HandleJoinChatbot: ", error);
-            triggerAlert("Chatbot not exist or dy joined");
-        } finally {
-            setRefercode("");
-        }
-    }
-
-    const handleEnterChatbot = (chatbot_id) => {
-        setSelectedChatbotId(chatbot_id);
-        console.log(chatbot_id);
-        navigate(`/chat?chatbot_id=${chatbot_id}`);
-    }
 
     return (
         <div className="relative p-8">
@@ -251,7 +141,7 @@ export default function LisofChatbot() {
                                 </div>
                                 <div className="-ml-px flex w-0 flex-1">
                                     <a
-                                        onClick={()=> handleEnterChatbot(listChatbot.id)}
+                                        onClick={() => handleEnterChatbot(listChatbot.id)}
                                         className="relative inline-flex w-0 flex-1 items-center justify-center gap-x-3 rounded-br-lg border border-transparent py-4 text-sm font-semibold text-blue-700"
                                     >
                                         <ArrowRightEndOnRectangleIcon aria-hidden="true" className="size-5 text-blue-400" />
