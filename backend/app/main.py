@@ -20,7 +20,7 @@
 
 # app/main.py
 from fastapi import FastAPI
-from .routes import auth_routes, admin_routes, chat_routes
+from .routes import admin_routes, chat_routes
 from .database.database import Base, engine
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -38,6 +38,5 @@ app.add_middleware(
     allow_headers=["*"],  # Allow all headers
 )
 
-app.include_router(auth_routes.router, prefix="/auth", tags=["Authentication"])
 app.include_router(admin_routes.router, prefix="/admin", tags=["Authentication"])
 app.include_router(chat_routes.router, prefix="/chat", tags=["Authentication"])

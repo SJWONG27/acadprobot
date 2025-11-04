@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from ..database.schemas import ChatRequest
 from datetime import datetime
 from ..database.models import ChatSession, Message, User, Chatbots, UserChatbots
-from ..services.embedding_service import compare_match_embedding, classify_query
+from ..services.embedding_service import compare_match_embedding, classify_query, generate_llm_response
 from langchain_ollama.llms import OllamaLLM
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_ollama import ChatOllama
@@ -51,14 +51,14 @@ def chat_with_ollama(request: ChatRequest, db: Session = Depends(get_db)):
     )
 
     # Build context
-    context_prompt = ""
+    conversation_context = ""
     for msg in past_messages:
-        # role = "User" if msg.is_user else "Bot"
-        # context_prompt += f"{role}: {msg.content}\n"
-        if msg.is_user:
-            context_prompt += f"User: {msg.content}\n"
+        role = "User" if msg.is_user else "Bot"
+        conversation_context += f"{role}: {msg.content}\n"
+        # if msg.is_user:
+        #     context_prompt += f"User: {msg.content}\n"
     
-    context_prompt += f"User: {request.prompt}\n"
+    conversation_context += f"User: {request.prompt}\n"
     
     # Generate a title
     title_response = request.prompt[:30] + "..."
@@ -77,7 +77,16 @@ def chat_with_ollama(request: ChatRequest, db: Session = Depends(get_db)):
     else:
         # RAG Process
         try:
-            response_text = compare_match_embedding(context_prompt, chatbot_id=chatbot_id)
+            retrieved_knowledge = compare_match_embedding(request.prompt, chatbot_id=chatbot_id)
+            full_prompt = (
+                "You are AcadProBot, a helpful academic advisor chatbot.\n\n"
+                "Recent conversation:\n"
+                f"{conversation_context}\n"
+                "Relevant academic knowledge:\n"
+                f"{retrieved_knowledge}\n\n"
+                "Now respond naturally and accurately to the user's latest message."
+            )
+            response_text = generate_llm_response(full_prompt)
         except Exception as e:
             print(f"RAG error: {repr(e)}")
             response_text = "Sorry, I encountered an issue retrieving information. Please try again later."

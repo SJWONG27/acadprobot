@@ -16,6 +16,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_ollama import ChatOllama
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from playwright.async_api import async_playwright
 import asyncio
 
 
@@ -44,61 +45,86 @@ def extract_text_from_pdf(file_obj):
     doc.close()
     return text
 
-def extract_text_from_umexpert(url):
+async def extract_text_from_website(url):
     try:
-        response = requests.get(url)
-        response.raise_for_status()
-    except requests.RequestException as e:
-        return [f"Request failed: {e}"]
+        async with async_playwright() as p:
+            browser = await p.chromium.launch(headless=True)
+            page = await browser.new_page()
+            await page.goto(url, wait_until="networkidle")
+            html = await page.content()
+            await browser.close()
+    except Exception as e:
+        return [f"Playwright error: {e}"]
 
-    soup = BeautifulSoup(response.text, "html.parser")
-    project_div = soup.find('div', id='project-container')
-
-    if not project_div:
+    soup = BeautifulSoup(html, "html.parser")
+    for tag in soup(["script", "style", "noscript", "header", "footer", "nav", "form", "iframe"]):
+        tag.decompose()
+    content = soup.get_text(separator="\n", strip=True)
+    
+    if not content or len(content.strip()) == 0:
         return ["cannot find"]
 
-    # Get all text and split by "View CV"
-    all_text = project_div.get_text(separator="\n", strip=True)
-    blocks = all_text.split("View CV")
+    # 🔹 Split long text into chunks of up to 2000 characters
+    result_chunks = textwrap.wrap(content, width=500)
 
-    target_phrase = "faculty of Computer Science and Information Technology"
-    result_chunks = []
+    return result_chunks if result_chunks else ["cannot find"]
+    
 
-    for block in blocks:
-        if target_phrase.lower() not in block.lower():
-            continue
+# def extract_text_from_umexpert(url):
+#     try:
+#         response = requests.get(url)
+#         response.raise_for_status()
+#     except requests.RequestException as e:
+#         return [f"Request failed: {e}"]
 
-        lines = [line.strip() for line in block.strip().split("\n") if line.strip()]
+#     soup = BeautifulSoup(response.text, "html.parser")
+#     project_div = soup.find('div', id='project-container')
+
+#     if not project_div:
+#         return ["cannot find"]
+
+#     # Get all text and split by "View CV"
+#     all_text = project_div.get_text(separator="\n", strip=True)
+#     blocks = all_text.split("View CV")
+
+#     target_phrase = "faculty of Computer Science and Information Technology"
+#     result_chunks = []
+
+#     for block in blocks:
+#         if target_phrase.lower() not in block.lower():
+#             continue
+
+#         lines = [line.strip() for line in block.strip().split("\n") if line.strip()]
         
-        # Extract useful info heuristically
-        name = next((l for l in lines if "Dr." in l or "Prof." in l), "Name not found")
-        email = next((l for l in lines if "@" in l), "Email not found")
-        dept = next((l for l in lines if "faculty" in l.lower()), "Faculty of Computer Science and Information Technology")
-        phone = next((l for l in lines if l.replace("-", "").replace("+", "").isdigit() and len(l) >= 8), None)
+#         # Extract useful info heuristically
+#         name = next((l for l in lines if "Dr." in l or "Prof." in l), "Name not found")
+#         email = next((l for l in lines if "@" in l), "Email not found")
+#         dept = next((l for l in lines if "faculty" in l.lower()), "Faculty of Computer Science and Information Technology")
+#         phone = next((l for l in lines if l.replace("-", "").replace("+", "").isdigit() and len(l) >= 8), None)
         
-        # Collect lines after "Area(s) of Expertise"
-        expertise_lines = []
-        collect = False
-        for line in lines:
-            if "Area(s) of Expertise" in line:
-                collect = True
-                continue
-            if collect:
-                expertise_lines.append(line)
+#         # Collect lines after "Area(s) of Expertise"
+#         expertise_lines = []
+#         collect = False
+#         for line in lines:
+#             if "Area(s) of Expertise" in line:
+#                 collect = True
+#                 continue
+#             if collect:
+#                 expertise_lines.append(line)
         
-        expertise = ", ".join(expertise_lines) if expertise_lines else "not specified"
+#         expertise = ", ".join(expertise_lines) if expertise_lines else "not specified"
 
-        # Construct readable sentence
-        paragraph = f"{name} is affiliated with the {dept}. "
-        if phone:
-            paragraph += f"Contact: {email}, Phone: {phone}. "
-        else:
-            paragraph += f"Contact: {email}. "
-        paragraph += f"Their areas of expertise include: {expertise}."
+#         # Construct readable sentence
+#         paragraph = f"{name} is affiliated with the {dept}. "
+#         if phone:
+#             paragraph += f"Contact: {email}, Phone: {phone}. "
+#         else:
+#             paragraph += f"Contact: {email}. "
+#         paragraph += f"Their areas of expertise include: {expertise}."
 
-        result_chunks.append(paragraph.strip())
+#         result_chunks.append(paragraph.strip())
 
-    return result_chunks if result_chunks else ["no matching faculty found"]
+#     return result_chunks if result_chunks else ["no matching faculty found"]
 
 def get_embeddings(chunks):
     return embedding_model.embed_documents(chunks)
@@ -106,12 +132,12 @@ def get_embeddings(chunks):
 def get_query_embeddings(query):
     return embedding_model.embed_query(query)
 
-def extract_first_float(text):
-    match = re.search(r"\b[0-1](?:\.\d+)?\b", text)  # matches 0, 0.1, ..., 1
-    if match:
-        return float(match.group(0))
-    else:
-        return 0.1  # fallback if no number found
+# def extract_first_float(text):
+#     match = re.search(r"\b[0-1](?:\.\d+)?\b", text)  # matches 0, 0.1, ..., 1
+#     if match:
+#         return float(match.group(0))
+#     else:
+#         return 0.1  # fallback if no number found
 
 
 def get_embedding_docs(fileUploaded, chatbot_id, document_id, db):
@@ -160,7 +186,7 @@ def get_website_embedding_docs(url, chatbot_id, website_id, db):
     db.commit()
     
     try: 
-        chunks = extract_text_from_umexpert(url)
+        chunks = asyncio.run(extract_text_from_website(url))
         
         if not chunks or (len(chunks) == 1 and chunks[0].strip().lower() == "cannot find"):
             doc.status = EmbeddingStatus.failed
@@ -186,10 +212,9 @@ def get_website_embedding_docs(url, chatbot_id, website_id, db):
         doc.status = EmbeddingStatus.failed
         db.commit()
         raise e
-
-def generate_ai_content(user_query):
-    print("generate AI content")
     
+
+def generate_llm_response(user_query):    
     prompt = "Answer the following academic query. Format the answer using Markdown-style, with proper line spacing across different ideas."
     
     prompt_template = ChatPromptTemplate([
@@ -218,42 +243,46 @@ def compare_match_embedding(user_query, chatbot_id):
         "chatbot_id": str(chatbot_id)
     }).execute()
     
+    print(type(query_embedding), len(query_embedding))
+ 
     if not response.data or len(response.data) == 0:
-        print("no data from db")
-        return f"*AI-generated content:* \n\n" + generate_ai_content(user_query)
+        print("no data from db: ", response)
+        return "no knowledge from db"
+        # return f"*AI-generated content:* \n\n" + generate_ai_content(user_query)
     
     top_result = response.data[0]
     similarity = top_result["similarity"]
     
     print("db similarity: ", similarity)
     
-    if (similarity < 0.6) or (not response.data) :
-        return f"*AI-generated content:* \n\n" + generate_ai_content(user_query)
+    if (similarity < 0.3) or (not response.data):
+        print("similarity low")
+        return "no knowledge from db"
+        # return f"*AI-generated content:* \n\n" + generate_ai_content(user_query)
     
     top_chunks = [item["content"] for item in response.data]
     context = "\n\n".join(top_chunks)
     
-    prompt = '''Use the following context to answer the question only. Format the answer using Markdown-style, with proper line spacing across different ideas
-   '''
+#     prompt = '''Use the following context to answer the question only. Format the answer using Markdown-style, with proper line spacing across different ideas
+#    '''
     
-    prompt_template = ChatPromptTemplate([
-        ("system", "{context}"),
-        ("system", "{prompt}"),
-        ("human", "{user_query}")
-    ])
+#     prompt_template = ChatPromptTemplate([
+#         ("system", "{context}"),
+#         ("system", "{prompt}"),
+#         ("human", "{user_query}")
+#     ])
     
-    model = OllamaLLM(model="llama3.2")
-    parser = RemoveColonParser()
-    chain = prompt_template | model | parser
+#     model = OllamaLLM(model="llama3.2")
+#     parser = RemoveColonParser()
+#     chain = prompt_template | model | parser
     
-    result = chain.invoke({
-        "context": context,
-        "prompt": prompt,
-        "user_query": user_query,
-    })
-    print(similarity)
+#     result = chain.invoke({
+#         "context": context,
+#         "prompt": prompt,
+#         "user_query": user_query,
+#     })
     
-    return result
+    return context
 
 
 academic_classifier_model_path = "./academic_classifier_bert"
