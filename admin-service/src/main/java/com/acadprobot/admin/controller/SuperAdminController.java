@@ -3,9 +3,16 @@ package com.acadprobot.admin.controller;
 import com.acadprobot.admin.model.AdminChatbotRequest;
 import com.acadprobot.admin.model.Chatbots;
 import com.acadprobot.admin.service.SuperAdminService;
+import com.acadprobot.admin.service.UnrelatedQueriesService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.*;
 
 @RestController
@@ -14,6 +21,9 @@ import java.util.*;
 public class SuperAdminController {
     @Autowired
     private SuperAdminService superAdminService;
+
+    @Autowired
+    private UnrelatedQueriesService unrelatedQueriesService;
 
     @PostMapping("/createchatbot")
     public ResponseEntity<?> createChatbot(@RequestBody Map<String, String> body) {
@@ -68,5 +78,18 @@ public class SuperAdminController {
     @PostMapping("/rejectrequest")
     public ResponseEntity<?> rejectRequest(@RequestParam("request_id")  UUID request_id){
         return ResponseEntity.ok(superAdminService.rejectRequest(request_id));
+    }
+
+    @GetMapping("/downloadreport")
+    public ResponseEntity<InputStreamResource> downloadExcel() throws IOException {
+        ByteArrayInputStream excelFile = unrelatedQueriesService.exportToExcel();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "attachment; filename=unrelated_queries.xlsx");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(new InputStreamResource(excelFile));
     }
 }

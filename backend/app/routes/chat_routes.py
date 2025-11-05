@@ -4,7 +4,7 @@ from ..database.database import SessionLocal
 from sqlalchemy.orm import Session
 from ..database.schemas import ChatRequest
 from datetime import datetime
-from ..database.models import ChatSession, Message, User, Chatbots, UserChatbots
+from ..database.models import ChatSession, Message, User, Chatbots, UserChatbots, UnrelatedQueries
 from ..services.embedding_service import compare_match_embedding, classify_query, generate_llm_response
 from langchain_ollama.llms import OllamaLLM
 from langchain_core.prompts import ChatPromptTemplate
@@ -55,8 +55,6 @@ def chat_with_ollama(request: ChatRequest, db: Session = Depends(get_db)):
     for msg in past_messages:
         role = "User" if msg.is_user else "Bot"
         conversation_context += f"{role}: {msg.content}\n"
-        # if msg.is_user:
-        #     context_prompt += f"User: {msg.content}\n"
     
     conversation_context += f"User: {request.prompt}\n"
     
@@ -74,6 +72,15 @@ def chat_with_ollama(request: ChatRequest, db: Session = Depends(get_db)):
             "I'm sorry, but that question seems unrelated to academic programs. "
             "Could you please rephrase it or ask something about your studies?"
         )
+        
+        # Collect rejected queries for further training
+        unrelated = UnrelatedQueries(
+            user_id=request.id,
+            chatbot_id=chatbot_id,
+            query_text = request.prompt
+        )
+        db.add(unrelated)
+        db.commit()
     else:
         # RAG Process
         try:

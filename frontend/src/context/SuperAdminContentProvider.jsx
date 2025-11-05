@@ -7,6 +7,7 @@ import {
     getAllRequest,
     approveRequest,
     rejectRequest,
+    downloadReport
 } from "../services/superadminService"
 
 import { sendAdminChatbotResultEmail } from "../services/emailService";
@@ -21,6 +22,8 @@ export const SuperAdminContentProvider = ({ children }) => {
     const [confirmationModal, setConfirmationModal] = useState(false);
     const [pendingDeleteID, setPendingDeleteID] = useState(null);
     const [deleteTarget, setDeleteTarget] = useState("");
+
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleChatbotCreate = async (chatbotName, adminEmail) => {
         try {
@@ -37,7 +40,7 @@ export const SuperAdminContentProvider = ({ children }) => {
 
     const [chatbots, setChatbots] = useState([]);
 
-    const fetchChatbotsDetails = async()=>{
+    const fetchChatbotsDetails = async () => {
         try {
             const response = await getAllChatbots();
             console.log(response);
@@ -47,10 +50,10 @@ export const SuperAdminContentProvider = ({ children }) => {
         }
     }
 
-    const handleDeleteChatbot = async() => {
+    const handleDeleteChatbot = async () => {
         try {
             await deleteChatbot(pendingDeleteID);
-            
+
             fetchChatbotsDetails;
         } catch (error) {
             console.error("Delete chatbot error: ", error);
@@ -70,8 +73,8 @@ export const SuperAdminContentProvider = ({ children }) => {
     const [activeTab, setActiveTab] = useState("pending");
     const [requestSubmitted, setRequestSubmitted] = useState([]);
 
-    useEffect(()=>{
-        const fetchAllRequestByStatus = async() =>{
+    useEffect(() => {
+        const fetchAllRequestByStatus = async () => {
             try {
                 const response = await getAllRequest(activeTab);
                 setRequestSubmitted(response);
@@ -80,15 +83,15 @@ export const SuperAdminContentProvider = ({ children }) => {
             }
         }
         fetchAllRequestByStatus()
-    },[activeTab])
+    }, [activeTab])
 
     const [selectedRequest, setSelectedRequest] = useState([]);
     const [requestRemark, setRequestRemark] = useState("");
     const [showAPReviewApproveRequest, setShowAPReviewApproveRequest] = useState(false);
     const [showAPReviewRejectRequest, setShowAPReviewRejectRequest] = useState(false);
 
-    const handleApproveRequest = async() =>{
-        if(!selectedRequest || !selectedRequest.id){
+    const handleApproveRequest = async () => {
+        if (!selectedRequest || !selectedRequest.id) {
             console.log("no selected request")
             return;
         }
@@ -114,11 +117,11 @@ export const SuperAdminContentProvider = ({ children }) => {
             setRequestSubmitted(response);
         } catch (error) {
             console.error("handleApproveRequest", error)
-        } 
+        }
     }
 
-    const handleRejectRequest = async() =>{
-        if(!selectedRequest || !selectedRequest.id){
+    const handleRejectRequest = async () => {
+        if (!selectedRequest || !selectedRequest.id) {
             console.log("no selected request")
             return;
         }
@@ -146,9 +149,41 @@ export const SuperAdminContentProvider = ({ children }) => {
         }
     }
 
+    const handleDownloadReport = async () => {
+        try {
+            triggerAlert("Report is being downloaded. Please wait.");
+            setIsLoading(true);
+
+            const response = await downloadReport();
+
+            // Create a URL for the blob and trigger download
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'unrelated_queries.xlsx');
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            triggerAlert("Report downloaded");
+        } catch (error) {
+            console.error("handleDownloadReport", error);
+            triggerAlert("Error in downloading report", error)
+        } finally {
+            setIsLoading(false);
+            triggerAlert("Report downloaded");
+        }
+    }
+
+    const triggerAlert = (message) => {
+        setSuccessAlertMessage(message);
+        setTimeout(() => setSuccessAlertMessage(""), 3000);
+    };
+
     return (
         <SuperAdminContentContext.Provider
             value={{
+                isLoading,
+                setIsLoading,
                 chatbotName,
                 setChatbotName,
                 adminEmail,
@@ -164,13 +199,14 @@ export const SuperAdminContentProvider = ({ children }) => {
                 requestSubmitted,
                 activeTab,
                 setActiveTab,
-                selectedRequest, 
+                selectedRequest,
                 setSelectedRequest,
                 handleApproveRequest,
                 handleRejectRequest,
                 requestRemark, setRequestRemark,
                 showAPReviewApproveRequest, setShowAPReviewApproveRequest,
-                showAPReviewRejectRequest, setShowAPReviewRejectRequest
+                showAPReviewRejectRequest, setShowAPReviewRejectRequest,
+                handleDownloadReport
             }}
         >
             {children}

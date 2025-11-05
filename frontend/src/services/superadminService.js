@@ -57,3 +57,10 @@ export const rejectRequest = async(request_id) =>{
     })
     return response.data;
 }
+
+export const downloadReport = async() =>{
+    const response = await axios.get(`${springbootAuthAPI}/downloadreport`, {
+    responseType: 'blob',
+  })
+    return response.data;
+}

@@ -5,6 +5,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import logo_acadprobot_square from '../../../src/assets/logo_acadprobot_square.svg'
 import logo_acadprobot_long from '../../../src/assets/logo_acadprobot_long.svg'
 import { getCurrentUser } from '../../services/authService';
+import AlertSuccess from '../../component/AlertSuccess';
 
 import {
   Dialog,
@@ -34,21 +35,7 @@ import { ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/react/20/solid'
 import SuperOverviewPage from './SuperOverviewPage'
 import SuperChatbotCreatePage from './SuperChatbotCreatePage'
 import SuperAdminAccessPage from './SuperAdminAccessPage'
-
-// const navigation = [
-//   { name: 'Dashboard', href: '#', icon: HomeIcon, current: true },
-//   { name: 'Chatbot Content', href: '#', icon: ChatBubbleBottomCenterTextIcon, current: false },
-//   { name: 'Group Access', href: '#', icon: UsersIcon, current: false },
-//   { name: 'FAQs Update', href: '#', icon: FolderIcon, current: false },
-// ]
-// const teams = [
-//   { id: 1, name: 'Heroicons', href: '#', initial: 'H', current: false },
-//   { id: 2, name: 'Tailwind Labs', href: '#', initial: 'T', current: false },
-//   { id: 3, name: 'Workcation', href: '#', initial: 'W', current: false },
-// ]
-
-
-// Render function for switching pages dynamically
+import { useSuperAdminContent } from '../../context/SuperAdminContentProvider';
 
 const userNavigation = [
   //   { name: 'Your profile', href: '#' },
@@ -60,6 +47,12 @@ function classNames(...classes) {
 }
 
 export default function SuperAdminPage() {
+
+  const {
+    successAlertMessage,
+    setSuccessAlertMessage
+  } = useSuperAdminContent();
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { section } = useParams();
   const navigation = [
@@ -84,25 +77,25 @@ export default function SuperAdminPage() {
     }
   };
 
-  const [adminEmail, setAdminEmail] = useState("");
+  const adminEmail = "SUPERADMIN DEMO"
 
-  useEffect(()=>{
-    const fetchAdmin = async()=>{
-      const token = localStorage.getItem("token");
-      if(!token){
-        console.log("No token");
-        return;
-      }
+  // useEffect(()=>{
+  //   const fetchAdmin = async()=>{
+  //     const token = localStorage.getItem("token");
+  //     if(!token){
+  //       console.log("No token");
+  //       return;
+  //     }
 
-      try{
-        const data = await getCurrentUser(token);
-        setAdminEmail(data.data.email);
-      } catch(error){
-        console.error("Fetch admin email error: ", error)
-      }
-    }
-    fetchAdmin();
-  },[])
+  //     try{
+  //       const data = await getCurrentUser(token);
+  //       setAdminEmail(data.data.email);
+  //     } catch(error){
+  //       console.error("Fetch admin email error: ", error)
+  //     }
+  //   }
+  //   fetchAdmin();
+  // },[])
 
   const handleLogout = () =>{
     localStorage.removeItem("token");
@@ -374,6 +367,14 @@ export default function SuperAdminPage() {
           </main>
         </div>
       </div>
+
+      {successAlertMessage && (
+        <AlertSuccess
+          text={successAlertMessage}
+          onClose={() => setSuccessAlertMessage("")}
+          className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50"
+        />
+      )}
     </>
   )
 }

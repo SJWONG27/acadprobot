@@ -104,4 +104,13 @@ class WebsiteDocument(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     chatbot_id = Column(UUID(as_uuid=True), ForeignKey("chatbots.id"), nullable=False)
 
+
+class UnrelatedQueries(Base):
+    __tablename__ = "unrelated_queries"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = Column(UUID(as_uuid=True), nullable=False)
+    chatbot_id = Column(UUID(as_uuid=True), nullable=False)
+    query_text = Column(String, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
     
