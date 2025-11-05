@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 from ..database.models import Embedding, EmbeddingStatus, Document, WebsiteDocument
 import re
 from bs4 import BeautifulSoup
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_ollama.llms import OllamaLLM
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
@@ -18,6 +18,8 @@ from langchain_ollama import ChatOllama
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from playwright.async_api import async_playwright
 import asyncio
+import numpy as np
+import spacy
 
 
 load_dotenv()
@@ -26,12 +28,20 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 supabase: Client = create_client(SUPABASE_URL, SECRET_KEY)
 
 embedding_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
+nlp = spacy.load("en_core_web_md")
+
 
 class RemoveColonParser(StrOutputParser):
     def parse(self, text: str) -> str:
         cleaned_text = re.sub(r"(\d+\.\s[^\n:]+):", r"\1", text)  # numbered list
         cleaned_text = re.sub(r"(\*\*[^\n:]+\*\*):", r"\1", cleaned_text)  # **bolded headers**:
         return cleaned_text
+
+def get_embeddings(chunks):
+    return embedding_model.embed_documents(chunks)
+
+def get_query_embeddings(query):
+    return embedding_model.embed_query(query)
 
 def extract_text_from_docx(file_obj):
     document = DocxDocument(file_obj)  
@@ -44,6 +54,34 @@ def extract_text_from_pdf(file_obj):
         text += page.get_text()
     doc.close()
     return text
+
+def split_into_sentences(text):
+    sentences = re.split(r'(?<=[.!?])\s+', text)
+    return [s.strip() for s in sentences if len(s.strip()) > 0]
+
+def merge_semantic_chunks(sentences, embeddings, threshold, max_chars):
+    merged_chunks = []
+    current_chunk = sentences[0]
+
+    for i in range(1, len(sentences)):
+        sim = np.dot(embeddings[i], embeddings[i - 1]) / (
+            np.linalg.norm(embeddings[i]) * np.linalg.norm(embeddings[i - 1])
+        )
+
+        if sim > threshold and len(current_chunk) + len(sentences[i]) < max_chars:
+            current_chunk += " " + sentences[i]
+        else:
+            merged_chunks.append(current_chunk)
+            current_chunk = sentences[i]
+
+    merged_chunks.append(current_chunk)
+    return merged_chunks
+
+def semantic_chunking_v2(text, threshold=0.8, max_chars=1000):
+    sentences = split_into_sentences(text)
+    embeddings = get_embeddings(sentences)
+    merged_chunks = merge_semantic_chunks(sentences, embeddings, threshold, max_chars)
+    return merged_chunks
 
 async def extract_text_from_website(url):
     try:
@@ -63,81 +101,10 @@ async def extract_text_from_website(url):
     
     if not content or len(content.strip()) == 0:
         return ["cannot find"]
-
-    # 🔹 Split long text into chunks of up to 2000 characters
-    result_chunks = textwrap.wrap(content, width=500)
-
-    return result_chunks if result_chunks else ["cannot find"]
     
-
-# def extract_text_from_umexpert(url):
-#     try:
-#         response = requests.get(url)
-#         response.raise_for_status()
-#     except requests.RequestException as e:
-#         return [f"Request failed: {e}"]
-
-#     soup = BeautifulSoup(response.text, "html.parser")
-#     project_div = soup.find('div', id='project-container')
-
-#     if not project_div:
-#         return ["cannot find"]
-
-#     # Get all text and split by "View CV"
-#     all_text = project_div.get_text(separator="\n", strip=True)
-#     blocks = all_text.split("View CV")
-
-#     target_phrase = "faculty of Computer Science and Information Technology"
-#     result_chunks = []
-
-#     for block in blocks:
-#         if target_phrase.lower() not in block.lower():
-#             continue
-
-#         lines = [line.strip() for line in block.strip().split("\n") if line.strip()]
-        
-#         # Extract useful info heuristically
-#         name = next((l for l in lines if "Dr." in l or "Prof." in l), "Name not found")
-#         email = next((l for l in lines if "@" in l), "Email not found")
-#         dept = next((l for l in lines if "faculty" in l.lower()), "Faculty of Computer Science and Information Technology")
-#         phone = next((l for l in lines if l.replace("-", "").replace("+", "").isdigit() and len(l) >= 8), None)
-        
-#         # Collect lines after "Area(s) of Expertise"
-#         expertise_lines = []
-#         collect = False
-#         for line in lines:
-#             if "Area(s) of Expertise" in line:
-#                 collect = True
-#                 continue
-#             if collect:
-#                 expertise_lines.append(line)
-        
-#         expertise = ", ".join(expertise_lines) if expertise_lines else "not specified"
-
-#         # Construct readable sentence
-#         paragraph = f"{name} is affiliated with the {dept}. "
-#         if phone:
-#             paragraph += f"Contact: {email}, Phone: {phone}. "
-#         else:
-#             paragraph += f"Contact: {email}. "
-#         paragraph += f"Their areas of expertise include: {expertise}."
-
-#         result_chunks.append(paragraph.strip())
-
-#     return result_chunks if result_chunks else ["no matching faculty found"]
-
-def get_embeddings(chunks):
-    return embedding_model.embed_documents(chunks)
-
-def get_query_embeddings(query):
-    return embedding_model.embed_query(query)
-
-# def extract_first_float(text):
-#     match = re.search(r"\b[0-1](?:\.\d+)?\b", text)  # matches 0, 0.1, ..., 1
-#     if match:
-#         return float(match.group(0))
-#     else:
-#         return 0.1  # fallback if no number found
+    result_chunks = semantic_chunking_v2(content)
+    
+    return result_chunks if result_chunks else ["cannot find"]
 
 
 def get_embedding_docs(fileUploaded, chatbot_id, document_id, db):
@@ -233,8 +200,15 @@ def generate_llm_response(user_query):
     
     return result
 
+def extract_main_content(text):
+    doc = nlp(str(text))
+    nouns = [token.text for token in doc if token.pos_ in ["NOUN", "PROPN"]]
+    return " ".join(nouns)
+
 def compare_match_embedding(user_query, chatbot_id):
     print("RAG Start")
+    user_query = extract_main_content(user_query)
+    print(user_query)
     query_embedding = get_query_embeddings(user_query)
 
     response = supabase.rpc("match_embeddings", {
