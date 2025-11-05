@@ -57,8 +57,8 @@ export default function SuperAdminPage() {
   const { section } = useParams();
   const navigation = [
     { name: 'Dashboard', icon: HomeIcon, current: section === 'overview', id: 'overview' },
-    { name: 'chatbot management', icon: ChatBubbleBottomCenterTextIcon, current: section === 'chatbot management', id: 'chatbot management' },
-    { name: 'access management', icon: UsersIcon, current: section === 'access management', id: 'access management' },
+    { name: 'Chatbot Management', icon: ChatBubbleBottomCenterTextIcon, current: section === 'chatbot management', id: 'chatbot management' },
+    { name: 'Access Management', icon: UsersIcon, current: section === 'access management', id: 'access management' },
   ];
   const navigate = useNavigate();
   const handleNavClick = (page) => {
