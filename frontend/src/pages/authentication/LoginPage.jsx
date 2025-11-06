@@ -3,20 +3,23 @@ import logo_acadprobot_long from '../../../src/assets/logo_acadprobot_long.svg'
 import { useState } from 'react'
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline'
 import { login } from '../../services/authService'
+import { sendResetEmail } from '../../services/emailService'
 import { useNavigate, useLocation } from "react-router-dom";
+import APForgotPassword from '../../component/APForgotPassword'
 
 
 export default function LoginPage() {
     const navigate = useNavigate();
     const location = useLocation();
-    const from = location.state?.from; 
+    const from = location.state?.from;
     const [loginEmail, setloginEmail] = useState("");
-    const [loginPassword, setloginPassword] = useState(""); 
+    const [loginPassword, setloginPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
+    const [showAPForgotPassword, setShowAPForgotPassword] = useState(false);
 
-    const handleLogin = async(e) =>{
+    const handleLogin = async (e) => {
         e.preventDefault();
-        try{
+        try {
             const data = await login(loginEmail, loginPassword);
             localStorage.setItem("token", data.access_token);
             localStorage.setItem("role", data.role);
@@ -28,13 +31,32 @@ export default function LoginPage() {
             } else {
                 navigate("/listofchatbots");
             }
-            
-            alert("Login successful")          
-        } catch (error){
+
+            alert("Login successful")
+        } catch (error) {
             console.error("Login error: ", error);
             alert(error.response?.data?.detail || "Login failed");
         }
     }
+
+    const [resetEmail, setResetEmail] = useState("")
+    const handleForgotPassword = async () => {
+        if(!resetEmail) return;
+        try {
+            await sendResetEmail(resetEmail)
+            setShowAPForgotPassword(false);
+        } catch (error) {
+            console.error("handleForgotPassword", error);
+            setShowAPForgotPassword(false);
+            setResetEmail("");
+        }
+    }
+
+    const handleCancelForgotPassword = () => {
+        setShowAPForgotPassword(false);
+        setResetEmail("");
+    }
+
     return (
         <>
             {/*
@@ -102,7 +124,7 @@ export default function LoginPage() {
                                         autoComplete="current-password"
                                         placeholder="Enter your password"
                                         value={loginPassword}
-                                        onChange={(e)=> setloginPassword(e.target.value)}
+                                        onChange={(e) => setloginPassword(e.target.value)}
                                         className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                                     />
                                     <button
@@ -154,7 +176,7 @@ export default function LoginPage() {
                                 </div>
 
                                 <div className="text-sm/6">
-                                    <a href="#" className="font-semibold text-indigo-600 hover:text-indigo-500">
+                                    <a onClick={() => setShowAPForgotPassword(true)} className="font-semibold text-indigo-600 hover:text-indigo-500">
                                         Forgot password?
                                     </a>
                                 </div>
@@ -165,7 +187,7 @@ export default function LoginPage() {
                                     type="submit"
                                     className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                                 >
-                                        Sign in
+                                    Sign in
                                 </button>
                             </div>
                         </form>
@@ -232,6 +254,17 @@ export default function LoginPage() {
                     </p>
                 </div>
             </div>
+
+            {showAPForgotPassword &&
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50">
+                    <APForgotPassword
+                        resetEmail={resetEmail}
+                        setResetEmail={setResetEmail}
+                        handleForgotPassword={handleForgotPassword}
+                        handleCancelForgotPassword={handleCancelForgotPassword}
+                    />
+                </div>
+            }
         </>
     )
 }

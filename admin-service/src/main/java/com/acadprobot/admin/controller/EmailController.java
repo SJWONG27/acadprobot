@@ -28,9 +28,9 @@ public class EmailController {
         String subject = "AcadProBot Password Reset Request";
 
         String body = "Hi there,\n\n"
-                + "We received a request to reset your AcadProBot account password. "
+                + "We received a request to reset your AcadProBot account (" + recipientEmail + ") password. "
                 + "If you made this request, please click the link below to reset your password:\n\n"
-                + "https://acadprobot.com/reset-password?email=" + recipientEmail + "\n\n"
+                + "https://localhost:5173/resetpassword"  + "\n\n"
                 + "If you did not request a password reset, please ignore this email.\n\n"
                 + "Best regards,\n"
                 + "The AcadProBot Team";

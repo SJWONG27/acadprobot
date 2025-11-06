@@ -4,7 +4,7 @@ const API = "http://127.0.0.1:8000/admin";
 const springbootAuthAPI = "http://localhost:8080/emailservice";
 
 export const sendResetEmail = async (recipient_email) => {
-    const response = await axios.post(`${springbootAuthAPI}/sendresetemail`, {
+    const response = await axios.post(`${springbootAuthAPI}/sendresetemail`, null, {
         params: { recipient_email }
     })
     return response.data;

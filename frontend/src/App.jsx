@@ -8,6 +8,7 @@ import LoginPage from './pages/authentication/LoginPage'
 import RegisterPage from './pages/authentication/RegisterPage'
 import LisofChatbot from './pages/chatbot/ListofChatbot'
 import AdminRequestForm from './pages/AdminRequestForm'
+import ResetPassword from './pages/authentication/ResetPassword'
 import { SuperAdminContentProvider } from './context/SuperAdminContentProvider'
 import { AdminContentProvider } from './context/AdminContentProvider'
 import { ChatContentProvider } from './context/ChatContentProvider'
@@ -21,6 +22,7 @@ function App() {
           <Route path='/login' element={<LoginPage />} />
           <Route path='/register' element={<RegisterPage />} />
           <Route path='/' element={<LandingPage />} />
+          <Route path='/resetpassword' element={<ResetPassword />} />
 
            <Route path='/requestadmin' element={<AdminRequestForm />} />
 
