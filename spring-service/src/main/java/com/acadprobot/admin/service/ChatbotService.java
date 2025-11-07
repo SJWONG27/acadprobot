@@ -67,6 +67,15 @@ public class ChatbotService {
         return userChatbotRepository.save(newJoin);
     }
 
+    public UserChatbots leaveChatbot(UUID user_id, UUID chatbot_id) {
+        UserChatbotID id = new UserChatbotID(user_id, chatbot_id);
+        UserChatbots join = userChatbotRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User has not joined this chatbot"));
+
+        userChatbotRepository.delete(join);
+        return join;
+    }
+
 
     public List<Chatbots> getChatbotsByUser(UUID userId) {
         return userChatbotRepository.findChatbotsByUserId(userId);

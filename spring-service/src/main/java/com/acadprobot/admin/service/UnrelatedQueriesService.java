@@ -25,7 +25,7 @@ public class UnrelatedQueriesService {
         List<UnrelatedQueries> queries = unrelatedQueriesRepository.findAll();
 
         try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-            Sheet sheet = workbook.createSheet("Unrelated Queries");
+            Sheet sheet = workbook.createSheet("Irrelevant_Academic_Queries");
             Row headerRow = sheet.createRow(0);
 
             // Header

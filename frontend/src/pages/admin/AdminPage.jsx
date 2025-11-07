@@ -50,7 +50,7 @@ export default function AdminPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { section } = useParams();
   const navigation = [
-    { name: 'Dashboard', icon: HomeIcon, current: section === 'overview', id: 'overview' },
+    // { name: 'Dashboard', icon: HomeIcon, current: section === 'overview', id: 'overview' },
     { name: 'Chatbot Content', icon: ChatBubbleBottomCenterTextIcon, current: section === 'chatbot', id: 'chatbot' },
     { name: 'Group Access', icon: UsersIcon, current: section === 'group', id: 'group' },
   ];
@@ -60,14 +60,14 @@ export default function AdminPage() {
   };
   const renderPage = () => {
     switch (section) {
-      case 'overview':
-        return <OverviewPage />;
+      // case 'overview':
+      //   return <OverviewPage />;
       case 'chatbot':
         return <ChatbotContentPage />;
       case 'group':
         return <GroupAccessPage />;
       default:
-        return <OverviewPage />;
+        return <ChatbotContentPage />;
     }
   };
 

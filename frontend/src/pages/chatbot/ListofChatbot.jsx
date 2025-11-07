@@ -11,20 +11,23 @@ import AlertSuccess from '../../component/AlertSuccess.jsx'
 import logo_acadprobot_square from '../../../src/assets/logo_acadprobot_square.svg'
 import logo_acadprobot_long from '../../../src/assets/logo_acadprobot_long.svg'
 import { useChatContent } from '../../context/ChatContentProvider.jsx'
-
+import { useState } from 'react'
 
 export default function LisofChatbot() {
 
     const {
         userEmail,
         refercode,
+        setRefercode,
         listChatbots,
         successAlertMessage,
+        setSuccessAlertMessage,
         handleJoinChatbot,
         handleEnterChatbot,
+        handleLeaveChatbot,
         handleLogout
     } = useChatContent();
-
+    // const [refercode, setRefercode] = useState("");
 
     const userNavigation = [
         { name: 'Sign out', href: '/' },
@@ -103,12 +106,12 @@ export default function LisofChatbot() {
                     name="refercode"
                     type="text"
                     value={refercode}
-                    onChange={(e) => setRefercode(e.target.value)}
+                    onChange={(e)=>setRefercode(e.target.value)}
                     placeholder="Input refercode to join a chatbot"
                     className=" w-5/12 rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                 />
                 <button
-                    onClick={() => handleJoinChatbot(userId, refercode)}
+                    onClick={() => handleJoinChatbot()}
                     className="flex shrink-0 items-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 outline -outline-offset-1 outline-gray-300 hover:bg-gray-50 focus:relative focus:outline focus:-outline-offset-2 focus:outline-indigo-600"
                 >
                     Join
@@ -132,7 +135,7 @@ export default function LisofChatbot() {
                             <div className="-mt-px flex divide-x divide-gray-200">
                                 <div className="flex w-0 flex-1">
                                     <a
-                                        href={`mailto:${listChatbot.name}`}
+                                        onClick={()=> handleLeaveChatbot(listChatbot.id)}
                                         className="relative -mr-px inline-flex w-0 flex-1 items-center justify-center gap-x-3 rounded-bl-lg border border-transparent py-4 text-sm font-semibold text-red-700"
                                     >
                                         <ArrowLeftStartOnRectangleIcon aria-hidden="true" className="size-5 text-red-400" />

@@ -27,21 +27,18 @@ public class AuthService {
     public User registerUser(String email, String password){
 
         Optional<User> existingUser = userRepository.findByEmail(email);
-        System.out.println("🔍 existingUser: " + existingUser);
-
         if (existingUser.isPresent()) {
             throw new RuntimeException("Email already registered");
         }
 
         String hashedPassword = passwordEncoder.encode(password);
-        System.out.println("✅ Password hashed");
 
         User newUser = new User();
         newUser.setEmail(email);
         newUser.setPassword(hashedPassword);
 
         User savedUser = userRepository.save(newUser);
-        System.out.println("✅ User saved successfully: " + savedUser.getId());
+        System.out.println("User saved successfully: " + savedUser.getId());
 
         return savedUser;
     }
@@ -61,6 +58,20 @@ public class AuthService {
                 "email", email
         ));
         return new AuthResponse(token, "bearer", user.getRole().toString().toLowerCase() , email);
+    }
+
+    public User resetPassword(String email, String password){
+        Optional<User> existingUser = userRepository.findByEmail(email);
+
+        if(existingUser.isEmpty()){
+            throw new RuntimeException("Email not exists");
+        }
+
+        User user = existingUser.get();
+        String hashedPassword = passwordEncoder.encode(password);
+        user.setPassword(hashedPassword);
+
+        return userRepository.save(user);
     }
 
 }

@@ -85,7 +85,7 @@ public class SuperAdminController {
         ByteArrayInputStream excelFile = unrelatedQueriesService.exportToExcel();
 
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "attachment; filename=unrelated_queries.xlsx");
+        headers.add("Content-Disposition", "attachment; filename=Irrelevant_Academic_Queries.xlsx");
 
         return ResponseEntity.ok()
                 .headers(headers)

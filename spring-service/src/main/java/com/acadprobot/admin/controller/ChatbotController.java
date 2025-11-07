@@ -24,6 +24,17 @@ public class ChatbotController {
         return ResponseEntity.ok(chatbotService.joinChatbot(userId, refercode));
     }
 
+    @PostMapping("/leavechatbot")
+    public ResponseEntity<?> leaveChatbot(@RequestBody Map<String, String> body){
+        String userIdStr = body.get("user_id");
+        String chatbotIdStr = body.get("chatbot_id");
+
+        UUID userId = UUID.fromString(userIdStr);
+        UUID chatbotId = UUID.fromString(chatbotIdStr);
+
+        return ResponseEntity.ok(chatbotService.leaveChatbot(userId, chatbotId));
+    }
+
     @GetMapping("/")
     public ResponseEntity<?> getChatbotUnderUser(@RequestParam("user_id") String userIdStr) {
         UUID userId = UUID.fromString(userIdStr);

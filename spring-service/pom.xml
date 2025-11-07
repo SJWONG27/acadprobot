@@ -9,10 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.acadprobot</groupId>
-	<artifactId>admin-service</artifactId>
+	<artifactId>spring-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>AcadProBot Admin Service</name>
-	<description>Spring Boot backend for admin and superadmin features of AcadProBot</description>
+	<description>Spring Boot backend of AcadProBot</description>
 	<url/>
 	<licenses>
 		<license/>

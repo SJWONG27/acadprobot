@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { getCurrentUser } from '../services/authService'
 import { sendMessage, getMessages, getChatSessions, deleteChatSession } from "../services/chatService";
-import { joinChatbot, getChatbotUnderUser } from "../services/chatbotService";
+import { joinChatbot, leaveChatbot, getChatbotUnderUser } from "../services/chatbotService";
 import { useNavigate } from "react-router-dom";
 
 const ChatContentContext = createContext();
@@ -95,7 +95,7 @@ export const ChatContentProvider = ({ children }) => {
         fetchChatbots();
     }, [userId])
 
-    const handleJoinChatbot = async (userId, refercode) => {
+    const handleJoinChatbot = async () => {
         try {
             await joinChatbot(userId, refercode);
             triggerAlert("Chatbot Joined Successfully");
@@ -109,6 +109,20 @@ export const ChatContentProvider = ({ children }) => {
             setRefercode("");
         }
     }
+
+    const handleLeaveChatbot = async (chatbot_id) => {
+        try {
+            await leaveChatbot(userId, chatbot_id);
+            triggerAlert("Chatbot Leaved Successfully");
+
+            const data = await getChatbotUnderUser(userId);
+            setListChatbots(data);
+        } catch (error) {
+            console.error("handleLeaveChatbot: ", error);
+            triggerAlert("Chatbot not exist");
+        } 
+    }
+
 
     const handleEnterChatbot = (chatbot_id) => {
         setSelectedChatbotId(chatbot_id);
@@ -290,6 +304,7 @@ export const ChatContentProvider = ({ children }) => {
                 userEmail,
                 userId,
                 refercode,
+                setRefercode,
                 listChatbots,
                 setUserId,
                 chatSessions,
@@ -308,6 +323,7 @@ export const ChatContentProvider = ({ children }) => {
                 setSelectedChatbotId,
                 handleJoinChatbot,
                 handleEnterChatbot,
+                handleLeaveChatbot,
                 handleLogout,
                 handleClickRocket
             })}

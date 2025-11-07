@@ -154,13 +154,13 @@ export const SuperAdminContentProvider = ({ children }) => {
             triggerAlert("Report is being downloaded. Please wait.");
             setIsLoading(true);
 
-            const response = await downloadReport();
+            const blob = await downloadReport();
 
             // Create a URL for the blob and trigger download
-            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const url = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', 'unrelated_queries.xlsx');
+            link.setAttribute('download', 'Irrelevant_Academic_Queries.xlsx');
             document.body.appendChild(link);
             link.click();
             link.remove();

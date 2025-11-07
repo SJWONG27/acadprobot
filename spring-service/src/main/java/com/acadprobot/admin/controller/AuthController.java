@@ -65,4 +65,12 @@ public class AuthController {
         }
     }
 
+    @PostMapping("/resetpassword")
+    public User resetPassword(@RequestBody Map<String, String> body){
+        String email = body.get("email");
+        String password = body.get("password");
+
+        return authService.resetPassword(email, password);
+    }
+
 }

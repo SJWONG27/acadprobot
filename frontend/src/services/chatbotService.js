@@ -7,6 +7,11 @@ export const joinChatbot = async(user_id, refercode)=>{
     return response.data;
 }
 
+export const leaveChatbot = async(user_id, chatbot_id)=>{
+    const response = await axios.post(`${springbootAuthAPI}/leavechatbot`, {user_id, chatbot_id});
+    return response.data;
+}
+
 export const getChatbotUnderUser = async(userId)=>{
     const response = await axios.get(`${springbootAuthAPI}/?user_id=${userId}`);
     return response.data;
