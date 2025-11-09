@@ -1,6 +1,6 @@
 <p align="center">
   <img src="frontend/src/assets/logo_acadprobot_square.svg" width="100" />
-  <img src="frontend/src/assets/logo_acadprobot_long.svg" width="200" />
+  <img src="frontend/src/assets/logo_acadprobot_long.svg" width="400" />
 </p>
 
 <p align="center">
@@ -26,6 +26,14 @@
 <p align="center">
   <img src="https://skillicons.dev/icons?i=vite,js,react,python,java,spring,fastapi,postgresql,docker,pytorch" />
 </p>
+
+- **Frontend:** React + Vite + Tailwind CSS  
+- **Backend:** FastAPI (Chat & RAG Workflow)
+- **Spring Boot Service:** Spring Boot (Main)
+- **Database:** PostgreSQL (hosted via Supabase)
+- **Vector Search:** pgvector + LangChain + HuggingFace Transformer
+- **LLM:** Llama3.2
+- **Hosting / DevOps:** Docker + Docker Compose  
 
 ---
 
