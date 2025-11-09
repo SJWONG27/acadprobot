@@ -1,3 +1,8 @@
+<p align="center">
+  <img src="frontend/src/assets/logo_acadprobot_long.svg" width="200" />
+  <img src="frontend/src/assets/logo_acadprobot_square.svg" width="100" />
+</p>
+
 <h1 align="center">AcadProBot</h1>
 
 <p align="center">
@@ -9,8 +14,7 @@
 ---
 
 ### 🦾 About The Project
-
-The Full Documentation of Project as below:
+<p>The Full Documentation of Project as below</p>
 <p align="center>
   <a href="https://www.linkedin.com/in/wong-soon-jit-8577b2275/">
     <img src="https://img.shields.io/badge/OneDrive-0078D4?style=for-the-badge&logo=onedrive&logoColor=white"/>
