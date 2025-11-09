@@ -1,0 +1,45 @@
+version: "3.9"
+
+services:
+  # --- FastAPI Backend ---
+  backend:
+    build: ./backend
+    container_name: acadprobot-backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - spring-service
+    networks:
+      - acadprobot-network
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+    restart: always 
+
+  # --- Spring Boot Service ---
+  spring-service:
+    build: ./spring-service
+    container_name: acadprobot-spring
+    ports:
+      - "8080:8080"
+    networks:
+      - acadprobot-network
+    restart: always 
+
+  # --- React Frontend ---
+  frontend:
+    build: ./frontend
+    container_name: acadprobot-frontend
+    ports:
+      - "5173:80"  # optional: use 5173 externally, but Nginx runs on 80 internally
+    depends_on:
+      - backend
+    networks:
+      - acadprobot-network
+    restart: always 
+
+networks:
+  acadprobot-network:
+    driver: bridge

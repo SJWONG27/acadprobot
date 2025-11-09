@@ -1,5 +1,6 @@
 import APAddDocs from "./APAddDocs";
 import { useAdminContent } from "../context/AdminContentProvider";
+import { format } from "date-fns";
 import { uploadDocs, getDocs, uploadWebsiteDocs, getWebsiteDocs, deleteDocument, deleteWebsiteDocument } from '../services/adminService'
 import { useEffect } from "react";
 
@@ -40,6 +41,9 @@ export default function TableDocScraping() {
                                         Title
                                     </th>
                                     <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                                        Created At
+                                    </th>
+                                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                                         Progress
                                     </th>
                                     {/* <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-0">
@@ -55,6 +59,9 @@ export default function TableDocScraping() {
                                     <tr key={doc.id}>
                                         <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
                                             {doc.filename}
+                                        </td>
+                                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                            {format(new Date(doc.created_at), 'MMM dd, h:mm a')}
                                         </td>
                                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{doc.status}</td>
                                         {/* <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">

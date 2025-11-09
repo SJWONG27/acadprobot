@@ -91,7 +91,7 @@ export const AdminContentProvider = ({ children }) => {
             const updatedDocs = await getDocs(chatbotId);
             setDocuments(updatedDocs);
 
-            triggerAlert("Document uploading");
+            triggerAlert("Document uploaded successfully");
         } catch (err) {
             console.error("Upload error:", err);
         }
@@ -118,6 +118,7 @@ export const AdminContentProvider = ({ children }) => {
 
             const updatedSites = await getWebsiteDocs(chatbotId);
             setWebsites(updatedSites);
+            triggerAlert("Website content uploaded successfully");
         } catch (err) {
             console.error("Website upload error:", err);
             const updatedSites = await getWebsiteDocs(chatbotId);

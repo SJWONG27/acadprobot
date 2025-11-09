@@ -1,5 +1,6 @@
 import APAddWebUrl from "./APAddWebUrl";
 import { useAdminContent } from "../context/AdminContentProvider";
+import { format } from "date-fns";
 
 export default function TableWebScraping() {
 
@@ -41,6 +42,9 @@ export default function TableWebScraping() {
                                         Link
                                     </th>
                                     <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                                        Created At
+                                    </th>
+                                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                                         Progress
                                     </th>
                                     <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-0">
@@ -55,6 +59,9 @@ export default function TableWebScraping() {
                                             {website.url}
                                         </td> */}
                                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{website.url}</td>
+                                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                            {format(new Date(website.created_at), 'MMM dd, h:mm a')}
+                                        </td>
                                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{website.status}</td>
                                         <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
                                             <button

@@ -1,2 +1,3 @@
 test/
-backend/app/academic_classifier_bert
+backend/academic_classifier_bert
+backend/.env

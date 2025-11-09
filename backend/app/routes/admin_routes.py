@@ -1,11 +1,8 @@
 # app/api/routes/auth.py
-from uuid import UUID
 from fastapi import APIRouter, Depends, Form, HTTPException, UploadFile, File, Body
 from sqlalchemy.orm import Session
-from ..database.schemas import ChatbotRequest
 from ..database.database import SessionLocal
-# from..dependencies.auth_dep import get_current_user
-from ..database.models import User, Embedding, EmbeddingStatus, Document, WebsiteDocument, Chatbots
+from ..database.models import Embedding, EmbeddingStatus, Document, WebsiteDocument
 from ..services.embedding_service import get_embedding_docs, get_website_embedding_docs
 
 

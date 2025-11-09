@@ -20,12 +20,15 @@ from playwright.async_api import async_playwright
 import asyncio
 import numpy as np
 import spacy
+from sqlalchemy import create_engine
+import pathlib
 
 
 load_dotenv()
 SECRET_KEY = os.getenv("SECRET_KEY")
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 supabase: Client = create_client(SUPABASE_URL, SECRET_KEY)
+
 
 embedding_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
 nlp = spacy.load("en_core_web_md")
@@ -42,18 +45,6 @@ def get_embeddings(chunks):
 
 def get_query_embeddings(query):
     return embedding_model.embed_query(query)
-
-def extract_text_from_docx(file_obj):
-    document = DocxDocument(file_obj)  
-    return "\n".join([para.text for para in document.paragraphs])
-
-def extract_text_from_pdf(file_obj):
-    doc = fitz.open(stream=file_obj.read(), filetype="pdf")  # Read from stream
-    text = ""
-    for page in doc:
-        text += page.get_text()
-    doc.close()
-    return text
 
 def split_into_sentences(text):
     sentences = re.split(r'(?<=[.!?])\s+', text)
@@ -83,6 +74,8 @@ def semantic_chunking_v2(text, threshold=0.8, max_chars=1000):
     merged_chunks = merge_semantic_chunks(sentences, embeddings, threshold, max_chars)
     return merged_chunks
 
+
+# website
 async def extract_text_from_website(url):
     try:
         async with async_playwright() as p:
@@ -107,6 +100,19 @@ async def extract_text_from_website(url):
     return result_chunks if result_chunks else ["cannot find"]
 
 
+# documents
+def extract_text_from_docx(file_obj):
+    document = DocxDocument(file_obj)  
+    return "\n".join([para.text for para in document.paragraphs])
+
+def extract_text_from_pdf(file_obj):
+    doc = fitz.open(stream=file_obj.read(), filetype="pdf")  # Read from stream
+    text = ""
+    for page in doc:
+        text += page.get_text()
+    doc.close()
+    return text
+
 def get_embedding_docs(fileUploaded, chatbot_id, document_id, db):
     doc = db.query(Document).filter_by(id=document_id).first()
     if not doc:
@@ -122,7 +128,8 @@ def get_embedding_docs(fileUploaded, chatbot_id, document_id, db):
         else:
             extracted_text = extract_text_from_pdf(fileUploaded.file)
             
-        chunks = textwrap.wrap(extracted_text, width=2000)
+        # chunks = textwrap.wrap(extracted_text, width=2000)
+        chunks = semantic_chunking_v2(extracted_text)
         chunk_embeddings = get_embeddings(chunks)
 
         for i, emb in enumerate(chunk_embeddings):
@@ -258,8 +265,16 @@ def compare_match_embedding(user_query, chatbot_id):
     
     return context
 
+# BASE_DIR = pathlib.Path(__file__).resolve().parent
+# academic_classifier_model_path = BASE_DIR / "academic_classifier_bert"
 
-academic_classifier_model_path = "./academic_classifier_bert"
+# tokenizer = AutoTokenizer.from_pretrained(str(academic_classifier_model_path), local_files_only=True, repo_type="model")
+# academic_classifier_model = AutoModelForSequenceClassification.from_pretrained(str(academic_classifier_model_path), local_files_only=True, repo_type="model")
+
+
+# academic_classifier_model_path = "/academic_classifier_bert"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+academic_classifier_model_path = os.path.join(BASE_DIR, "../../academic_classifier_bert")
 tokenizer = AutoTokenizer.from_pretrained(academic_classifier_model_path)
 academic_classifier_model = AutoModelForSequenceClassification.from_pretrained(academic_classifier_model_path)
 
