@@ -13,7 +13,7 @@
 
 ### 🦾 About The Project
 <p>The Full Documentation of Project as below</p>
-<p align="center>
+<p align="center">
   <a href="https://www.linkedin.com/in/wong-soon-jit-8577b2275/">
     <img src="https://img.shields.io/badge/OneDrive-0078D4?style=for-the-badge&logo=onedrive&logoColor=white"/>
   </a>
@@ -43,7 +43,7 @@ cd AcadProBot
 #### 2️⃣ Download the Academic Classifier Model
 Access and Download model as below:
 
-<p align="center>
+<p align="center">
   <a href="https://www.linkedin.com/in/wong-soon-jit-8577b2275/">
     <img src="https://img.shields.io/badge/OneDrive-0078D4?style=for-the-badge&logo=onedrive&logoColor=white"/>
   </a>
