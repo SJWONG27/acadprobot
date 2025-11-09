@@ -1,9 +1,7 @@
 <p align="center">
-  <img src="frontend/src/assets/logo_acadprobot_long.svg" width="200" />
   <img src="frontend/src/assets/logo_acadprobot_square.svg" width="100" />
+  <img src="frontend/src/assets/logo_acadprobot_long.svg" width="200" />
 </p>
-
-<h1 align="center">AcadProBot</h1>
 
 <p align="center">
   A <b>Customizable Academic Chatbot</b> for Universiti Malaya <br/>
