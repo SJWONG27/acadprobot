@@ -8,9 +8,9 @@
 
 ---
 
-### 🧭 About The Project
+### 🦾 About The Project
 
-- The Full Documentation of Project as below:
+The Full Documentation of Project as below:
 <p align="center>
   <a href="https://www.linkedin.com/in/wong-soon-jit-8577b2275/">
     <img src="https://img.shields.io/badge/OneDrive-0078D4?style=for-the-badge&logo=onedrive&logoColor=white"/>
@@ -31,7 +31,6 @@
 
 Follow these steps to run the full AcadProBot project with Docker:
 
----
 
 #### 1️⃣ Clone the repository
 ```bash
@@ -40,13 +39,15 @@ cd AcadProBot
 ```
 
 #### 2️⃣ Download the Academic Classifier Model
-- Access and Download model as below:
+Access and Download model as below:
+
 <p align="center>
   <a href="https://www.linkedin.com/in/wong-soon-jit-8577b2275/">
     <img src="https://img.shields.io/badge/OneDrive-0078D4?style=for-the-badge&logo=onedrive&logoColor=white"/>
   </a>
 </p>
-- Move it under file backend: backend/academic_classifier_bert
+
+Move it under file backend: backend/academic_classifier_bert
 
 #### 3️⃣ Create your local environment files
 ```bash
