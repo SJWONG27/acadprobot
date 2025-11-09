@@ -1,6 +1,6 @@
-<p style="display: flex; align-items: center; justify-content: center;">
-  <img src="frontend/src/assets/logo_acadprobot_square.svg" width="100" />
-  <img src="frontend/src/assets/logo_acadprobot_long.svg" width="400" />
+<p align="center">
+  <img src="frontend/src/assets/logo_acadprobot_square.svg" width="100"  />
+  <img src="frontend/src/assets/logo_acadprobot_long.svg" width="300" />
 </p>
 
 <p align="center">
