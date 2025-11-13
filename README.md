@@ -36,7 +36,7 @@
 
 <p><strong>ML Model DistilBERT Training</strong></p>
 <p align="center">
-  <img src="frontend/src/assets/img_distilbert.svg" width="400" align="center" />
+  <img src="frontend/src/assets/img_distilbert.svg" width="800" align="center" />
 </p>
 
 ---
