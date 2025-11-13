@@ -24,19 +24,17 @@
   <img src="frontend/src/assets/img_structure.svg" width="400" align="center" />
 </p>
 
-AcadProBot is a customizable chatbot that integrating Large Language Models (LLM) with Retrieval-Augmented Generation (RAG)
-for intelligent, context-aware responses.<br/>
-It serves three stakeholders, including user, admin and super admin.<br/>
-A user can join multiple chatbots, an admin can manage multiple chatbots, while super admin manages
-admins and chatbots available in AcadProBot<br/>
-Each chatbot contains its own embeddings.<br/>
+- AcadProBot is a customizable chatbot that integrating Large Language Models (LLM) with Retrieval-Augmented Generation (RAG) for intelligent, context-aware responses.<br/>
+- It serves three stakeholders, including user, admin and super admin.<br/>
+- A user can join multiple chatbots, an admin can manage multiple chatbots, while super admin manages admins and chatbots available in AcadProBot<br/>
+- Each chatbot contains its own embeddings.<br/>
 
-<p>Chat and RAG Process</p>
+<p><strong>Chat and RAG Process</strong></p>
 <p align="center">
-  <img src="frontend/src/assets/img_rag_process.svg" width="400" align="center" />
+  <img src="frontend/src/assets/img_rag_process.svg" width="800" align="center" />
 </p>
 
-<p>ML Model DistilBERT Training</p>
+<p><strong>ML Model DistilBERT Training</strong></p>
 <p align="center">
   <img src="frontend/src/assets/img_distilbert.svg" width="400" align="center" />
 </p>
