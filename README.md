@@ -15,7 +15,7 @@
 ### 🦾 About The Project
 <p>The Full Documentation of Project as below</p>
 <p align="center">
-  <a href="https://www.linkedin.com/in/wong-soon-jit-8577b2275/">
+  <a href="https://1drv.ms/f/c/f2b877c4aacbf3bd/IgB4IZLBLWa6RLLkZlkX2zJqAc56ESx3z5MoaisVCCvv4yc?e=S7xIab">
     <img src="https://img.shields.io/badge/OneDrive-0078D4?style=for-the-badge&logo=onedrive&logoColor=white"/>
   </a>
 </p>
@@ -35,6 +35,7 @@
 - **Vector Search:** pgvector + LangChain + HuggingFace Transformer
 - **LLM:** LlaMA 3.2
 - **Hosting / DevOps:** Docker + Docker Compose  
+- **DistilBERT:** Docker + Docker Compose  
 
 ---
 
@@ -53,7 +54,7 @@ cd AcadProBot
 Access and Download model as below:
 
 <p align="center">
-  <a href="https://www.linkedin.com/in/wong-soon-jit-8577b2275/">
+  <a href="https://1drv.ms/f/c/f2b877c4aacbf3bd/IgB4IZLBLWa6RLLkZlkX2zJqAc56ESx3z5MoaisVCCvv4yc?e=S7xIab">
     <img src="https://img.shields.io/badge/OneDrive-0078D4?style=for-the-badge&logo=onedrive&logoColor=white"/>
   </a>
 </p>
@@ -61,6 +62,7 @@ Access and Download model as below:
 Move it under file backend: backend/academic_classifier_bert
 
 #### 3️⃣ Create your local environment files
+To proceed with this, kindly register an account in Supabase
 ```bash
 # backend environment
 cp backend/.env.example backend/.env
