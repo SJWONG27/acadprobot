@@ -39,7 +39,20 @@ services:
     networks:
       - acadprobot-network
     restart: always 
+  
+  ollama:
+    image: ollama/ollama
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    networks:
+      - acadprobot-network
+    volumes:
+      - ollama-data:/root/.ollama
 
 networks:
   acadprobot-network:
     driver: bridge
+
+volumes:
+  ollama-data:

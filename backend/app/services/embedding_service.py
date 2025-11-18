@@ -14,7 +14,7 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_ollama.llms import OllamaLLM
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
-from langchain_ollama import ChatOllama
+from langchain_ollama import OllamaEmbeddings
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from playwright.async_api import async_playwright
 import asyncio
@@ -29,8 +29,17 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 supabase: Client = create_client(SUPABASE_URL, SECRET_KEY)
 
+# comment base_url out when doing dev
+embedding_model = OllamaEmbeddings(
+    model="nomic-embed-text",
+    base_url="http://ollama:11434"
+)
 
-embedding_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
+llm_model = OllamaLLM(
+    model="llama3.2",
+    base_url="http://ollama:11434"
+)
+
 nlp = spacy.load("en_core_web_md")
 
 
@@ -68,11 +77,15 @@ def merge_semantic_chunks(sentences, embeddings, threshold, max_chars):
     merged_chunks.append(current_chunk)
     return merged_chunks
 
-def semantic_chunking_v2(text, threshold=0.8, max_chars=1000):
+def semantic_chunking_v2(text, threshold=0.8, max_chars=1000, min_words=5):
     sentences = split_into_sentences(text)
     embeddings = get_embeddings(sentences)
     merged_chunks = merge_semantic_chunks(sentences, embeddings, threshold, max_chars)
-    return merged_chunks
+    filtered_chunks = [
+        chunk for chunk in merged_chunks
+        if(len(chunk.split())) >= min_words
+    ]
+    return filtered_chunks
 
 
 # website
@@ -196,9 +209,8 @@ def generate_llm_response(user_query):
         ("human", "{user_query}")
     ])
     
-    model = OllamaLLM(model="llama3.2")
     parser = RemoveColonParser()
-    chain = prompt_template | model | parser
+    chain = prompt_template | llm_model | parser
     
     result = chain.invoke({
         "prompt": prompt,
@@ -228,51 +240,59 @@ def compare_match_embedding(user_query, chatbot_id):
  
     if not response.data or len(response.data) == 0:
         print("no data from db: ", response)
-        return "no knowledge from db"
-        # return f"*AI-generated content:* \n\n" + generate_ai_content(user_query)
+        return "no knowledge from db"    
     
     top_result = response.data[0]
     similarity = top_result["similarity"]
     
     print("db similarity: ", similarity)
     
-    if (similarity < 0.3) or (not response.data):
+    if (similarity < 0.4) or (not response.data):
         print("similarity low")
         return "no knowledge from db"
-        # return f"*AI-generated content:* \n\n" + generate_ai_content(user_query)
     
-    top_chunks = [item["content"] for item in response.data]
-    context = "\n\n".join(top_chunks)
+    source_doc = top_result["document_id"]
+    source_web = top_result["website_id"]
+    top_idx = top_result["chunk_index"]
     
-#     prompt = '''Use the following context to answer the question only. Format the answer using Markdown-style, with proper line spacing across different ideas
-#    '''
+    if source_doc:
+        source_type = "document"
+        source_filter = ("document_id", source_doc)
+    elif source_web:
+        source_type = "website"
+        source_filter = ("website_id", source_web)
+    else:
+        return "no source id found"
+
+    print(f"Top source = {source_type}, starting at chunk {top_idx}")
     
-#     prompt_template = ChatPromptTemplate([
-#         ("system", "{context}"),
-#         ("system", "{prompt}"),
-#         ("human", "{user_query}")
-#     ])
+    N = 5 
+
+    neighbors = supabase.table("embeddings") \
+        .select("content, chunk_index") \
+        .eq(source_filter[0], source_filter[1]) \
+        .gte("chunk_index", top_idx) \
+        .lte("chunk_index", top_idx + N) \
+        .order("chunk_index") \
+        .execute()
     
-#     model = OllamaLLM(model="llama3.2")
-#     parser = RemoveColonParser()
-#     chain = prompt_template | model | parser
+    continuous_chunks = [item["content"] for item in neighbors.data]    
+    match_chunks = [item["content"] for item in response.data]
     
-#     result = chain.invoke({
-#         "context": context,
-#         "prompt": prompt,
-#         "user_query": user_query,
-#     })
-    
+    all_chunks = []
+    seen = set()
+    for item in match_chunks + continuous_chunks:
+        if item not in seen:
+            all_chunks.append(item)
+            seen.add(item)
+
+    context = "\n\n".join(continuous_chunks)
+        
+    print(context)
+        
     return context
 
-# BASE_DIR = pathlib.Path(__file__).resolve().parent
-# academic_classifier_model_path = BASE_DIR / "academic_classifier_bert"
 
-# tokenizer = AutoTokenizer.from_pretrained(str(academic_classifier_model_path), local_files_only=True, repo_type="model")
-# academic_classifier_model = AutoModelForSequenceClassification.from_pretrained(str(academic_classifier_model_path), local_files_only=True, repo_type="model")
-
-
-# academic_classifier_model_path = "/academic_classifier_bert"
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 academic_classifier_model_path = os.path.join(BASE_DIR, "../../academic_classifier_bert")
 tokenizer = AutoTokenizer.from_pretrained(academic_classifier_model_path)

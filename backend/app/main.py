@@ -1,24 +1,3 @@
-# from typing import Union
-# from app.routes import chat
-# from fastapi import FastAPI
-
-
-# app = FastAPI()
-
-
-
-# @app.get("/")
-# def read_root():
-#     return {"Hello": "World"}
-
-
-# @app.get("/items/{item_id}")
-# def read_item(item_id: int, q: Union[str, None] = None):
-#     return {"item_id": item_id, "q": q}
-
-# app.include_router(chat.router)
-
-# app/main.py
 from fastapi import FastAPI
 from .routes import admin_routes, chat_routes
 from .database.database import Base, engine
