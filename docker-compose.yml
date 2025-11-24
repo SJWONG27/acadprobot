@@ -4,6 +4,7 @@ services:
   # --- FastAPI Backend ---
   backend:
     build: ./backend
+    platform: linux/amd64
     container_name: acadprobot-backend
     ports:
       - "8000:8000"

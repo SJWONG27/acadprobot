@@ -6,17 +6,18 @@ import logo_acadprobot_square from '../../../src/assets/logo_acadprobot_square.s
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 import { useChatContent } from '../../context/ChatContentProvider'
 import "./ChatMarkdown.css";
+import { speechToText } from "../../services/chatService";
 
 const ChatInterface = () => {
   const {
-      isSidebarOpen,
-      selectedSessionId,
-      messages,
-      input,
-      setInput,
-      toggleSidebar,
-      handleSend,
-    } = useChatContent();
+    isSidebarOpen,
+    selectedSessionId,
+    messages,
+    input,
+    setInput,
+    toggleSidebar,
+    handleSend,
+  } = useChatContent();
 
   const chatEndRef = useRef(null);
   const textareaRef = useRef(null);
@@ -35,6 +36,10 @@ const ChatInterface = () => {
   // speech-to-text
   const [isMicActive, setIsMicActive] = useState(false);
 
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef = useRef([]);
+
+
   const {
     transcript,
     listening,
@@ -42,22 +47,60 @@ const ChatInterface = () => {
     browserSupportsSpeechRecognition,
   } = useSpeechRecognition();
 
-  const startRecording = () => {
-    setInput("");
-    resetTranscript();
-    SpeechRecognition.startListening({ continuous: true });
+  // const startRecording = () => {
+  //   setInput("");
+  //   // resetTranscript();
+  //   // SpeechRecognition.startListening({ continuous: true });
+  //   setIsMicActive(true);
+  // };
+  const startRecording = async () => {
+    setInput(""); // Clear input
+    audioChunksRef.current = [];
+
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    mediaRecorderRef.current = new MediaRecorder(stream);
+
+    mediaRecorderRef.current.ondataavailable = (event) => {
+      audioChunksRef.current.push(event.data);
+    };
+
+    mediaRecorderRef.current.start();
     setIsMicActive(true);
   };
 
-  const stopRecording = () => {
-    SpeechRecognition.stopListening();
-    setInput(transcript); // Set transcribed text into input
+  // const stopRecording = () => {
+  //   SpeechRecognition.stopListening();
+  //   setInput(transcript); // Set transcribed text into input
+  //   setIsMicActive(false);
+  // };
+
+  const stopRecording = async () => {
+    mediaRecorderRef.current.stop();
     setIsMicActive(false);
+
+    mediaRecorderRef.current.onstop = async () => {
+      const result = await speechToText(audioChunksRef.current);
+
+      if (result?.text) {
+        setInput(result.text);
+      } else {
+        setInput("no detected")
+      }
+    };
   };
 
+  // const cancelRecording = () => {
+  //   // SpeechRecognition.stopListening();
+  //   // resetTranscript();
+  //   setInput("");
+  //   setIsMicActive(false);
+  // };
+
   const cancelRecording = () => {
-    SpeechRecognition.stopListening();
-    resetTranscript();
+    try {
+      mediaRecorderRef.current?.stop();
+    } catch { }
+    audioChunksRef.current = [];
     setIsMicActive(false);
   };
 
@@ -87,28 +130,28 @@ const ChatInterface = () => {
 
             <p className="">How can I help you today?</p>
           </div>
-        ) :(
-        <>
-        {messages.map((msg, index) => (
-          <div
-            key={index}
-            className={`mb-10 p-2 pl-4 pr-4 rounded-2xl w-fit max-w-screen-md text-left 
+        ) : (
+          <>
+            {messages.map((msg, index) => (
+              <div
+                key={index}
+                className={`mb-10 p-2 pl-4 pr-4 rounded-2xl w-fit max-w-screen-md text-left 
               ${msg.role === "user"
-                ? "bg-blue-100 text-black ml-auto " // Align right
-                : "bg-green-100 text-black mr-auto" // Align left
-              }`}
-          >
-            {/* {msg.content} */}
-            <div className="chat-markdown">
-              <ReactMarkdown>
-                {msg.content}
-              </ReactMarkdown>
-            </div>
-            
-          </div>
-        ))}
-        <div ref={chatEndRef} />
-        </>
+                    ? "bg-blue-100 text-black ml-auto " // Align right
+                    : "bg-green-100 text-black mr-auto" // Align left
+                  }`}
+              >
+                {/* {msg.content} */}
+                <div className="chat-markdown">
+                  <ReactMarkdown>
+                    {msg.content}
+                  </ReactMarkdown>
+                </div>
+
+              </div>
+            ))}
+            <div ref={chatEndRef} />
+          </>
         )}
       </div>
 
@@ -123,7 +166,7 @@ const ChatInterface = () => {
             if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault();
               handleSend();
-            } 
+            }
           }}
         />
         <div className="flex w-23 justify-around">

@@ -1,4 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException
+import uuid
+import subprocess
+import os
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 import requests, asyncio
 from ..database.database import SessionLocal
 from sqlalchemy.orm import Session
@@ -21,6 +24,10 @@ def get_db():
         yield db
     finally:
         db.close() 
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+WHISPER_BINARY = os.path.join(BASE_DIR, "../../whisper.cpp/build/bin/whisper-cli")
+WHISPER_MODEL = os.path.join(BASE_DIR, "../../whisper.cpp/models/ggml-base.en.bin")
 
 
 @router.post("/")
@@ -142,3 +149,35 @@ def delete_chat_session(session_id: str, db: Session = Depends(get_db)):
     db.commit()
     
     return {"message": f"Session {session_id} and its messages deleted successfully."}
+
+
+@router.post("/stt")
+async def speech_to_text(audio: UploadFile = File(...)):
+    file_id = str(uuid.uuid4())
+    raw_path = f"/tmp/{file_id}.webm"
+    wav_path = f"/tmp/{file_id}.wav"
+    output_txt = f"/tmp/{file_id}.wav.txt"
+
+    # Save original webm audio
+    with open(raw_path, "wb") as f:
+        f.write(await audio.read())
+
+    # Convert to wav
+    subprocess.run(["ffmpeg", "-i", raw_path, wav_path], check=True)
+
+    # Whisper command
+    cmd = [WHISPER_BINARY, "-m", WHISPER_MODEL, "-f", wav_path, "-otxt"]
+    subprocess.run(cmd, check=True)
+
+    if not os.path.exists(output_txt):
+        return {"text": ""}
+
+    with open(output_txt, "r") as f:
+        text = f.read()
+
+    # Cleanup
+    os.remove(raw_path)
+    os.remove(wav_path)
+    os.remove(output_txt)
+
+    return {"text": text}

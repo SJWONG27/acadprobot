@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:8000/chat"; 
+const API_URL = "http://localhost:8000/chat";
 
 
 export const sendMessage = async (userId, chatbotId, prompt, sessionId = null) => {
@@ -26,7 +26,24 @@ export const getChatSessions = async (userId) => {
   return res.data;
 };
 
-export const deleteChatSession = async(sessionId) =>{
+export const deleteChatSession = async (sessionId) => {
   const res = await axios.delete(`${API_URL}/sessions/${sessionId}`)
   return res.data;
+}
+
+export const speechToText = async (audio) => {
+  const audioBlob = new Blob(audio, { type: "audio/wav" });
+  const formData = new FormData();
+  formData.append("audio", audioBlob, "recording.wav");
+
+  try {
+    const res = await axios.post(`${API_URL}/stt`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
+    return res.data;
+  } catch (err) {
+    console.error("STT error:", err);
+    return null;
+  }
 }

@@ -29,6 +29,7 @@ dependencies:
   - executing=2.2.0
   - fastapi=0.115.12
   - fastapi-cli=0.0.7
+  - ffmpeg
   - gmp=6.3.0
   - gmpy2=2.2.1
   - h11=0.16.0
