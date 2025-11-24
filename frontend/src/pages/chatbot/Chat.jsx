@@ -19,7 +19,7 @@ const Chat = () => {
 
   return (
     <div className="w-screen h-screen flex flex-row relative">
-      <div className={`h-full max-w-78 bg-white border border-gray-200 drop-shadow transform transition-transform duration-800 ease-in-out overflow-y-auto ${isSidebarOpen ? 'translate-x-0 absolute z-20  sm:relative' : '-translate-x-full w-0'}`}>
+      <div className={`h-full max-w-78 bg-white border border-gray-200 drop-shadow transform transition-transform duration-800 ease-in-out overflow-y-hidden ${isSidebarOpen ? 'translate-x-0 absolute z-20  sm:relative' : '-translate-x-full w-0'}`}>
         <ChatSideBar />
       </div>
 
