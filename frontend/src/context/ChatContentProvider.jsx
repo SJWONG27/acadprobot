@@ -148,16 +148,16 @@ export const ChatContentProvider = ({ children }) => {
 
     useEffect(() => {
         const fetchChatSession = async () => {
-            if (!userId) return;
+            if (!userId || !selectedChatbotId) return;
             try {
-                const res = await getChatSessions(userId);
+                const res = await getChatSessions(userId, selectedChatbotId);
                 setChatSessions(res);
             } catch (error) {
                 console.error("Fetch chat session error: ", error)
             }
         }
         fetchChatSession();
-    }, [userId])
+    }, [userId, selectedChatbotId])
 
 
     useEffect(() => {
@@ -183,6 +183,7 @@ export const ChatContentProvider = ({ children }) => {
             console.error("no user id fetched");
             return;
         }
+        if(!selectedChatbotId) return;
 
         // ✨ Optimistically create a temp session ID (for new chat)
         let tempSessionId = selectedSessionId;
@@ -230,7 +231,7 @@ export const ChatContentProvider = ({ children }) => {
             }
 
             // Refresh sessions (non-blocking)
-            getChatSessions(userId)
+            getChatSessions(userId, selectedChatbotId)
                 .then((res) => setChatSessions(res))
                 .catch((err) => console.error("refresh chat sessions failed:", err));
 

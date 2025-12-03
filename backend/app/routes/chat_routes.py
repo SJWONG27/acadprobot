@@ -125,9 +125,16 @@ def get_messages(session_id: str, db: Session = Depends(get_db)):
         } for msg in messages
     ]
     
-@router.get("/sessions/{user_id}")
-def get_user_chatsession(user_id: str, db: Session = Depends(get_db)):
-    sessions = db.query(ChatSession).filter_by(user_id = user_id).order_by(ChatSession.updated_at.desc()).all()
+@router.get("/sessions/{user_id}/{chatbot_id}")
+def get_user_chatsession(user_id: str, chatbot_id: str, db: Session = Depends(get_db)):
+    sessions = (db.query(ChatSession)
+                .filter_by(
+                    user_id = user_id,
+                    chatbot_id = chatbot_id
+                )
+                .order_by(ChatSession.updated_at.desc())
+                .all()
+                )
     return [
         {
         "session_id": session.id,

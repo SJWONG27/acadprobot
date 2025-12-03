@@ -21,8 +21,8 @@ export const getMessages = async (sessionId) => {
   return res.data;
 };
 
-export const getChatSessions = async (userId) => {
-  const res = await axios.get(`${API_URL}/sessions/${userId}`);
+export const getChatSessions = async (userId, chatbotId) => {
+  const res = await axios.get(`${API_URL}/sessions/${userId}/${chatbotId}`);
   return res.data;
 };
 
