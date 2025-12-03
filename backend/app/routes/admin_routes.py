@@ -114,8 +114,9 @@ def delete_doc(
     db:Session=Depends(get_db)
 ):
     embeddings = db.query(Embedding).filter_by(document_id=document_id).delete()
-    if embeddings == 0:
-        raise HTTPException(status_code=404, detail="document not found. Cant delete")
+    # if embeddings == 0:
+    #     raise HTTPException(status_code=404, detail="document not found. Cant delete")
+
     
     # for embeddding in embeddings:
     #     db.delete(embeddding)
