@@ -286,7 +286,7 @@ def compare_match_embedding(user_query, chatbot_id):
             all_chunks.append(item)
             seen.add(item)
 
-    context = "\n\n".join(continuous_chunks)
+    context = "\n\n".join(all_chunks)
         
     print(context)
         
