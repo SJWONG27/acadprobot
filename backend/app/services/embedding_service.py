@@ -32,12 +32,12 @@ supabase: Client = create_client(SUPABASE_URL, SECRET_KEY)
 # comment base_url out when doing dev
 embedding_model = OllamaEmbeddings(
     model="nomic-embed-text",
-    base_url="http://ollama:11434"
+    # base_url="http://ollama:11434"
 )
 
 llm_model = OllamaLLM(
     model="llama3.2",
-    base_url="http://ollama:11434"
+    # base_url="http://ollama:11434"
 )
 
 nlp = spacy.load("en_core_web_md")
@@ -77,7 +77,19 @@ def merge_semantic_chunks(sentences, embeddings, threshold, max_chars):
     merged_chunks.append(current_chunk)
     return merged_chunks
 
-def semantic_chunking_v2(text, threshold=0.8, max_chars=1000, min_words=5):
+
+def semantic_chunking_v1(text, threshold=0.75, max_chars=1000, min_words=5):
+    sentences = split_into_sentences(text)
+    embeddings = get_embeddings(sentences)
+    merged_chunks = merge_semantic_chunks(sentences, embeddings, threshold, max_chars)
+    filtered_chunks = [
+        chunk for chunk in merged_chunks
+        if(len(chunk.split())) >= min_words
+    ]
+    return filtered_chunks
+
+
+def semantic_chunking_v2(text, threshold=0.5, max_chars=800, min_words=5):
     sentences = split_into_sentences(text)
     embeddings = get_embeddings(sentences)
     merged_chunks = merge_semantic_chunks(sentences, embeddings, threshold, max_chars)
@@ -108,7 +120,7 @@ async def extract_text_from_website(url):
     if not content or len(content.strip()) == 0:
         return ["cannot find"]
     
-    result_chunks = semantic_chunking_v2(content)
+    result_chunks = semantic_chunking_v1(content)
     
     return result_chunks if result_chunks else ["cannot find"]
 
@@ -141,7 +153,7 @@ def get_embedding_docs(fileUploaded, chatbot_id, document_id, db):
         else:
             extracted_text = extract_text_from_pdf(fileUploaded.file)
             
-        # chunks = textwrap.wrap(extracted_text, width=2000)
+        # chunks = textwrap.wrap(extracted_text, width=1000)
         chunks = semantic_chunking_v2(extracted_text)
         chunk_embeddings = get_embeddings(chunks)
 
@@ -202,7 +214,7 @@ def get_website_embedding_docs(url, chatbot_id, website_id, db):
     
 
 def generate_llm_response(user_query):    
-    prompt = "Answer the following academic query. Format the answer using Markdown-style, with proper line spacing across different ideas."
+    prompt = "Answer the following academic query using above context. Format the answer using Markdown-style, with proper line spacing across different ideas."
     
     prompt_template = ChatPromptTemplate([
         ("system", "{prompt}"),
@@ -221,8 +233,13 @@ def generate_llm_response(user_query):
 
 def extract_main_content(text):
     doc = nlp(str(text))
-    nouns = [token.text for token in doc if token.pos_ in ["NOUN", "PROPN"]]
-    return " ".join(nouns)
+    main_content = []
+    
+    for token in doc:
+        if token.pos_ in ["NOUN", "PROPN", "VERB"]:
+            main_content.append(token.text)
+            
+    return " ".join(main_content)
 
 def compare_match_embedding(user_query, chatbot_id):
     print("RAG Start")
@@ -232,24 +249,24 @@ def compare_match_embedding(user_query, chatbot_id):
 
     response = supabase.rpc("match_embeddings", {
         "query_embedding": query_embedding,
-        "match_count": 5,
+        "match_count": 7,
         "chatbot_id": str(chatbot_id)
     }).execute()
     
-    print(type(query_embedding), len(query_embedding))
+    # print(type(query_embedding), len(query_embedding))
  
-    if not response.data or len(response.data) == 0:
+    if not response.data:
         print("no data from db: ", response)
-        return "no knowledge from db"    
+        return "no knowledge from db. Answer academic queries yourself."    
     
     top_result = response.data[0]
     similarity = top_result["similarity"]
     
     print("db similarity: ", similarity)
     
-    if (similarity < 0.4) or (not response.data):
+    if similarity < 0.6:
         print("similarity low")
-        return "no knowledge from db"
+        return "no knowledge from db. Answer academic queries yourself."
     
     source_doc = top_result["document_id"]
     source_web = top_result["website_id"]
@@ -266,7 +283,7 @@ def compare_match_embedding(user_query, chatbot_id):
 
     print(f"Top source = {source_type}, starting at chunk {top_idx}")
     
-    N = 5 
+    N = 3 
 
     neighbors = supabase.table("embeddings") \
         .select("content, chunk_index") \
@@ -276,19 +293,23 @@ def compare_match_embedding(user_query, chatbot_id):
         .order("chunk_index") \
         .execute()
     
+    top_content = top_result["content"]
     continuous_chunks = [item["content"] for item in neighbors.data]    
     match_chunks = [item["content"] for item in response.data]
     
     all_chunks = []
-    seen = set()
-    for item in match_chunks + continuous_chunks:
-        if item not in seen:
+    all_chunks.append(top_content)
+    for item in continuous_chunks:
+        if item not in all_chunks:
             all_chunks.append(item)
-            seen.add(item)
+            
+    for item in match_chunks:
+        if item not in all_chunks:
+            all_chunks.append(item)
 
     context = "\n\n".join(all_chunks)
         
-    print(context)
+    # print(context)
         
     return context
 
