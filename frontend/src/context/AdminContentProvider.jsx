@@ -82,6 +82,7 @@ export const AdminContentProvider = ({ children }) => {
             console.error("No chatbot id");
             return;
         }
+        setIsLoading(true);
         try {
             triggerAlert("Document uploading")
             await uploadDocs(fileUpload, chatbotId);
@@ -94,6 +95,8 @@ export const AdminContentProvider = ({ children }) => {
             triggerAlert("Document uploaded successfully");
         } catch (err) {
             console.error("Upload error:", err);
+        } finally {
+            setIsLoading(false);
         }
     };
 

@@ -2,12 +2,13 @@ import { useState, useRef } from "react"
 import { useAdminContent } from "../context/AdminContentProvider";
 
 export default function APAddDocs() {
-     const {
-            fileUpload,
-            setFileUpload,
-            setShowDocPanel,
-            handleDocsUpload,
-        } = useAdminContent();
+    const {
+        isLoading,
+        fileUpload,
+        setFileUpload,
+        setShowDocPanel,
+        handleDocsUpload,
+    } = useAdminContent();
 
     const fileInputRef = useRef(null);
     const handleFileSelect = (file) => {
@@ -93,17 +94,24 @@ export default function APAddDocs() {
                     <div className="flex flex-row mt-6">
                         <button
                             type="button"
-                            onClick={()=>{
+                            onClick={() => {
                                 handleDocsUpload()
                                 setShowDocPanel(false)
                             }}
-                            disabled={!fileUpload}
-                            className="mt-3 inline-flex w-full items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 sm:ml-3 sm:mt-0 sm:w-auto"
+                            disabled={!fileUpload || isLoading}
+                            // className="mt-3 inline-flex w-full items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 sm:ml-3 sm:mt-0 sm:w-auto"
+                            className={`mt-3 inline-flex w-full items-center justify-center rounded-md  px-3 py-2 text-sm font-semibold text-white shadow-sm  sm:ml-3 sm:mt-0 sm:w-auto
+                                ${isLoading ?
+                                    "bg-gray-400 cursor-not-allowed"
+                                    : "bg-indigo-600 hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                                }`
+                            }
                         >
                             Start Scraping
                         </button>
-                        <button 
-                            onClick={()=>setShowDocPanel(false)}
+                        <button
+                            onClick={() => setShowDocPanel(false)}
+                            disabled={isLoading}
                             className="mt-3 inline-flex w-full items-center justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 sm:ml-3 sm:mt-0 sm:w-auto"
                         >
                             Discard

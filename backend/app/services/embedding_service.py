@@ -32,12 +32,12 @@ supabase: Client = create_client(SUPABASE_URL, SECRET_KEY)
 # comment base_url out when doing dev
 embedding_model = OllamaEmbeddings(
     model="nomic-embed-text",
-    # base_url="http://ollama:11434"
+    base_url="http://ollama:11434"
 )
 
 llm_model = OllamaLLM(
     model="llama3.2",
-    # base_url="http://ollama:11434"
+    base_url="http://ollama:11434"
 )
 
 nlp = spacy.load("en_core_web_md")
