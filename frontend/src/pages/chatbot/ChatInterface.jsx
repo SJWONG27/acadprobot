@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm-configurable';
 import { MicrophoneIcon, PaperAirplaneIcon, WindowIcon, XMarkIcon, CheckIcon } from "@heroicons/react/24/outline";
 import logo_acadprobot_long from '../../../src/assets/logo_acadprobot_long.svg'
 import logo_acadprobot_square from '../../../src/assets/logo_acadprobot_square.svg'
@@ -143,7 +144,7 @@ const ChatInterface = () => {
               >
                 {/* {msg.content} */}
                 <div className="chat-markdown">
-                  <ReactMarkdown>
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
                     {msg.content}
                   </ReactMarkdown>
                 </div>

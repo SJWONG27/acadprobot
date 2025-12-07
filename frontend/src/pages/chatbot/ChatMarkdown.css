@@ -28,3 +28,51 @@
   /* list-style: disc;  */
   margin-bottom: 5px;
 }
+
+/* Case 1: Normal markdown <table> */
+.chat-markdown table,
+.chat-markdown .markdown-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 15px 0;
+}
+
+.chat-markdown table th,
+.chat-markdown table td,
+.chat-markdown .markdown-body table th,
+.chat-markdown .markdown-body table td {
+  border: 1px solid #ddd;
+  padding: 10px 12px;
+  text-align: left;
+}
+
+.chat-markdown table th,
+.chat-markdown .markdown-body table th {
+  background: #f5f5f5;
+  font-weight: 600;
+}
+
+.chat-markdown table tr:nth-child(even),
+.chat-markdown .markdown-body table tr:nth-child(even) {
+  background: #fafafa;
+}
+
+/* Case 2: If your markdown renderer uses <div role="table"> */
+.chat-markdown [role="table"] {
+  display: table;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.chat-markdown [role="row"] {
+  display: table-row;
+}
+
+.chat-markdown [role="cell"],
+.chat-markdown [role="columnheader"] {
+  display: table-cell;
+  border: 1px solid #ddd;
+  padding: 10px 12px;
+}
+
+
