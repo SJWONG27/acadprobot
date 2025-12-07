@@ -16,6 +16,7 @@
     "apexcharts": "^3.46.0",
     "axios": "^1.9.0",
     "date-fns": "^4.1.0",
+    "date-fns-tz": "^3.2.0",
     "github-markdown-css": "^5.8.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

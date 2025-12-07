@@ -1,6 +1,6 @@
 import APAddWebUrl from "./APAddWebUrl";
 import { useAdminContent } from "../context/AdminContentProvider";
-import { format } from "date-fns";
+import { formatInTimeZone } from 'date-fns-tz'
 
 export default function TableWebScraping() {
 
@@ -60,7 +60,7 @@ export default function TableWebScraping() {
                                         </td> */}
                                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{website.url}</td>
                                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                            {format(new Date(website.created_at), 'MMM dd, h:mm a')}
+                                            {formatInTimeZone(website.created_at + 'Z', 'Asia/Singapore', 'MMM dd, h:mm a')}
                                         </td>
                                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{website.status}</td>
                                         <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">

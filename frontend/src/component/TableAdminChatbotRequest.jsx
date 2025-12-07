@@ -4,7 +4,7 @@ import APReviewApproveRequest from "./APReviewApproveRequest";
 import APReviewRejectRequest from "./APReviewRejectRequest";
 import APUploadGroupAccessFile from "./APUploadGroupAccessFile"
 import { useSuperAdminContent } from "../context/SuperAdminContentProvider";
-import { format } from "date-fns"
+import { formatInTimeZone } from 'date-fns-tz'
 
 
 export default function TableAdminChatbotRequest({ status, description }) {
@@ -117,7 +117,7 @@ export default function TableAdminChatbotRequest({ status, description }) {
                                                             <p>
                                                                 <strong>Submitted At</strong>
                                                             </p>
-                                                            <p>{format(new Date(request.submitted_at), 'yyy MMM dd, h:mm a')}</p>
+                                                            <p>{formatInTimeZone(request.submitted_at + 'Z', 'Asia/Singapore', 'MMM dd, h:mm a')}</p>
                                                         </div>
                                                     </td>
                                                 </tr>

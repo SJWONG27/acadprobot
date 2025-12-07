@@ -1,6 +1,6 @@
 import logo_acadprobot_long from '../../../src/assets/logo_acadprobot_long.svg'
 import { WindowIcon, TrashIcon, PencilSquareIcon, RocketLaunchIcon, BuildingLibraryIcon } from '@heroicons/react/24/outline'
-import { format } from "date-fns"
+import { formatInTimeZone } from 'date-fns-tz'
 import { useChatContent } from '../../context/ChatContentProvider'
 import { useNavigate } from "react-router-dom";
 // import AlertLoginRequired from '../../component/AlertLoginRequired';
@@ -113,10 +113,10 @@ export default function ChatSideBar() {
                       </div>
 
                       {/* Only show date if exists */}
-                      {item.created_at && (
+                      {item.updated_at && (
                         <div className='self-end'>
                           <span className="text-xs font-light">
-                            {format(new Date(item.created_at), 'MMM dd, h:mm a')}
+                            {formatInTimeZone(item.updated_at + 'Z', 'Asia/Singapore', 'MMM dd, h:mm a')}
                           </span>
                         </div>
                       )}

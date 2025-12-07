@@ -1,9 +1,5 @@
-import { useEffect, useState } from "react"
-import APUploadGroupAccessFile from "./APUploadGroupAccessFile"
-// import { getUsersOfAdmin } from "../services/adminService";
-import { format } from "date-fns"
 import { useAdminContent } from "../context/AdminContentProvider";
-
+import { formatInTimeZone } from 'date-fns-tz'
 
 export default function TableGroupAccess() {
     const {
@@ -23,7 +19,7 @@ export default function TableGroupAccess() {
                 </div>
                 <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
                     <button
-                        onClick={()=>setShowGroupAccessPanel(true)}
+                        onClick={() => setShowGroupAccessPanel(true)}
                         type="button"
                         className="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                     >
@@ -40,7 +36,7 @@ export default function TableGroupAccess() {
                                     <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">
                                         Email
                                     </th>
-                                     <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">
+                                    <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">
                                         Member Since
                                     </th>
                                     <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-0">
@@ -55,10 +51,10 @@ export default function TableGroupAccess() {
                                             {user.email}
                                         </td>
                                         <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-500 sm:pl-0">
-                                            {format(new Date(user.created_at), 'yyy MMM dd, h:mm a')}
+                                            {formatInTimeZone(user.created_at + 'Z', 'Asia/Singapore', 'MMM dd, h:mm a')}
                                         </td>
                                         <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
-                                            <a onClick={()=> confirmRevokeUser(user.id)} className="text-red-500 hover:text-red-700">
+                                            <a onClick={() => confirmRevokeUser(user.id)} className="text-red-500 hover:text-red-700">
                                                 Revoke Access<span className="sr-only">{user.email}</span>
                                             </a>
                                         </td>

@@ -139,7 +139,7 @@ def get_user_chatsession(user_id: str, chatbot_id: str, db: Session = Depends(ge
         {
         "session_id": session.id,
         "title": session.title,    
-        "created_at": session.created_at   
+        "updated_at": session.updated_at   
         } for session in sessions
     ]
     

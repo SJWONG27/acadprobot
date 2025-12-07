@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import APUploadGroupAccessFile from "./APUploadGroupAccessFile"
 import ConfirmationModal from "./ConfirmationModal";
 import { getAllChatbots } from "../services/superadminService";
-import { format } from "date-fns"
+import { formatInTimeZone } from 'date-fns-tz'
 import { useSuperAdminContent } from "../context/SuperAdminContentProvider";
 
 
@@ -62,7 +62,7 @@ export default function TableListOfChatbots() {
                                             {chatbot.refercode}
                                         </td>
                                         <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-500 sm:pl-0">
-                                            {format(new Date(chatbot.created_at), 'yyy MMM dd, h:mm a')}
+                                            {formatInTimeZone(chatbot.created_at + 'Z', 'Asia/Singapore', 'MMM dd, h:mm a')}
                                         </td>
                                         <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
                                             <button
