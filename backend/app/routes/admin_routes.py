@@ -3,10 +3,13 @@ from fastapi import APIRouter, Depends, Form, HTTPException, UploadFile, File, B
 from sqlalchemy.orm import Session
 from ..database.database import SessionLocal
 from ..database.models import Embedding, EmbeddingStatus, Document, WebsiteDocument
-from ..services.embedding_service import get_embedding_docs, get_website_embedding_docs
-
+from ..services.embedder import EmbedderService
+from ..services.extractor import ExtractorService
 
 router = APIRouter()
+
+embedderService = EmbedderService()
+extractorService = ExtractorService()
 
 # Depends(get_db) injects this session into each route
 def get_db():
@@ -40,7 +43,36 @@ def upload_doc(
     db.commit()
     db.refresh(document)  
     
-    get_embedding_docs(file, chatbot_id=chatbot_id, document_id=document.id, db=db)
+    try: 
+        # Update status to processing
+        document.status = EmbeddingStatus.processing
+        db.commit()
+        
+        if file.filename.endswith(".docx"):
+            extracted_text = extractorService.extract_text_from_docx(file.file)
+        else:
+            extracted_text = extractorService.extract_text_from_pdf(file.file)
+        
+        chunks = extractorService.chunk_document(extracted_text)
+        chunks_embeddings = embedderService.embed_texts(chunks)
+        
+        for i, emb in enumerate(chunks_embeddings):
+            record = Embedding(
+                content=chunks[i],
+                embedding=emb,
+                chunk_index=i,
+                chatbot_id=chatbot_id, 
+                document_id=document.id
+            )
+            db.add(record)
+            
+            document.status = EmbeddingStatus.completed
+            db.commit()
+    except Exception as e:
+            document.status = EmbeddingStatus.failed
+            db.commit()
+            raise e 
+        
     return {"message": "File processed and stored", "document_id": str(document.id)}
 
 
@@ -62,7 +94,7 @@ def get_doc(
     ]
 
 @router.post("/uploadwebsite")
-def upload_websitedoc(
+async def upload_websitedoc(
     payload: dict = Body(...),
     db:Session=Depends(get_db)
 ):
@@ -84,7 +116,31 @@ def upload_websitedoc(
     db.commit()
     db.refresh(document)  
     
-    get_website_embedding_docs(url, chatbot_id=chatbot_id, website_id=document.id, db=db)
+    try: 
+        # Update status to processing
+        document.status = EmbeddingStatus.processing
+        db.commit()
+        
+        extracted_chunked_text = await extractorService.extract_text_from_website(url) 
+        chunks_embeddings = embedderService.embed_texts(extracted_chunked_text)
+        
+        for i, emb in enumerate(chunks_embeddings):
+            record = Embedding(
+                content=extracted_chunked_text[i],
+                embedding=emb,
+                chunk_index=i,
+                chatbot_id=chatbot_id, 
+                website_id=document.id
+            )
+            db.add(record)
+            
+            document.status = EmbeddingStatus.completed
+            db.commit()
+    except Exception as e:
+            document.status = EmbeddingStatus.failed
+            db.commit()
+            raise e 
+    
     return {"message": "URL processed and stored", "website_id": str(document.id)}
     
     

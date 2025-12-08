@@ -2,18 +2,18 @@ import uuid
 import subprocess
 import os
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
-import requests, asyncio
+from supabase import create_client, Client
 from ..database.database import SessionLocal
 from sqlalchemy.orm import Session
+from dotenv import load_dotenv
 from ..database.schemas import ChatRequest
 from datetime import datetime
-from ..database.models import ChatSession, Message, User, Chatbots, UserChatbots, UnrelatedQueries
-from ..services.embedding_service import compare_match_embedding, classify_query, generate_llm_response
-from langchain_ollama.llms import OllamaLLM
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_ollama import ChatOllama
-
-
+from ..database.models import ChatSession, Message, UnrelatedQueries
+from ..services.classifier import ClassifierService
+from ..services.embedder import EmbedderService
+from ..services.rag import RAGService
+from ..services.extractor import ExtractorService
+from ..services.generator import GeneratorService
 
 router = APIRouter()
 
@@ -26,9 +26,19 @@ def get_db():
         db.close() 
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+academic_classifier_model_path = os.path.join(BASE_DIR, "../../academic_classifier_bert")
 WHISPER_BINARY = os.path.join(BASE_DIR, "../../whisper.cpp/build/bin/whisper-cli")
 WHISPER_MODEL = os.path.join(BASE_DIR, "../../whisper.cpp/models/ggml-base.en.bin")
+load_dotenv()
+SECRET_KEY = os.getenv("SECRET_KEY")
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+supabase: Client = create_client(SUPABASE_URL, SECRET_KEY)
 
+classifierService = ClassifierService(academic_classifier_model_path)
+embedderService = EmbedderService()
+extractorService = ExtractorService()
+ragService = RAGService(supabase)
+generatorService = GeneratorService()
 
 @router.post("/")
 def chat_with_ollama(request: ChatRequest, db: Session = Depends(get_db)):
@@ -60,11 +70,10 @@ def chat_with_ollama(request: ChatRequest, db: Session = Depends(get_db)):
     # Build context
     conversation_context = ""
     for msg in past_messages:
-        role = "User" if msg.is_user else "Bot"
-        conversation_context += f"{role}: {msg.content}\n"
-    
-    conversation_context += f"User: {request.prompt}\n"
-    
+        # role = "User" if msg.is_user else "Bot"
+        if msg.is_user:
+            conversation_context += f"User: {msg.content}\n"
+        
     # Generate a title
     title_response = request.prompt[:30] + "..."
     
@@ -72,7 +81,8 @@ def chat_with_ollama(request: ChatRequest, db: Session = Depends(get_db)):
         session.title = title_response
     
     # DistilBERT Academic Classifier
-    predicted_class = classify_query(request.prompt)
+    predicted_class = classifierService.classify_query(request.prompt)
+    
     
     if predicted_class == 0:
         response_text = (
@@ -91,16 +101,10 @@ def chat_with_ollama(request: ChatRequest, db: Session = Depends(get_db)):
     else:
         # RAG Process
         try:
-            retrieved_knowledge = compare_match_embedding(request.prompt, chatbot_id=chatbot_id)
-            full_prompt = (
-                "You are AcadProBot, a helpful academic advisor chatbot.\n\n"
-                "Recent conversation:\n"
-                f"{conversation_context}\n"
-                "Relevant academic knowledge:\n"
-                f"{retrieved_knowledge}\n\n"
-                "Now respond naturally and accurately to the user's latest message."
-            )
-            response_text = generate_llm_response(full_prompt)
+            main_content = extractorService.extract_main_content(request.prompt)
+            embedded_query = embedderService.embed_query(main_content)
+            retrieved_knowledge = ragService.compare_match_embedding(embedded_query, chatbot_id=chatbot_id)
+            response_text = generatorService.generate_llm_response(request.prompt, conversation_context, retrieved_knowledge)
         except Exception as e:
             print(f"RAG error: {repr(e)}")
             response_text = "Sorry, I encountered an issue retrieving information. Please try again later."
