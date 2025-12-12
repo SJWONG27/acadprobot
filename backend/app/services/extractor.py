@@ -15,7 +15,7 @@ from .embedder import EmbedderService
 embedderService = EmbedderService()
 nlp = spacy.load("en_core_web_md")
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=0)
-
+PHRASES_TO_REMOVE = ["universiti malaya", "university of malaya"]
 
 class ExtractorService:
     def __init__(self):
@@ -141,7 +141,11 @@ class ExtractorService:
 
 
     def extract_main_content(self, text:str) -> str:
-        doc = nlp(str(text))
+        lowered = text.lower()
+        for phrase in PHRASES_TO_REMOVE:
+            lowered = lowered.replace(phrase, "")
+            
+        doc = nlp(lowered)
         main_content = [
             token.text for token in doc
             if token.is_alpha and token.text.lower() not in STOP_WORDS

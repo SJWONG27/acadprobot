@@ -102,9 +102,11 @@ def chat_with_ollama(request: ChatRequest, db: Session = Depends(get_db)):
         # RAG Process
         try:
             main_content = extractorService.extract_main_content(request.prompt)
+            print(main_content)
             embedded_query = embedderService.embed_query(main_content)
-            retrieved_knowledge = ragService.compare_match_embedding(embedded_query, chatbot_id=chatbot_id)
-            response_text = generatorService.generate_llm_response(request.prompt, conversation_context, retrieved_knowledge)
+            retrieved_knowledge = ragService.compare_match_embedding_v2(embedded_query, chatbot_id=chatbot_id)
+            rerank_knowledge = ragService.rerank(retrieved_knowledge, request.prompt, 3)
+            response_text = generatorService.generate_llm_response(request.prompt, conversation_context, rerank_knowledge)
         except Exception as e:
             print(f"RAG error: {repr(e)}")
             response_text = "Sorry, I encountered an issue retrieving information. Please try again later."

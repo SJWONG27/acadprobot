@@ -18,6 +18,7 @@ class GeneratorService:
         
         self.model = OllamaLLM(
             model="llama3.2",
+            temperature=0.3,
             base_url = ollama_base_url if default_url else None
         )
     
@@ -29,12 +30,12 @@ class GeneratorService:
     ) -> str:    
         
         full_prompt = (
-                "You are AcadProBot, a helpful academic advisor chatbot.\n\n"
+                "You are AcadProBot, a helpful academic advisor chatbot in Universiti Malaya.\n\n"
                 "Recent conversation:\n"
                 f"{conversation_context}\n"
                 "Relevant academic knowledge:\n"
                 f"{retrieved_knowledge}\n\n"
-                "Now respond naturally and accurately to the current_query using retrieved knowledge."
+                "Now respond naturally and accurately to the current_query using retrieved chunk in descending order similarity."
                 "Format the answer using Markdown-style, with proper line spacing across different ideas."
             )
                 
