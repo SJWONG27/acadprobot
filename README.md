@@ -29,7 +29,7 @@
 - A user can join multiple chatbots, an admin can manage multiple chatbots, while super admin manages admins and chatbots available in AcadProBot<br/>
 - Each chatbot contains its own embeddings.<br/>
 
-<p><strong>Chat and RAG Process</strong></p>
+<p><strong>Chat and Retrieval-Augmented Generation Process</strong></p>
 <p align="center">
   <img src="frontend/src/assets/img_rag.png" width="800" align="center" />
 </p>
