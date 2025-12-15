@@ -1,11 +1,8 @@
 import uuid
 from typing import List, Dict, Any
-from langchain_classic.retrievers.contextual_compression import ContextualCompressionRetriever
 from langchain_community.document_compressors import FlashrankRerank
 from langchain_core.documents import Document 
-from sentence_transformers import CrossEncoder
 
-reranker = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2') 
 
 class RAGService:
     def __init__(self, supabase):
