@@ -1,5 +1,6 @@
 import uuid
 from typing import List, Dict, Any
+from flashrank import Ranker
 from langchain_community.document_compressors import FlashrankRerank
 from langchain_core.documents import Document 
 
