@@ -1,9 +1,17 @@
 import uuid
+import os
 from typing import List, Dict, Any
 from flashrank import Ranker
 from langchain_community.document_compressors import FlashrankRerank
 from langchain_core.documents import Document 
+from .embedder import EmbedderService
+from .generator import GeneratorService
+from .extractor import ExtractorService
 
+
+extractorService = ExtractorService()
+embedderService = EmbedderService()
+generatorService = GeneratorService()
 
 class RAGService:
     def __init__(self, supabase):
@@ -109,3 +117,19 @@ class RAGService:
         print(match_chunks)
         print("Retrieved chunks:", len(match_chunks))
         return [item for item in match_chunks]
+    
+    
+    def run_rag_pipeline(self, prompt, context, chatbot_id):
+        main_content = extractorService.extract_main_content(prompt)
+        embedded_query = embedderService.embed_query(main_content)
+        retrieved = self.compare_match_embedding_v2(
+            embedded_query,
+            chatbot_id=chatbot_id
+        )
+        reranked = self.rerank(retrieved, prompt, 3)
+
+        return generatorService.generate_llm_response(
+            prompt,
+            context,
+            reranked
+        )

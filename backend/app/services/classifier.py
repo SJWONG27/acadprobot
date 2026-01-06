@@ -1,5 +1,7 @@
 import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from sqlalchemy.orm import Session
+from ..database.models import UnrelatedQueries
 
 class ClassifierService:
     def __init__(self, model_path: str):
@@ -18,5 +20,35 @@ class ClassifierService:
         print(f"Predicted class: {predicted_class}, confidence: {confidence:.2f}")
         
         return predicted_class
+    
+    
+    def store_irrelevant_query(self, user_id: str, chatbot_id: str, query_text: str, db: Session):
+        unrelated = UnrelatedQueries(
+                user_id=user_id,
+                chatbot_id=chatbot_id,
+                query_text=query_text
+            )
+        db.add(unrelated)
+        db.commit()
+        db.refresh(unrelated)
+        return unrelated
+    
+
+    def handle_non_academic_query(
+        self,
+        db,
+        request
+    ):
+        self.store_irrelevant_query(
+            db=db,
+            user_id=request.id,
+            chatbot_id=request.chatbot_id,
+            query_text=request.prompt
+        )
+
+        return (
+            "I'm sorry, but that question seems unrelated to academic programs. "
+            "Could you please rephrase it or ask something about your studies?"
+        )
 
 
