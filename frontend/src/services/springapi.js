@@ -11,9 +11,8 @@ api.interceptors.response.use(
   res => res,
   error => {
     console.log("Interceptor caught an error:", error);
-    console.log("Error Response:", error.response);
-    console.log("Error Request:", error.request);
-    if (!error.respons || error.code === 'ECONNABORTED' || error.code === 'ERR_CONNECTION_REFUSED') {
+    console.log("Error Code:", error.code);
+    if (error.code === 'ERR_NETWORK') {
       if (window.location.pathname !== "/backend-down") {
         window.location.href = "/backend-down";
       }
