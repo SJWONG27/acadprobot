@@ -4,6 +4,7 @@ import { getCurrentUser } from '../services/authService'
 import { sendMessage, getMessages, getChatSessions, deleteChatSession } from "../services/chatService";
 import { joinChatbot, leaveChatbot, getChatbotUnderUser } from "../services/chatbotService";
 import { useNavigate } from "react-router-dom";
+import { toast } from 'react-toastify';
 
 const ChatContentContext = createContext();
 
@@ -20,31 +21,6 @@ export const ChatContentProvider = ({ children }) => {
     const [selectedSessionId, setSelectedSessionId] = useState(null);
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState("");
-
-
-    // userId
-    // const [token, setToken] = useState(localStorage.getItem("token"));
-
-    // useEffect(() => {
-    //     const handleStorage = () => setToken(localStorage.getItem("token"));
-    //     window.addEventListener("storage", handleStorage);
-    //     return () => window.removeEventListener("storage", handleStorage);
-    // }, []);
-
-    // useEffect(() => {
-    //     if (!token) return;
-    //     const fetchUser = async () => {
-    //         try {
-    //             const data = await getCurrentUser(token);
-    //             setUserEmail(data.data.email);
-    //             setUserId(data.data.id);
-    //         } catch (error) {
-    //             console.error("Fetch user id error: ", error);
-    //             setAlertLoginChat(true);
-    //         }
-    //     };
-    //     fetchUser();
-    // }, [token]);
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -90,6 +66,7 @@ export const ChatContentProvider = ({ children }) => {
                 setListChatbots(data);
             } catch (error) {
                 console.error("Fetch chatbots error: ", error)
+                toast.error("Unable to retrieve chatbots. Please try again!")
             }
         }
         fetchChatbots();
@@ -98,13 +75,13 @@ export const ChatContentProvider = ({ children }) => {
     const handleJoinChatbot = async () => {
         try {
             await joinChatbot(userId, refercode);
-            triggerAlert("Chatbot Joined Successfully");
+            toast.success("Chatbot joined successfully");
 
             const data = await getChatbotUnderUser(userId);
             setListChatbots(data);
         } catch (error) {
             console.error("HandleJoinChatbot: ", error);
-            triggerAlert("Chatbot not exist or dy joined");
+            toast.error("Chatbot not found or already joined.")
         } finally {
             setRefercode("");
         }
@@ -113,13 +90,13 @@ export const ChatContentProvider = ({ children }) => {
     const handleLeaveChatbot = async (chatbot_id) => {
         try {
             await leaveChatbot(userId, chatbot_id);
-            triggerAlert("Chatbot Leaved Successfully");
+            toast.success("Chatbot leaved successfully");
 
             const data = await getChatbotUnderUser(userId);
             setListChatbots(data);
         } catch (error) {
             console.error("handleLeaveChatbot: ", error);
-            triggerAlert("Chatbot not exist");
+            toast.error("Fail to leave the chatbot. Please try again!")
         } 
     }
 
@@ -134,6 +111,7 @@ export const ChatContentProvider = ({ children }) => {
     const handleLogout = () => {
         localStorage.removeItem("token");
         navigate('/');
+        toast.success("Logout successfully");
     }
 
 
@@ -154,6 +132,7 @@ export const ChatContentProvider = ({ children }) => {
                 setChatSessions(res);
             } catch (error) {
                 console.error("Fetch chat session error: ", error)
+                toast.error("Fail to fetch chat session. Please try again!")
             }
         }
         fetchChatSession();
@@ -169,7 +148,8 @@ export const ChatContentProvider = ({ children }) => {
                 const res = await getMessages(selectedSessionId);
                 setMessages(res);
             } catch (error) {
-                console.error("Failed to fetch chat messages", error);
+                console.error("Failed to fetch messages", error);
+                toast.error("Fail to fetch messages. Please try again!")
             }
         };
 
@@ -241,6 +221,7 @@ export const ChatContentProvider = ({ children }) => {
                 ...prev,
                 { role: "assistant", content: "Oops, something went wrong 😅" },
             ]);
+            toast.error("Fail to send message. Please try again!")
         }
     };
 
@@ -272,6 +253,7 @@ export const ChatContentProvider = ({ children }) => {
             setMessages(mes);
         } catch (error) {
             console.error("Delete chat: ", error);
+            toast.error("Fail to delete chat session. Please try again!")
         } finally {
             setPendingDeleteID(null);
             setConfirmationModal(false);

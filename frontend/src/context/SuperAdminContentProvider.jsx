@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
-
+import { toast } from 'react-toastify';
 import {
     createChatbot,
     deleteChatbot,
@@ -11,6 +11,8 @@ import {
 } from "../services/superadminService"
 
 import { sendAdminChatbotResultEmail } from "../services/emailService";
+
+
 
 const SuperAdminContentContext = createContext();
 
@@ -25,13 +27,7 @@ export const SuperAdminContentProvider = ({ children }) => {
 
     const [isLoading, setIsLoading] = useState(false);
 
-    const handleChatbotCreate = async (chatbotName, adminEmail) => {
-        try {
-            await createChatbot(chatbotName, adminEmail);
-        } catch (error) {
-            console.error("Error creating chatbot", error)
-        }
-    }
+   
 
     const confirmDelete = async (id) => {
         setPendingDeleteID(id);
@@ -47,16 +43,29 @@ export const SuperAdminContentProvider = ({ children }) => {
             setChatbots(response);
         } catch (error) {
             console.error("Failed to fetch chatbots :", error);
+            toast.error("Failed to create chatbot. Please try again!")
+        }
+    }
+
+     const handleChatbotCreate = async (chatbotName, adminEmail) => {
+        try {
+            await createChatbot(chatbotName, adminEmail);
+            fetchChatbotsDetails;
+            toast.success("Chatbot created successfully");
+        } catch (error) {
+            console.error("Error creating chatbot", error)
+            toast.error("Failed to create chatbot. Please try again!")
         }
     }
 
     const handleDeleteChatbot = async () => {
         try {
             await deleteChatbot(pendingDeleteID);
-
             fetchChatbotsDetails;
+            toast.success("Chatbot deleted successfully");
         } catch (error) {
             console.error("Delete chatbot error: ", error);
+            toast.error("Failed to delete chatbot. Please try again!")
         } finally {
             setConfirmationModal(false);
             setPendingDeleteID(null);
@@ -80,6 +89,7 @@ export const SuperAdminContentProvider = ({ children }) => {
                 setRequestSubmitted(response);
             } catch (error) {
                 console.error("fetchAllRequestByStatus", error);
+                toast.error("Failed to retrieve request. Please try again!")
             }
         }
         fetchAllRequestByStatus()
@@ -115,8 +125,10 @@ export const SuperAdminContentProvider = ({ children }) => {
 
             const response = await getAllRequest(activeTab);
             setRequestSubmitted(response);
+            toast.success("Request approved successfully");
         } catch (error) {
             console.error("handleApproveRequest", error)
+            toast.error("Failed to approve request. Please try again!")
         }
     }
 
@@ -144,8 +156,10 @@ export const SuperAdminContentProvider = ({ children }) => {
 
             const response = await getAllRequest(activeTab);
             setRequestSubmitted(response);
+            toast.success("Request rejected successfully");
         } catch (error) {
             console.error("handleRejectRequest", error)
+            toast.error("Failed to reject request. Please try again!")
         }
     }
 
@@ -164,13 +178,12 @@ export const SuperAdminContentProvider = ({ children }) => {
             document.body.appendChild(link);
             link.click();
             link.remove();
-            triggerAlert("Report downloaded");
+            toast.success("Report downloaded successfully");
         } catch (error) {
             console.error("handleDownloadReport", error);
-            triggerAlert("Error in downloading report", error)
+            toast.error("Fail to download the report. Please try again!")
         } finally {
             setIsLoading(false);
-            triggerAlert("Report downloaded");
         }
     }
 

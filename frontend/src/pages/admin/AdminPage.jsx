@@ -31,6 +31,7 @@ import ChatbotContentPage from './ChatbotContentPage'
 import GroupAccessPage from './GroupAccessPage'
 import AlertSuccess from '../../component/AlertSuccess';
 import { useAdminContent } from '../../context/AdminContentProvider';
+import { toast } from 'react-toastify';
 
 const userNavigation = [
   { name: 'Sign out', href: '#' },
@@ -93,6 +94,7 @@ export default function AdminPage() {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    toast.success("Logout successfully");
     console.log("access_token after logout:", localStorage.getItem("token"));
     navigate('/');
   }

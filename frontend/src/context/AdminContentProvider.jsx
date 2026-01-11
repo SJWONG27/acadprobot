@@ -12,6 +12,8 @@ import {
 } from "../services/adminService";
 import { sendChatbotInvitation } from "../services/emailService";
 import { getCurrentUser } from "../services/authService";
+import { toast } from 'react-toastify';
+
 
 const AdminContentContext = createContext();
 
@@ -69,6 +71,7 @@ export const AdminContentProvider = ({ children }) => {
                 setChatbotsUnderAdmin(response);
             } catch (error) {
                 console.error("fetchChatbotsUnderAdmin", error);
+                toast.error("Unable to retrieve chatbots. Please try again!");
             }
         }
         fetchChatbotsUnderAdmin();
@@ -92,9 +95,10 @@ export const AdminContentProvider = ({ children }) => {
             const updatedDocs = await getDocs(chatbotId);
             setDocuments(updatedDocs);
 
-            triggerAlert("Document uploaded successfully");
+            toast.success("Document uploaded successfully");
         } catch (err) {
             console.error("Upload error:", err);
+            toast.error("Unable to upload. Please try again!");
         } finally {
             setIsLoading(false);
         }
@@ -121,11 +125,12 @@ export const AdminContentProvider = ({ children }) => {
 
             const updatedSites = await getWebsiteDocs(chatbotId);
             setWebsites(updatedSites);
-            triggerAlert("Website content uploaded successfully");
+            toast.success("Website uploaded successfully");
         } catch (err) {
             console.error("Website upload error:", err);
             const updatedSites = await getWebsiteDocs(chatbotId);
             setWebsites(updatedSites);
+            toast.error("Unable to upload. Please try again!");
         }
     };
 
@@ -160,13 +165,14 @@ export const AdminContentProvider = ({ children }) => {
             return;
         }
         try {
-            triggerAlert("Document deleted successfully");
             await deleteDocument(pendingDeleteID);
 
             const updatedDocs = await getDocs(chatbotId);
             setDocuments(updatedDocs);
+            toast.success("Document deleted successfully");
         } catch (err) {
             console.error("Delete doc error:", err);
+            toast.error("Unable to delete. Please try again!");
         } finally {
             setConfirmationModal(false);
             setPendingDeleteID(null);
@@ -181,13 +187,14 @@ export const AdminContentProvider = ({ children }) => {
         }
 
         try {
-            triggerAlert("Website deleted successfully");
             await deleteWebsiteDocument(pendingDeleteID);
 
             const updatedSites = await getWebsiteDocs(chatbotId);
             setWebsites(updatedSites);
+            toast.success("Website deleted successfully");
         } catch (err) {
             console.error("Delete website error:", err);
+            toast.error("Unable to delete. Please try again!");
         } finally {
             setConfirmationModal(false);
             setPendingDeleteID(null);
@@ -228,8 +235,10 @@ export const AdminContentProvider = ({ children }) => {
 
             const data = await getUsersUnderChatbot(selectedChatbot.id);
             setUsersUnderChatbot(data);
+            toast.success("Users revoked from chatbot successfully");
         } catch (error) {
             console.error("handleRevokeUserAccess", error)
+            toast.error("Unable to revoke user access. Please try again!");
         } finally {
             setConfirmationModal(false);
             setPendingDeleteID(null);
@@ -251,6 +260,7 @@ export const AdminContentProvider = ({ children }) => {
             setFileUpload(null);
         } catch (err) {
             console.error("handleInviteUser:", err.response || err);
+            toast.error("Unable to invite user. Please try again!");
         } finally{
             setIsLoading(false);
         }

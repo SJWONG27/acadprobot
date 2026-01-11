@@ -1,6 +1,5 @@
 'use client'
 
-import AlertSuccess from '../component/AlertSuccess'
 import { useEffect, useState } from 'react'
 import { Dialog, DialogBackdrop, DialogPanel, Textarea, TransitionChild } from '@headlessui/react'
 import logo_acadprobot_square from '../../src/assets/logo_acadprobot_square.svg'
@@ -8,19 +7,13 @@ import logo_acadprobot_long from '../../src/assets/logo_acadprobot_long.svg'
 import { useNavigate } from 'react-router-dom'
 import { requestAdminChatbot } from '../services/superadminService'
 import { getCurrentUser } from '../services/authService'
+import { toast } from 'react-toastify'
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
 }
 
 export default function AdminRequestForm() {
-
-    const [successAlertMessage, setSuccessAlertMessage] = useState("");
-
-    const triggerAlert = (message) => {
-        setSuccessAlertMessage(message);
-        setTimeout(() => setSuccessAlertMessage(""), 10000);
-    };
 
     const navigate = useNavigate();
 
@@ -62,20 +55,14 @@ export default function AdminRequestForm() {
                 departmentProgram,
                 purpose
             )
-            triggerAlert("Request submitted successfully. You will receive an email response within 14 working days.")
+            toast.success("Request submitted successfully. You will receive an email response within 14 working days.")
         } catch (error) {
             console.error("handleRequestAdminChatbotSubmit", error);
-            triggerAlert("Error in submitting request")
+            toast.error("Error in submitting request")
         }
     }
 
     const handleBacktoHome = () => {
-        setChatbotName(null);
-        setDepartmentProgram(null);
-        setFullName(null);
-        setPurpose(null);
-        setRequestEmail(null);
-        setTitle(null);
         localStorage.removeItem("token");
         navigate("/");
     }
@@ -147,7 +134,7 @@ export default function AdminRequestForm() {
                                             id="email"
                                             name="email"
                                             type="email"
-                                            value={requestEmail || "null"}
+                                            value={requestEmail}
                                             readOnly
                                             className="block w-full rounded-md bg-indigo-100 px-3 py-1.5 text-base text-black outline-1 -outline-offset-1 outline-indigo-100 placeholder:text-gray-500 sm:text-sm/6"
                                         />
@@ -270,13 +257,14 @@ export default function AdminRequestForm() {
 
                         <div className="mt-6 grid gap-y-5 md:grid-cols-2 gap-x-5 md:w-5/12">
                             <button
-                                onClick={() => handleRequestAdminChatbotSubmit()}
+                                type='submit'
                                 className="rounded-md  bg-indigo-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-400  focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
                             >
                                 Submit Request
                             </button>
                             <button
-                                onClick={() => handleBacktoHome()}
+                                onClick={handleBacktoHome}
+                                type='button'
                                 className="rounded-md bg-red-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
                             >
                                 Back to Home
@@ -286,15 +274,6 @@ export default function AdminRequestForm() {
 
                 </div>
             </main>
-
-            {successAlertMessage && (
-                <AlertSuccess
-                    text={successAlertMessage}
-                    onClose={() => setSuccessAlertMessage("")}
-                    className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50"
-                />
-            )}
-
         </div>
     )
 }

@@ -6,6 +6,8 @@ import { login } from '../../services/authService'
 import { sendResetEmail } from '../../services/emailService'
 import { useNavigate, useLocation } from "react-router-dom";
 import APForgotPassword from '../../component/APForgotPassword'
+import { toast } from 'react-toastify';
+
 
 
 export default function LoginPage() {
@@ -32,10 +34,10 @@ export default function LoginPage() {
                 navigate("/listofchatbots");
             }
 
-            alert("Login successful")
+            toast.success("Login successfully.");
         } catch (error) {
             console.error("Login error: ", error);
-            alert(error.response?.data?.detail || "Login failed");
+            toast.error("Login failed. Please try again!");
         }
     }
 

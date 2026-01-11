@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline'
 import { register } from '../../services/authService'
 import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify';
 
 export default function RegisterPage() {
     const navigate = useNavigate();
@@ -49,6 +50,7 @@ export default function RegisterPage() {
             navigate("/login")
         } catch (error){
             console.error("Register Error: ", error)
+            toast.error("Failed to register. Please try again!")
         }
     }
 

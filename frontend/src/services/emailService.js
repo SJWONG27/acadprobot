@@ -1,10 +1,9 @@
-import axios from "axios";
+import springapi from './springapi.js';
 
-const API = "http://127.0.0.1:8000/admin";
-const springbootAuthAPI = "http://localhost:8080/emailservice";
+const SPRING_API = "/emailservice";
 
 export const sendResetEmail = async (recipient_email) => {
-    const response = await axios.post(`${springbootAuthAPI}/sendresetemail`, null, {
+    const response = await springapi.post(`${SPRING_API}/sendresetemail`, null, {
         params: { recipient_email }
     })
     return response.data;
@@ -18,7 +17,7 @@ export const sendAdminChatbotResultEmail = async (
     status,
     remarks
 ) => {
-    const response = await axios.post(`${springbootAuthAPI}/sendAdminChatbotResultEmail`, {
+    const response = await springapi.post(`${SPRING_API}/sendAdminChatbotResultEmail`, {
         title,
         fullname,
         chatbot_name,
@@ -37,7 +36,7 @@ export const sendChatbotInvitation = async (file, refercode, chatbot_name, sende
   formData.append("sender_email", sender_email);
 
   try {
-    const res = await axios.post(`${springbootAuthAPI}/sendchatbotinvitation`, formData, {
+    const res = await springapi.post(`${SPRING_API}/sendchatbotinvitation`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },

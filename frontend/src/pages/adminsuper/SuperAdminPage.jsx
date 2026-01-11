@@ -36,6 +36,7 @@ import SuperOverviewPage from './SuperOverviewPage'
 import SuperChatbotCreatePage from './SuperChatbotCreatePage'
 import SuperAdminAccessPage from './SuperAdminAccessPage'
 import { useSuperAdminContent } from '../../context/SuperAdminContentProvider';
+import { toast } from 'react-toastify';
 
 const userNavigation = [
   //   { name: 'Your profile', href: '#' },
@@ -79,26 +80,9 @@ export default function SuperAdminPage() {
 
   const adminEmail = "SUPERADMIN DEMO"
 
-  // useEffect(()=>{
-  //   const fetchAdmin = async()=>{
-  //     const token = localStorage.getItem("token");
-  //     if(!token){
-  //       console.log("No token");
-  //       return;
-  //     }
-
-  //     try{
-  //       const data = await getCurrentUser(token);
-  //       setAdminEmail(data.data.email);
-  //     } catch(error){
-  //       console.error("Fetch admin email error: ", error)
-  //     }
-  //   }
-  //   fetchAdmin();
-  // },[])
-
   const handleLogout = () =>{
     localStorage.removeItem("token");
+    toast.success("Logout successfully");
     console.log("access_token after logout:", localStorage.getItem("token"));
     navigate('/');
   }

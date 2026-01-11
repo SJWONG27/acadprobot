@@ -1,20 +1,19 @@
-import axios from "axios";
+import springapi from './springapi'
 
-const API = "http://127.0.0.1:8000/admin";
-const springbootAuthAPI = "http://localhost:8080/superadmin";
+const SPRING_API = "/superadmin";
 
 export const createChatbot = async (chatbotName, adminEmail) => {
-    const response = await axios.post(`${springbootAuthAPI}/createchatbot`, { chatbotName, adminEmail });
+    const response = await springapi.post(`${SPRING_API}/createchatbot`, { chatbotName, adminEmail });
     return response.data;
 }
 
 export const getAllChatbots = async () => {
-    const response = await axios.get(`${springbootAuthAPI}/chatbots`);
+    const response = await springapi.get(`${SPRING_API}/chatbots`);
     return response.data;
 }
 
 export const deleteChatbot = async (id) => {
-    return await axios.delete(`${springbootAuthAPI}/chatbots/${id}`)
+    return await springapi.delete(`${SPRING_API}/chatbots/${id}`)
 }
 
 export const requestAdminChatbot = async (
@@ -25,7 +24,7 @@ export const requestAdminChatbot = async (
     department_program,
     purpose
 ) => {
-    const response = await axios.post(`${springbootAuthAPI}/requestadmin`, {
+    const response = await springapi.post(`${SPRING_API}/requestadmin`, {
         email,
         fullname,
         title,
@@ -38,28 +37,28 @@ export const requestAdminChatbot = async (
 
 
 export const getAllRequest = async(status) =>{
-    const response = await axios.get(`${springbootAuthAPI}/requestadmin`,{
+    const response = await springapi.get(`${SPRING_API}/requestadmin`,{
         params: {status}
     });
     return response.data;
 }
 
 export const approveRequest = async(request_id) =>{
-    const response = await axios.post(`${springbootAuthAPI}/approverequest`, null,{
+    const response = await springapi.post(`${SPRING_API}/approverequest`, null,{
         params: {request_id}
     })
     return response.data;
 }
 
 export const rejectRequest = async(request_id) =>{
-    const response = await axios.post(`${springbootAuthAPI}/rejectrequest`, null, {
+    const response = await springapi.post(`${SPRING_API}/rejectrequest`, null, {
         params: {request_id}
     })
     return response.data;
 }
 
 export const downloadReport = async() =>{
-    const response = await axios.get(`${springbootAuthAPI}/downloadreport`, {
+    const response = await springapi.get(`${SPRING_API}/downloadreport`, {
     responseType: 'blob',
   })
     return response.data;

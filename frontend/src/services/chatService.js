@@ -1,6 +1,6 @@
-import axios from "axios";
+import fastapi from './fastapi.js'
 
-const API_URL = "http://localhost:8000/chat";
+const FASTAPI_API = "/chat";
 
 
 export const sendMessage = async (userId, chatbotId, prompt, sessionId = null) => {
@@ -11,23 +11,23 @@ export const sendMessage = async (userId, chatbotId, prompt, sessionId = null) =
     ...(sessionId && { session_id: sessionId }),
   };
 
-  const res = await axios.post(`${API_URL}/`, payload);
+  const res = await fastapi.post(`${FASTAPI_API}/`, payload);
   return res.data;
 };
 
 
 export const getMessages = async (sessionId) => {
-  const res = await axios.get(`${API_URL}/sessions/${sessionId}/messages`);
+  const res = await fastapi.get(`${FASTAPI_API}/sessions/${sessionId}/messages`);
   return res.data;
 };
 
 export const getChatSessions = async (userId, chatbotId) => {
-  const res = await axios.get(`${API_URL}/sessions/${userId}/${chatbotId}`);
+  const res = await fastapi.get(`${FASTAPI_API}/sessions/${userId}/${chatbotId}`);
   return res.data;
 };
 
 export const deleteChatSession = async (sessionId) => {
-  const res = await axios.delete(`${API_URL}/sessions/${sessionId}`)
+  const res = await fastapi.delete(`${FASTAPI_API}/sessions/${sessionId}`)
   return res.data;
 }
 
@@ -37,7 +37,7 @@ export const speechToText = async (audio) => {
   formData.append("audio", audioBlob, "recording.wav");
 
   try {
-    const res = await axios.post(`${API_URL}/stt`, formData, {
+    const res = await fastapi.post(`${FASTAPI_API}/stt`, formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
 

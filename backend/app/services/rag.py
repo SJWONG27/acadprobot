@@ -29,7 +29,7 @@ class RAGService:
             return "no knowledge from db. Answer academic queries yourself."
         docs = [Document(page_content=chunk) for chunk in chunks]
 
-        compressor = FlashrankRerank()
+        compressor = FlashrankRerank(model="ms-marco-MiniLM-L-12-v2")
 
         # Flashrank will reorder based on relevance
         reranked_docs = compressor.compress_documents(docs, query)

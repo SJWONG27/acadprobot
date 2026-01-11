@@ -9,17 +9,22 @@ import RegisterPage from './pages/authentication/RegisterPage'
 import LisofChatbot from './pages/chatbot/ListofChatbot'
 import AdminRequestForm from './pages/AdminRequestForm'
 import ResetPassword from './pages/authentication/ResetPassword'
+import ErrorHandlingPage from './pages/ErrorHandlingPage'
 import { SuperAdminContentProvider } from './context/SuperAdminContentProvider'
 import { AdminContentProvider } from './context/AdminContentProvider'
 import { ChatContentProvider } from './context/ChatContentProvider'
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
 
   return (
     <>
+      <ToastContainer position="top-center" />
       <Router>
         <Routes>
           <Route path='/login' element={<LoginPage />} />
+           <Route path='/backend-down' element={<ErrorHandlingPage />} />
           <Route path='/register' element={<RegisterPage />} />
           <Route path='/' element={<LandingPage />} />
           <Route path='/resetpassword' element={<ResetPassword />} />
