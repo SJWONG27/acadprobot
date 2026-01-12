@@ -1,4 +1,5 @@
 import fastapi from './fastapi.js'
+import axios from 'axios';
 
 const FASTAPI_API = "/chat";
 
@@ -37,7 +38,7 @@ export const speechToText = async (audio) => {
   formData.append("audio", audioBlob, "recording.wav");
 
   try {
-    const res = await fastapi.post(`${FASTAPI_API}/stt`, formData, {
+    const res = await axios.post(`http://127.0.0.1:8000/chat/stt`, formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
 

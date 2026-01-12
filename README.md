@@ -11,6 +11,11 @@
 </p>
 
 ---
+### 🎥 Video Showcase
+<p>The simple showcase of AcadProBot as below</p>
+
+[![Video Showcase](https://img.youtube.com/vi/UaiSDJ0ECyw/maxresdefault.jpg)](https://www.youtube.com/watch?v=UaiSDJ0ECyw)
+
 
 ### 🦾 About The Project
 <p>The Full Documentation of Project as below (still in progress)</p>
