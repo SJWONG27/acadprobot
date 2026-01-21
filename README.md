@@ -18,7 +18,7 @@
 
 
 ### 🦾 About The Project
-<p>The Full Documentation of Project as below (still in progress)</p>
+<p>The Full Documentation of Project as below</p>
 <p align="center">
   <a href="https://1drv.ms/f/c/f2b877c4aacbf3bd/IgB4IZLBLWa6RLLkZlkX2zJqAc56ESx3z5MoaisVCCvv4yc?e=S7xIab">
     <img src="https://img.shields.io/badge/OneDrive-0078D4?style=for-the-badge&logo=onedrive&logoColor=white"/>
