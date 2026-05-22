@@ -25,60 +25,60 @@ public class SuperAdminController {
     @Autowired
     private UnrelatedQueriesService unrelatedQueriesService;
 
-    @PostMapping("/createchatbot")
-    public ResponseEntity<?> createChatbot(@RequestBody Map<String, String> body) {
-        String chatbotName = body.get("chatbotName");
-        String adminEmail = body.get("adminEmail");
+//    @PostMapping("/createchatbot")
+//    public ResponseEntity<?> createChatbot(@RequestBody Map<String, String> body) {
+//        String chatbotName = body.get("chatbotName");
+//        String adminEmail = body.get("adminEmail");
+//
+//        Chatbots chatbot = superAdminService.createChatbot(chatbotName, adminEmail);
+//        return ResponseEntity.ok(chatbot);
+//    }
+//
+//    @GetMapping("/chatbots")
+//    public ResponseEntity<List<Chatbots>> getAllChatbots(){
+//        return ResponseEntity.ok(superAdminService.getAllChatbots());
+//    }
+//
+//    @DeleteMapping("/chatbots/{id}")
+//    public ResponseEntity<?> deleteChatbot(@PathVariable UUID id){
+//        return ResponseEntity.ok(superAdminService.deleteChatbot(id));
+//    }
 
-        Chatbots chatbot = superAdminService.createChatbot(chatbotName, adminEmail);
-        return ResponseEntity.ok(chatbot);
-    }
+//    @PostMapping("/requestadmin")
+//    public ResponseEntity<?> createAdminChatbotRequest(@RequestBody Map<String, String> body){
+//        String email = body.get("email");
+//        String fullname = body.get("fullname");
+//        String title = body.get("title");
+//        String chatbot_name = body.get("chatbot_name");
+//        String departmentProgram = body.get("department_program");
+//        String purpose = body.get("purpose");
+//
+//        AdminChatbotRequest adminChatbotRequest = superAdminService.createAdminChatbotRequest(
+//                email,
+//                fullname,
+//                title,
+//                chatbot_name,
+//                departmentProgram,
+//                purpose
+//        );
+//
+//        return ResponseEntity.ok(adminChatbotRequest);
+//    }
+//
+//    @GetMapping("/requestadmin")
+//    public ResponseEntity<List<AdminChatbotRequest>> getAllRequestByStatus(@RequestParam("status") String status){
+//        return ResponseEntity.ok(superAdminService.getAllRequestByStatus(status));
+//    }
 
-    @GetMapping("/chatbots")
-    public ResponseEntity<List<Chatbots>> getAllChatbots(){
-        return ResponseEntity.ok(superAdminService.getAllChatbots());
-    }
-
-    @DeleteMapping("/chatbots/{id}")
-    public ResponseEntity<?> deleteChatbot(@PathVariable UUID id){
-        return ResponseEntity.ok(superAdminService.deleteChatbot(id));
-    }
-
-    @PostMapping("/requestadmin")
-    public ResponseEntity<?> createAdminChatbotRequest(@RequestBody Map<String, String> body){
-        String email = body.get("email");
-        String fullname = body.get("fullname");
-        String title = body.get("title");
-        String chatbot_name = body.get("chatbot_name");
-        String departmentProgram = body.get("department_program");
-        String purpose = body.get("purpose");
-
-        AdminChatbotRequest adminChatbotRequest = superAdminService.createAdminChatbotRequest(
-                email,
-                fullname,
-                title,
-                chatbot_name,
-                departmentProgram,
-                purpose
-        );
-
-        return ResponseEntity.ok(adminChatbotRequest);
-    }
-
-    @GetMapping("/requestadmin")
-    public ResponseEntity<List<AdminChatbotRequest>> getAllRequestByStatus(@RequestParam("status") String status){
-        return ResponseEntity.ok(superAdminService.getAllRequestByStatus(status));
-    }
-
-    @PostMapping("/approverequest")
-    public ResponseEntity<?> approveRequest(@RequestParam("request_id")  UUID request_id){
-        return ResponseEntity.ok(superAdminService.approveRequest(request_id));
-    }
-
-    @PostMapping("/rejectrequest")
-    public ResponseEntity<?> rejectRequest(@RequestParam("request_id")  UUID request_id){
-        return ResponseEntity.ok(superAdminService.rejectRequest(request_id));
-    }
+//    @PostMapping("/approverequest")
+//    public ResponseEntity<?> approveRequest(@RequestParam("request_id")  UUID request_id){
+//        return ResponseEntity.ok(superAdminService.approveRequest(request_id));
+//    }
+//
+//    @PostMapping("/rejectrequest")
+//    public ResponseEntity<?> rejectRequest(@RequestParam("request_id")  UUID request_id){
+//        return ResponseEntity.ok(superAdminService.rejectRequest(request_id));
+//    }
 
     @GetMapping("/downloadreport")
     public ResponseEntity<InputStreamResource> downloadExcel() throws IOException {

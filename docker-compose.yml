@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   # --- FastAPI Backend ---
   backend:
@@ -25,9 +23,26 @@ services:
     container_name: acadprobot-spring
     ports:
       - "8080:8080"
+    depends_on:
+      - redis
+    environment:
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
     networks:
       - acadprobot-network
     restart: always 
+
+  # --- Redis Stream Queue ---
+  redis:
+    image: redis:7-alpine
+    container_name: acadprobot-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - acadprobot-network
+    volumes:
+      - redis-data:/data
+    restart: always
 
   # --- React Frontend ---
   frontend:
@@ -57,3 +72,4 @@ networks:
 
 volumes:
   ollama-data:
+  redis-data:

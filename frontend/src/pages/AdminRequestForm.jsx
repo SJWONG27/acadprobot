@@ -5,7 +5,7 @@ import { Dialog, DialogBackdrop, DialogPanel, Textarea, TransitionChild } from '
 import logo_acadprobot_square from '../../src/assets/logo_acadprobot_square.svg'
 import logo_acadprobot_long from '../../src/assets/logo_acadprobot_long.svg'
 import { useNavigate } from 'react-router-dom'
-import { requestAdminChatbot } from '../services/superadminService'
+import { createAdminRequest } from '../services/adminRequestService'
 import { getCurrentUser } from '../services/authService'
 import { toast } from 'react-toastify'
 
@@ -47,7 +47,7 @@ export default function AdminRequestForm() {
     const handleRequestAdminChatbotSubmit = async (e) => {
         e.preventDefault();
         try {
-            await requestAdminChatbot(
+            await createAdminRequest(
                 requestEmail,
                 fullName,
                 title,

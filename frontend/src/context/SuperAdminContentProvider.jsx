@@ -1,14 +1,21 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { toast } from 'react-toastify';
 import {
+    downloadReport
+} from "../services/superadminService"
+
+import {
     createChatbot,
     deleteChatbot,
-    getAllChatbots,
+    getAllChatbots
+} from "../services/chatbotService"
+
+import {
     getAllRequest,
     approveRequest,
     rejectRequest,
-    downloadReport
-} from "../services/superadminService"
+}
+from "../services/adminRequestService"
 
 import { sendAdminChatbotResultEmail } from "../services/emailService";
 
@@ -42,7 +49,7 @@ export const SuperAdminContentProvider = ({ children }) => {
             console.log(response);
             setChatbots(response);
         } catch (error) {
-            console.error("Failed to fetch chatbots :", error);
+            console.error("Failed to fetch chatbots in  superadmin :", error);
             toast.error("Failed to create chatbot. Please try again!")
         }
     }

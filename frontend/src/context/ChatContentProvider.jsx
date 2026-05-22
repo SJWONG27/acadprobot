@@ -1,12 +1,53 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { getCurrentUser } from '../services/authService'
-import { sendMessage, getMessages, getChatSessions, deleteChatSession } from "../services/chatService";
-import { joinChatbot, leaveChatbot, getChatbotUnderUser } from "../services/chatbotService";
+import { sendMessageStream, getMessages, getChatSessions, deleteChatSession } from "../services/chatService";
+import { joinChatbot, leaveChatbot, getChatbotUnderUser } from "../services/chatbotUserService";
 import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 
 const ChatContentContext = createContext();
+
+const CHAT_PROCESS_STEPS = [
+    "Classifying Query",
+    "Extracting Main Content",
+    "Embedding Query",
+    "Comparing and Matching Embedding",
+    "Reranking",
+    "Generating response",
+];
+
+const getPendingProcessLogs = () =>
+    CHAT_PROCESS_STEPS.map((step, index) => ({
+        step,
+        status: index === 0 ? "running" : "pending",
+    }));
+
+const mergeProcessLog = (currentLogs, incomingLog) => {
+    const logs = currentLogs?.length ? currentLogs : getPendingProcessLogs();
+    const stepIndex = logs.findIndex((log) => log.step === incomingLog.step);
+
+    if (stepIndex === -1) {
+        return [
+            ...logs.map((log) =>
+                log.status === "running" ? { ...log, status: "pending" } : log
+            ),
+            incomingLog,
+        ];
+    }
+
+    return logs.map((log, index) => {
+        if (index === stepIndex) {
+            return { ...log, ...incomingLog };
+        }
+
+        if (incomingLog.status !== "failed" && index === stepIndex + 1) {
+            return { ...log, status: "running" };
+        }
+
+        return log;
+    });
+};
 
 export const ChatContentProvider = ({ children }) => {
     const [alertLoginChat, setAlertLoginChat] = useState(false);
@@ -183,18 +224,41 @@ export const ChatContentProvider = ({ children }) => {
         setMessages((prev) => [...prev, userMessage]);
         setInput("");
 
-        // Show bot typing message
-        const typingMsg = { role: "assistant", content: "..." };
-        setMessages((prev) => [...prev, typingMsg]);
+        const processingMsg = {
+            role: "assistant",
+            content: "",
+            processLogs: getPendingProcessLogs(),
+            isProcessing: true,
+        };
+        setMessages((prev) => [...prev, processingMsg]);
 
         try {
             // console.log(selectedChatbotId);
-            const data = await sendMessage(userId, selectedChatbotId, input, selectedSessionId);
+            const data = await sendMessageStream(userId, selectedChatbotId, input, selectedSessionId, {
+                onProcessLog: (log) => {
+                    setMessages((prev) => {
+                        const updated = [...prev];
+                        const lastMessage = updated[updated.length - 1];
 
-            // Replace typing msg with real bot response
+                        updated[updated.length - 1] = {
+                            ...lastMessage,
+                            processLogs: mergeProcessLog(lastMessage.processLogs, log),
+                        };
+
+                        return updated;
+                    });
+                },
+            });
+
+            // Replace processing msg with real bot response
             setMessages((prev) => {
                 const updated = [...prev];
-                updated[updated.length - 1] = { role: "assistant", content: data.response };
+                updated[updated.length - 1] = {
+                    role: "assistant",
+                    content: data.response,
+                    processLogs: data.process_logs || [],
+                    isProcessing: false,
+                };
                 return updated;
             });
 
@@ -217,10 +281,16 @@ export const ChatContentProvider = ({ children }) => {
 
         } catch (error) {
             console.error("Request handleSend failed:", error);
-            setMessages((prev) => [
-                ...prev,
-                { role: "assistant", content: "Oops, something went wrong 😅" },
-            ]);
+            setMessages((prev) => {
+                const updated = [...prev];
+                updated[updated.length - 1] = {
+                    role: "assistant",
+                    content: "Oops, something went wrong. Please try again.",
+                    processLogs: [],
+                    isProcessing: false,
+                };
+                return updated;
+            });
             toast.error("Fail to send message. Please try again!")
         }
     };
@@ -260,16 +330,6 @@ export const ChatContentProvider = ({ children }) => {
             window.location.reload();
         }
     }
-
-    const triggerConfirmationModal = (title) => {
-        setConfirmationModal(title);
-        triggerAlert("Deleted Successfully");
-    }
-
-    const triggerAlert = (message) => {
-        setSuccessAlertMessage(message);
-        setTimeout(() => setSuccessAlertMessage(""), 3000);
-    };
 
     return (
         <ChatContentContext.Provider

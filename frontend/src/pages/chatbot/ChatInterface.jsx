@@ -4,7 +4,6 @@ import remarkGfm from 'remark-gfm-configurable';
 import { MicrophoneIcon, PaperAirplaneIcon, WindowIcon, XMarkIcon, CheckIcon } from "@heroicons/react/24/outline";
 import logo_acadprobot_long from '../../../src/assets/logo_acadprobot_long.svg'
 import logo_acadprobot_square from '../../../src/assets/logo_acadprobot_square.svg'
-import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 import { useChatContent } from '../../context/ChatContentProvider'
 import "./ChatMarkdown.css";
 import { speechToText } from "../../services/chatService";
@@ -34,19 +33,66 @@ const ChatInterface = () => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  const getProcessStatusLabel = (msg, log, index) => {
+    if (log.status === "failed") return "Failed";
+    if (log.status === "completed") return "Done";
+    if (log.status === "running") return "Running";
+    if (msg.isProcessing || index > 0) return "Pending";
+
+    return "Done";
+  };
+
+  const getProcessStatusClasses = (msg, log, index) => {
+    if (log.status === "failed") {
+      return "border-red-300 bg-red-50 text-red-700";
+    }
+
+    if (log.status === "completed") {
+      return "border-green-300 bg-green-50 text-green-700";
+    }
+
+    if (log.status === "running" || (msg.isProcessing && index === 0)) {
+      return "border-blue-300 bg-blue-50 text-blue-700";
+    }
+
+    if (msg.isProcessing) {
+      return "border-gray-200 bg-gray-50 text-gray-500";
+    }
+
+    return "border-green-300 bg-green-50 text-green-700";
+  };
+
+  const renderProcessLogs = (msg) => {
+    if (!msg.processLogs?.length) return null;
+
+    return (
+      <div className="mb-3 p-3 text-sm max-w-xs">
+        <p className="mb-2 font-semibold text-green-800">Bot process</p>
+        <ol className="space-y-2">
+          {msg.processLogs.map((log, processIndex) => (
+            <li key={`${log.step}-${processIndex}`} className="flex items-center justify-between">
+              <span>{log.step}</span>
+              <span
+                className={`rounded-full border px-2 py-0.5 text-xs font-medium ${getProcessStatusClasses(
+                  msg,
+                  log,
+                  processIndex
+                )}`}
+              >
+                {getProcessStatusLabel(msg, log, processIndex)}
+              </span>
+            </li>
+          ))}
+        </ol>
+      </div>
+    );
+  };
+
   // speech-to-text
   const [isMicActive, setIsMicActive] = useState(false);
 
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
-
-
-  const {
-    transcript,
-    listening,
-    resetTranscript,
-    browserSupportsSpeechRecognition,
-  } = useSpeechRecognition();
 
   // const startRecording = () => {
   //   setInput("");
@@ -100,7 +146,9 @@ const ChatInterface = () => {
   const cancelRecording = () => {
     try {
       mediaRecorderRef.current?.stop();
-    } catch { }
+    } catch (error) {
+      console.error("Cancel recording failed:", error);
+    }
     audioChunksRef.current = [];
     setIsMicActive(false);
   };
@@ -143,10 +191,13 @@ const ChatInterface = () => {
                   }`}
               >
                 {/* {msg.content} */}
+                {msg.role === "assistant" && renderProcessLogs(msg)}
                 <div className="chat-markdown">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {msg.content}
-                  </ReactMarkdown>
+                  {msg.content && (
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {msg.content}
+                    </ReactMarkdown>
+                  )}
                 </div>
 
               </div>

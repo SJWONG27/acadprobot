@@ -13,9 +13,27 @@ extractorService = ExtractorService()
 embedderService = EmbedderService()
 generatorService = GeneratorService()
 
+PROCESS_EXTRACT_MAIN_CONTENT = "Extracting Main Content"
+PROCESS_EMBED_QUERY = "Embedding Query"
+PROCESS_COMPARE_MATCH_EMBEDDING = "Comparing and Matching Embedding"
+PROCESS_RERANK = "Reranking"
+PROCESS_GENERATE_RESPONSE = "Generating response"
+
 class RAGService:
     def __init__(self, supabase):
         self.supabase = supabase
+
+    def add_process_log(self, process_logs, step, status="completed"):
+        log = {
+            "step": step,
+            "status": status
+        }
+
+        if process_logs is None:
+            return log
+
+        process_logs.append(log)
+        return log
     
     
     def rerank(
@@ -119,17 +137,52 @@ class RAGService:
         return [item for item in match_chunks]
     
     
-    def run_rag_pipeline(self, prompt, context, chatbot_id):
+    def run_rag_pipeline(self, prompt, context, chatbot_id, process_logs=None):
         main_content = extractorService.extract_main_content(prompt)
+        self.add_process_log(process_logs, PROCESS_EXTRACT_MAIN_CONTENT)
+
         embedded_query = embedderService.embed_query(main_content)
+        self.add_process_log(process_logs, PROCESS_EMBED_QUERY)
+
         retrieved = self.compare_match_embedding_v2(
             embedded_query,
             chatbot_id=chatbot_id
         )
-        reranked = self.rerank(retrieved, prompt, 3)
+        self.add_process_log(process_logs, PROCESS_COMPARE_MATCH_EMBEDDING)
 
-        return generatorService.generate_llm_response(
+        reranked = self.rerank(retrieved, prompt, 3)
+        self.add_process_log(process_logs, PROCESS_RERANK)
+
+        response = generatorService.generate_llm_response(
             prompt,
             context,
             reranked
         )
+        self.add_process_log(process_logs, PROCESS_GENERATE_RESPONSE)
+
+        return response
+
+    def run_rag_pipeline_stream(self, prompt, context, chatbot_id, process_logs=None):
+        main_content = extractorService.extract_main_content(prompt)
+        yield self.add_process_log(process_logs, PROCESS_EXTRACT_MAIN_CONTENT)
+
+        embedded_query = embedderService.embed_query(main_content)
+        yield self.add_process_log(process_logs, PROCESS_EMBED_QUERY)
+
+        retrieved = self.compare_match_embedding_v2(
+            embedded_query,
+            chatbot_id=chatbot_id
+        )
+        yield self.add_process_log(process_logs, PROCESS_COMPARE_MATCH_EMBEDDING)
+
+        reranked = self.rerank(retrieved, prompt, 3)
+        yield self.add_process_log(process_logs, PROCESS_RERANK)
+
+        response = generatorService.generate_llm_response(
+            prompt,
+            context,
+            reranked
+        )
+        yield self.add_process_log(process_logs, PROCESS_GENERATE_RESPONSE)
+
+        return response

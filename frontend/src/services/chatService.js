@@ -16,6 +16,73 @@ export const sendMessage = async (userId, chatbotId, prompt, sessionId = null) =
   return res.data;
 };
 
+export const sendMessageStream = async (
+  userId,
+  chatbotId,
+  prompt,
+  sessionId = null,
+  { onProcessLog } = {}
+) => {
+  const payload = {
+    id: userId,
+    chatbot_id: chatbotId,
+    prompt,
+    ...(sessionId && { session_id: sessionId }),
+  };
+
+  const res = await fetch(`${fastapi.defaults.baseURL}${FASTAPI_API}/stream`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok || !res.body) {
+    throw new Error("Failed to stream chat response");
+  }
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  let finalData = null;
+
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split("\n");
+    buffer = lines.pop();
+
+    for (const line of lines) {
+      if (!line.trim()) continue;
+
+      const event = JSON.parse(line);
+
+      if (event.type === "process") {
+        onProcessLog?.(event.log);
+      }
+
+      if (event.type === "final") {
+        finalData = event;
+      }
+
+      if (event.type === "error") {
+        throw new Error(event.message);
+      }
+    }
+  }
+
+  if (!finalData) {
+    throw new Error("Chat stream finished without a final response");
+  }
+
+  return {
+    session_id: finalData.session_id,
+    response: finalData.response,
+    process_logs: finalData.process_logs || [],
+  };
+};
+
 
 export const getMessages = async (sessionId) => {
   const res = await fastapi.get(`${FASTAPI_API}/sessions/${sessionId}/messages`);

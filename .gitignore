@@ -1,4 +1,5 @@
-test/
+/test/
 backend/academic_classifier_bert
 backend/.env
 backend/whisper.cpp
+.cursor/

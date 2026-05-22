@@ -2,6 +2,7 @@ import uuid
 import subprocess
 import os
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from fastapi.responses import StreamingResponse
 from ..database.database import SessionLocal
 from sqlalchemy.orm import Session
 from dotenv import load_dotenv
@@ -33,6 +34,17 @@ def chat_with_ollama(
     db: Session = Depends(get_db)
 ):
     return chatService.handle_chat(db, request)
+
+
+@router.post("/stream")
+def chat_with_process_stream(
+    request: ChatRequest,
+    db: Session = Depends(get_db)
+):
+    return StreamingResponse(
+        chatService.handle_chat_stream(db, request),
+        media_type="application/x-ndjson"
+    )
 
 
         

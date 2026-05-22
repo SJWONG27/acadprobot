@@ -1,10 +1,11 @@
 package com.acadprobot.admin.controller;
 
-import com.acadprobot.admin.service.EmailService;
-import com.acadprobot.admin.service.ExcelService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.acadprobot.admin.email.application.EmailService;
+import com.acadprobot.admin.service.ExcelService;
 
 import java.util.*;
 
@@ -36,7 +37,7 @@ public class EmailController {
                 + "The AcadProBot Team";
 
         emailService.sendEmail(recipientEmail, subject, body);
-        return "Reset Email Sent";
+        return "Reset email queued.";
     }
 
     @PostMapping("/sendAdminChatbotResultEmail")
@@ -73,7 +74,7 @@ public class EmailController {
                 .append("AcadProBot Admin Team");
 
         emailService.sendEmail(recipientEmail, subject, emailBody.toString());
-        return "Chatbot approval result email sent.";
+        return "Chatbot approval result email queued.";
     }
 
 
@@ -102,7 +103,7 @@ public class EmailController {
                 emailService.sendEmail(recipientEmail, subject, body);
             }
 
-            return "Invitations sent successfully to " + emailList.size() + " recipients.";
+            return "Invitations queued successfully for " + emailList.size() + " recipients.";
 
         } catch (Exception e) {
             e.printStackTrace();

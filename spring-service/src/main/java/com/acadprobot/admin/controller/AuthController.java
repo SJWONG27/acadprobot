@@ -19,6 +19,7 @@ public class AuthController {
     @Autowired
     private JwtUtil jwtUtil;
 
+    //    operations
     @PostMapping("/register")
     public User register(@RequestBody Map<String, String> body){
         System.out.println("Request body: " + body);
@@ -30,6 +31,7 @@ public class AuthController {
         }
     }
 
+    //    operations
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> body){
         try{
@@ -49,8 +51,25 @@ public class AuthController {
 
     }
 
-    @GetMapping("/me")
-    public ResponseEntity<?> getMe(@RequestHeader("Authorization") String authHeader) {
+    //    Refactor - users as resources, CRUD, but R needed for here only
+    //    @GetMapping("/me")
+    //    public ResponseEntity<?> getMe(@RequestHeader("Authorization") String authHeader) {
+    //        try {
+    //            String token = authHeader.replace("Bearer ", "");
+    //            var claims = jwtUtil.validateToken(token).getBody();
+    //
+    //            return ResponseEntity.ok(Map.of(
+    //                    "id", claims.getSubject(),
+    //                    "role", claims.get("role"),
+    //                    "email", claims.get("email")
+    //            ));
+    //        } catch (Exception e) {
+    //            return ResponseEntity.status(401).body(Map.of("error", "Invalid token"));
+    //        }
+    //    }
+
+    @GetMapping("/users")
+    public ResponseEntity<?> getCurrentUser(@RequestHeader("Authorization") String authHeader) {
         try {
             String token = authHeader.replace("Bearer ", "");
             var claims = jwtUtil.validateToken(token).getBody();
@@ -65,6 +84,7 @@ public class AuthController {
         }
     }
 
+    //    operations
     @PostMapping("/resetpassword")
     public User resetPassword(@RequestBody Map<String, String> body){
         String email = body.get("email");

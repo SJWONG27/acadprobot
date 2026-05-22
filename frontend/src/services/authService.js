@@ -14,7 +14,7 @@ export const login = async(email, password)=>{
 
 export const getCurrentUser = async () => {
     const token = localStorage.getItem("token");
-    return springapi.get(`${SPRING_API}/me`, {
+    return springapi.get(`${SPRING_API}/users`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

@@ -26,7 +26,7 @@ public class SuperAdminService {
         User user = userRepository.findByEmail(adminEmail)
                 .orElseThrow(()->new RuntimeException("User not found: " + adminEmail));
 
-        if(user.getRole().toString() == "USER"){
+        if(user.getRole() == Role.USER){
             user.setRole(Role.ADMIN);
             userRepository.save(user);
         }
@@ -48,28 +48,28 @@ public class SuperAdminService {
     }
 
     // admin chatbot request handling
-    public AdminChatbotRequest createAdminChatbotRequest(
-            String email,
-            String fullname,
-            String title,
-            String chatbot_name,
-            String departmentProgram,
-            String purpose
-    ){
-        AdminChatbotRequest adminChatbotRequest = new AdminChatbotRequest();
-        adminChatbotRequest.setEmail(email);
-        adminChatbotRequest.setFullname(fullname);
-        adminChatbotRequest.setTitle(title);
-        adminChatbotRequest.setChatbot_name(chatbot_name);
-        adminChatbotRequest.setDepartment_program(departmentProgram);
-        adminChatbotRequest.setPurpose(purpose);
-
-        return adminChatbotRequestRepository.save(adminChatbotRequest);
-    }
-
-    public List<AdminChatbotRequest> getAllRequestByStatus(String status){
-        return adminChatbotRequestRepository.findByStatus(status);
-    }
+//    public AdminChatbotRequest createAdminChatbotRequest(
+//            String email,
+//            String fullname,
+//            String title,
+//            String chatbot_name,
+//            String departmentProgram,
+//            String purpose
+//    ){
+//        AdminChatbotRequest adminChatbotRequest = new AdminChatbotRequest();
+//        adminChatbotRequest.setEmail(email);
+//        adminChatbotRequest.setFullname(fullname);
+//        adminChatbotRequest.setTitle(title);
+//        adminChatbotRequest.setChatbot_name(chatbot_name);
+//        adminChatbotRequest.setDepartment_program(departmentProgram);
+//        adminChatbotRequest.setPurpose(purpose);
+//
+//        return adminChatbotRequestRepository.save(adminChatbotRequest);
+//    }
+//
+//    public List<AdminChatbotRequest> getAllRequestByStatus(String status){
+//        return adminChatbotRequestRepository.findByStatus(status);
+//    }
 
     public String approveRequest(UUID id){
         Optional<AdminChatbotRequest> requestOpt = adminChatbotRequestRepository.findById(id);

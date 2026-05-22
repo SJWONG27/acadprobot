@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import APUploadGroupAccessFile from "./APUploadGroupAccessFile"
 import ConfirmationModal from "./ConfirmationModal";
-import { getAllChatbots } from "../services/superadminService";
+import { getAllChatbots } from "../services/chatbotService";
 import { formatInTimeZone } from 'date-fns-tz'
 import { useSuperAdminContent } from "../context/SuperAdminContentProvider";
 
